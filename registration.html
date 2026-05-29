@@ -271,8 +271,37 @@
       if (!authData.user) throw new Error('Signup failed, please try again.');
       
       const userId = authData.user.id;
+      // Diagnostic: test connection and auth config
+async function testSupabaseConnection() {
+  console.log("🔍 Testing Supabase connection...");
+  try {
+    // Simple health check - try to get server time
+    const { data, error } = await supabase.from('profiles').select('count', { count: 'exact', head: true });
+    if (error) {
+      console.error("❌ Connection error:", error);
+      if (error.message.includes("Invalid API key")) {
+        console.error("→ Your publishable key seems invalid. Check that it starts with 'sb_publishable_' and is copied correctly.");
+      } else if (error.message.includes("relation") && error.message.includes("does not exist")) {
+        console.error("→ The 'profiles' table does not exist. Run the SQL to create it.");
+      } else {
+        console.error("→ Other error:", error.message);
+      }
+    } else {
+      console.log("✅ Supabase connection successful! Profiles table exists.");
+    }
+    
+    // Also test auth config
+    const { data: session } = await supabase.auth.getSession();
+    console.log("🔐 Auth session:", session?.session ? "User logged in" : "No active session");
+  } catch (err) {
+    console.error("💥 Fatal connection error:", err);
+    console.error("→ Check your SUPABASE_URL and publishable key.");
+  }
+}
+
+testSupabaseConnection();
       
-      // 2. Insert profile record into 'profiles' table
+// 2. Insert profile record into 'profiles' table
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
