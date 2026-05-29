@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>SoulHub | Shoe Store Management System</title>
+  <!-- Google Fonts + Font Awesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #FEFCF8;
+      color: #1E1B18;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #E9E2D8;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #C8A27A;
+      border-radius: 8px;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* navbar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(254, 252, 248, 0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      padding: 18px 0;
+      transition: all 0.3s ease;
+    }
+
+    .nav-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #2C241E 0%, #A2794C 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo i {
+      background: none;
+      color: #C49A6C;
+      font-size: 1.6rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      align-items: center;
+    }
+
+    .nav-links li a {
+      text-decoration: none;
+      font-weight: 500;
+      color: #2A241F;
+      transition: 0.2s;
+      font-size: 0.95rem;
+      letter-spacing: 0.3px;
+    }
+
+    .nav-links li a:hover {
+      color: #C49A6C;
+    }
+
+    .nav-auth {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .nav-auth a {
+      font-weight: 500;
+      text-decoration: none;
+      transition: 0.2s;
+      font-size: 0.9rem;
+    }
+    .login-link {
+      color: #2A241F;
+    }
+    .login-link:hover {
+      color: #C49A6C;
+    }
+    .register-nav-btn {
+      background: #1E1B18;
+      color: white;
+      padding: 8px 18px;
+      border-radius: 40px;
+      font-weight: 600;
+    }
+    .register-nav-btn:hover {
+      background: #C49A6C;
+      color: #1E1B18;
+      transform: translateY(-2px);
+    }
+
+    .hamburger {
+      display: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: #2A241F;
+    }
+
+    /* hero section */
+    .hero {
+      padding: 70px 0 80px;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+    .hero-content h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.8rem;
+      font-weight: 600;
+      line-height: 1.2;
+      letter-spacing: -1px;
+      color: #1E1B18;
+    }
+    .hero-content .highlight {
+      color: #C49A6C;
+      border-bottom: 3px solid #E9CBAF;
+      display: inline-block;
+    }
+    .hero-content p {
+      font-size: 1.1rem;
+      color: #4A423C;
+      margin: 24px 0 32px;
+      max-width: 90%;
+      line-height: 1.5;
+    }
+    .btn-group {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: #1E1B18;
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      font-weight: 600;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: 0.25s;
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .btn-primary:hover {
+      background: #C49A6C;
+      transform: translateY(-3px);
+      box-shadow: 0 12px 20px -8px rgba(196,154,108,0.3);
+      color: #1E1B18;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid #2A241F;
+      padding: 14px 32px;
+      font-weight: 600;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #2A241F;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-outline:hover {
+      background: #1E1B18;
+      color: white;
+      border-color: #1E1B18;
+      transform: translateY(-3px);
+    }
+    .hero-image img {
+      width: 100%;
+      border-radius: 32px;
+      object-fit: cover;
+      box-shadow: 0 25px 40px -15px rgba(0,0,0,0.2);
+      transition: transform 0.4s ease;
+    }
+    .hero-image img:hover {
+      transform: scale(1.01);
+    }
+
+    /* management features grid */
+    .section-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .section-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem;
+      font-weight: 600;
+      color: #1E1B18;
+    }
+    .section-header p {
+      color: #6B5E54;
+      margin-top: 8px;
+      font-size: 1rem;
+    }
+    .features-mgt-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 32px;
+      margin-bottom: 40px;
+    }
+    .mgt-card {
+      background: white;
+      border-radius: 28px;
+      padding: 28px 22px;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+      border: 1px solid #F0EAE3;
+      text-align: center;
+    }
+    .mgt-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 24px 40px -12px rgba(0,0,0,0.12);
+      border-color: #E9D9CC;
+    }
+    .mgt-icon {
+      font-size: 2.5rem;
+      color: #C49A6C;
+      margin-bottom: 20px;
+    }
+    .mgt-card h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .mgt-card p {
+      color: #5E5348;
+      line-height: 1.4;
+      font-size: 0.95rem;
+    }
+
+    /* benefits row (management style) */
+    .benefits {
+      margin: 80px 0;
+      background: #F9F4ED;
+      padding: 60px 0;
+      border-radius: 48px;
+    }
+    .benefits-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 48px;
+    }
+    .benefit-item {
+      text-align: center;
+      flex: 1;
+      min-width: 180px;
+    }
+    .benefit-item i {
+      font-size: 2.2rem;
+      color: #C49A6C;
+      margin-bottom: 16px;
+    }
+    .benefit-item h4 {
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .benefit-item p {
+      color: #5E5348;
+      font-size: 0.85rem;
+    }
+
+    /* registration CTA block */
+    .register-cta {
+      background: linear-gradient(115deg, #1E1B18 0%, #2C241E 100%);
+      border-radius: 48px;
+      padding: 56px 48px;
+      margin: 60px 0 80px;
+      text-align: center;
+      color: white;
+    }
+    .register-cta h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+    .register-cta p {
+      opacity: 0.85;
+      max-width: 540px;
+      margin: 0 auto 28px;
+    }
+    .cta-button {
+      background: #C49A6C;
+      border: none;
+      padding: 14px 40px;
+      border-radius: 60px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #1E1B18;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      font-family: 'Inter', sans-serif;
+    }
+    .cta-button:hover {
+      background: #E2B386;
+      transform: scale(0.98);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+    }
+
+    /* footer */
+    footer {
+      border-top: 1px solid #ECE3DB;
+      padding: 48px 0 32px;
+    }
+    .footer-grid {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 40px;
+    }
+    .footer-brand p {
+      margin-top: 12px;
+      max-width: 260px;
+      color: #5E5348;
+    }
+    .footer-links h4, .footer-social h4 {
+      font-weight: 600;
+      margin-bottom: 18px;
+    }
+    .footer-links ul {
+      list-style: none;
+    }
+    .footer-links li {
+      margin-bottom: 10px;
+    }
+    .footer-links a {
+      text-decoration: none;
+      color: #5E5348;
+      transition: 0.2s;
+    }
+    .footer-links a:hover {
+      color: #C49A6C;
+    }
+    .social-icons a {
+      font-size: 1.4rem;
+      margin-right: 20px;
+      color: #5E5348;
+      transition: 0.2s;
+    }
+    .social-icons a:hover {
+      color: #C49A6C;
+    }
+    .copyright {
+      text-align: center;
+      margin-top: 48px;
+      font-size: 0.8rem;
+      color: #8F8278;
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .hero-content p {
+        max-width: 100%;
+      }
+      .btn-group {
+        justify-content: center;
+      }
+      .nav-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        background: #FEFCF8;
+        padding: 24px 0;
+        gap: 1.4rem;
+        margin-top: 20px;
+        border-top: 1px solid #ece3db;
+      }
+      .nav-links.active {
+        display: flex;
+      }
+      .hamburger {
+        display: block;
+      }
+      .nav-auth {
+        display: none;
+      }
+      .nav-container {
+        position: relative;
+      }
+      .section-header h2 {
+        font-size: 2rem;
+      }
+      .register-cta {
+        padding: 40px 24px;
+      }
+    }
+    @media (max-width: 580px) {
+      .container {
+        padding: 0 20px;
+      }
+      .hero-content h1 {
+        font-size: 2.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="container nav-container">
+    <div class="logo">
+      <i class="fas fa-chart-line"></i> SoulHub
+    </div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#">Home</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#benefits">Benefits</a></li>
+      <li><a href="#register-cta">Pricing</a></li>
+      <li><a href="registration.html">Register</a></li>
+    </ul>
+    <div class="nav-auth">
+      <a href="#" class="login-link" id="loginMockBtn">Log in</a>
+      <a href="registration.html" class="register-nav-btn">Get Started</a>
+    </div>
+    <div class="hamburger" id="hamburgerIcon">
+      <i class="fas fa-bars"></i>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- Hero section with registration CTA -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <h1>Streamline your <span class="highlight">shoe empire</span><br>one dashboard</h1>
+        <p>SoulHub Management — the complete operating system for modern shoe retailers. Manage inventory, track sales, empower staff, and scale your store with real-time insights.</p>
+        <div class="btn-group">
+          <a href="registration.html" class="btn-primary"><i class="fas fa-user-plus"></i> Start free registration</a>
+          <button class="btn-outline" id="featuresBtn"><i class="fas fa-cogs"></i> Explore features</button>
+        </div>
+        <div style="margin-top: 32px; display: flex; gap: 20px; font-size: 0.85rem; flex-wrap: wrap;">
+          <span><i class="fas fa-database" style="color:#C49A6C;"></i> Real-time sync</span>
+          <span><i class="fas fa-chart-simple" style="color:#C49A6C;"></i> Smart analytics</span>
+          <span><i class="fas fa-shield-alt" style="color:#C49A6C;"></i> Enterprise security</span>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=800&fit=crop" alt="SoulHub management dashboard preview - retail analytics">
+      </div>
+    </div>
+  </section>
+
+  <!-- Core management features (replaces product grid) -->
+  <div class="container" id="features">
+    <div class="section-header">
+      <h2>Designed for shoe retailers</h2>
+      <p>Everything you need to run a seamless, data-driven footwear business</p>
+    </div>
+    <div class="features-mgt-grid">
+      <div class="mgt-card">
+        <div class="mgt-icon"><i class="fas fa-boxes"></i></div>
+        <h3>Inventory intelligence</h3>
+        <p>Track stock levels in real-time, low-stock alerts, and automated purchase orders. Never miss a bestseller.</p>
+      </div>
+      <div class="mgt-card">
+        <div class="mgt-icon"><i class="fas fa-chart-line"></i></div>
+        <h3>Sales & profit analytics</h3>
+        <p>Interactive dashboards with revenue breakdowns, top SKUs, and seasonal trends to grow your margins.</p>
+      </div>
+      <div class="mgt-card">
+        <div class="mgt-icon"><i class="fas fa-users"></i></div>
+        <h3>Staff & roles</h3>
+        <p>Assign permissions, track employee performance, and manage commissions — from cashier to manager.</p>
+      </div>
+      <div class="mgt-card">
+        <div class="mgt-icon"><i class="fas fa-store"></i></div>
+        <h3>Multi-store sync</h3>
+        <p>Unified view for all retail locations. Transfer stock, compare store performance, and centralize control.</p>
+      </div>
+      <div class="mgt-card">
+        <div class="mgt-icon"><i class="fas fa-tags"></i></div>
+        <h3>Smart promotions</h3>
+        <p>Create discount rules, loyalty programs, and bundle offers that automatically apply at checkout.</p>
+      </div>
+      <div class="mgt-card">
+        <div class="mgt-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+        <h3>Financial reports</h3>
+        <p>Tax-ready P&L statements, expense tracking, and integration with accounting tools.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Benefits row (management twist) -->
+  <div class="benefits" id="benefits">
+    <div class="container benefits-grid">
+      <div class="benefit-item">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <h4>Cloud-native</h4>
+        <p>Access your store from anywhere, real-time backups</p>
+      </div>
+      <div class="benefit-item">
+        <i class="fas fa-chart-pie"></i>
+        <h4>Actionable insights</h4>
+        <p>AI-driven recommendations & inventory forecasting</p>
+      </div>
+      <div class="benefit-item">
+        <i class="fas fa-globe"></i>
+        <h4>Multi-channel</h4>
+        <p>Sell in-store, online, and social — unified data</p>
+      </div>
+      <div class="benefit-item">
+        <i class="fas fa-headset"></i>
+        <h4>Priority support</h4>
+        <p>24/7 dedicated account managers & onboarding</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary registration call to action block (leads to registration.html) -->
+  <div class="container" id="register-cta">
+    <div class="register-cta">
+      <h3>Ready to transform your shoe store operations?</h3>
+      <p>Join 500+ footwear brands using SoulHub Management. Start your 14-day trial — no credit card required.</p>
+      <a href="registration.html" class="cta-button"><i class="fas fa-rocket"></i> Create your store account →</a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo" style="font-size:1.6rem;"><i class="fas fa-chart-line"></i> SoulHub</div>
+        <p>All-in-one management system for modern shoe retailers. From inventory to insights.</p>
+        <div class="social-icons" style="margin-top: 16px;">
+          <a href="#"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#"><i class="fab fa-x-twitter"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="#">Features</a></li>
+          <li><a href="#">Inventory</a></li>
+          <li><a href="#">Analytics</a></li>
+          <li><a href="#">Integrations</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#">Help center</a></li>
+          <li><a href="#">API docs</a></li>
+          <li><a href="#">Release notes</a></li>
+          <li><a href="registration.html">Register your store</a></li>
+        </ul>
+      </div>
+      <div class="footer-social">
+        <h4>Talk to us</h4>
+        <p style="color:#5E5348; margin-bottom:12px;">hello@soulhubmgmt.com</p>
+        <p style="color:#5E5348;">+1 (888) 447-8234</p>
+        <p style="color:#5E5348; font-size:0.8rem; margin-top:8px;">© 2025 SoulHub Management</p>
+      </div>
+    </div>
+    <div class="copyright">
+      <span>⚡ The operating system for shoe stores — Where data meets sole.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Mobile menu toggle
+  const hamburger = document.getElementById('hamburgerIcon');
+  const navLinks = document.getElementById('navLinks');
+  if (hamburger && navLinks) {
+    hamburger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navLinks.classList.toggle('active');
+    });
+    // close mobile menu on link click
+    document.querySelectorAll('.nav-links li a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 900) navLinks.classList.remove('active');
+      });
+    });
+  }
+
+  // Smooth scroll to Features section from hero button
+  const featuresBtn = document.getElementById('featuresBtn');
+  if (featuresBtn) {
+    featuresBtn.addEventListener('click', () => {
+      const featureSection = document.getElementById('features');
+      if (featureSection) {
+        featureSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  }
+
+  // "Log in" button demo behavior (just to indicate eventual auth)
+  const loginMock = document.getElementById('loginMockBtn');
+  if (loginMock) {
+    loginMock.addEventListener('click', (e) => {
+      e.preventDefault();
+      alert('🔐 Login portal coming soon — please complete registration first.\n👉 Click "Get Started" to register your store.');
+    });
+  }
+
+  // Any other "Register now" dynamic ensures redirect to registration.html
+  const allRegisterLinks = document.querySelectorAll('a[href="registration.html"]');
+  // already native but ensure none prevent default
+  allRegisterLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      // just let the browser navigate; no interference
+      console.log('Redirecting to registration page');
+    });
+  });
+
+  // subtle hover & animation : no product cart stuff
+  // Additional effect for CTA block to feel interactive
+  const ctaButton = document.querySelector('.cta-button');
+  if (ctaButton) {
+    ctaButton.addEventListener('mouseenter', () => {
+      // playful micro interaction
+    });
+  }
+
+  // Small adjustment: active menu highlight for current page awareness
+  const currentLocation = window.location.pathname;
+  if (currentLocation.includes('index.html') || currentLocation === '/' || currentLocation.endsWith('/')) {
+    const homeLink = document.querySelector('.nav-links li a[href="#"]');
+    if (homeLink) homeLink.style.fontWeight = '700';
+  }
+  
+  // Demo: show a tiny welcome hint (optional management intro)
+  window.addEventListener('load', () => {
+    // fade in effect
+    document.body.style.opacity = '1';
+    console.log('SoulHub Management System ready — register to unlock full power.');
+  });
+  // ensure hero image subtle animation
+  const heroImg = document.querySelector('.hero-image img');
+  if(heroImg) {
+    heroImg.style.animation = 'fadeInUp 0.7s ease-out';
+  }
+  const styleAnim = document.createElement('style');
+  styleAnim.textContent = `@keyframes fadeInUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } } .hero-image img { animation: fadeInUp 0.6s ease-out; }`;
+  document.head.appendChild(styleAnim);
+</script>
+</body>
+  </html>
