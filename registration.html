@@ -179,20 +179,31 @@
 
 <script>
   // ==================== CONFIGURATION ====================
-  // Replace with your actual Supabase credentials
   const SUPABASE_URL = "https://cvjeuiimisqopsieqmex.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_o9aUlBnVhU4C_N-QWyRoOg_6Dufr5JY";
   // =======================================================
 
-  // Initialize Supabase client
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-  
+  let supabase = null;
+  let initError = null;
+
+  // Initialize Supabase safely
+  try {
+    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+      console.log("✅ Supabase client created");
+    } else {
+      initError = "Supabase library not loaded. Check your internet connection.";
+    }
+  } catch (err) {
+    initError = `Failed to initialize Supabase: ${err.message}`;
+    console.error(initError);
+  }
+
   // DOM elements
   const form = document.getElementById('registerForm');
   const statusDiv = document.getElementById('statusMessage');
   const submitBtn = document.getElementById('submitBtn');
 
-  // Helper: show message
   function showMessage(text, type) {
     statusDiv.innerHTML = `<div class="alert alert-${type}"><i class="fas ${type === 'error' ? 'fa-exclamation-circle' : (type === 'success' ? 'fa-check-circle' : 'fa-info-circle')}"></i> ${text}</div>`;
     if (type !== 'error') {
@@ -200,17 +211,25 @@
     }
   }
 
-  // Diagnostic test on page load
+  // Check if supabase is available
   async function runDiagnostics() {
+    if (initError) {
+      showMessage(`⚠️ ${initError}`, "error");
+      return false;
+    }
+    if (!supabase) {
+      showMessage("❌ Supabase client not available. Check configuration.", "error");
+      return false;
+    }
+
     showMessage("🔍 Testing Supabase connection...", "info");
     try {
-      // Try a light query to profiles table (just existence check)
       const { error } = await supabase.from('profiles').select('count', { count: 'exact', head: true });
       if (error) {
         if (error.message.includes("relation") && error.message.includes("does not exist")) {
           showMessage("❌ 'profiles' table missing. Run the SQL CREATE TABLE command in Supabase SQL editor.", "error");
-        } else if (error.message.includes("Invalid API key") || error.message.includes("JWT")) {
-          showMessage("❌ Invalid publishable key. Please check your Supabase project settings → API → Publishable key.", "error");
+        } else if (error.message.includes("Invalid API key") || error.message.includes("JWT") || error.message.includes("publishable")) {
+          showMessage("❌ Invalid publishable key. Please check your Supabase project settings → API → Publishable key (starts with 'sb_publishable_').", "error");
         } else {
           showMessage(`⚠️ Connection issue: ${error.message}`, "error");
         }
@@ -224,10 +243,19 @@
     }
   }
 
-  // Registration handler
+  // Registration handler with preventDefault guarantee
   form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    statusDiv.innerHTML = ''; // clear old messages
+    e.preventDefault();  // MUST prevent refresh
+    console.log("Form submitted, preventing default");
+
+    // Clear previous messages
+    statusDiv.innerHTML = '';
+
+    // If supabase failed to initialize, show error and stop
+    if (initError || !supabase) {
+      showMessage(`Cannot register: ${initError || "Supabase client missing"}`, "error");
+      return;
+    }
 
     const fullName = document.getElementById('fullName').value.trim();
     const email = document.getElementById('email').value.trim();
@@ -280,8 +308,7 @@
 
       if (profileError) {
         console.error("Profile insert error:", profileError);
-        // The user was created but profile insertion failed – handle gracefully
-        throw new Error("Account created but profile setup incomplete. Please contact support.");
+        throw new Error("Account created but profile setup failed. Please contact support.");
       }
 
       // 3. Sign out to force fresh login
@@ -293,12 +320,12 @@
       }, 2000);
 
     } catch (err) {
-      console.error(err);
+      console.error("Registration error:", err);
       let msg = err.message;
       if (msg.includes("User already registered")) {
         msg = "This email is already registered. Please log in instead.";
       } else if (msg.includes("23505") && msg.includes("duplicate")) {
-        msg = "Email already exists in our system. Try a different one or login.";
+        msg = "Email already exists. Try logging in.";
       }
       showMessage(msg, "error");
       submitBtn.disabled = false;
@@ -306,8 +333,10 @@
     }
   });
 
-  // Run diagnostics when page loads
-  runDiagnostics();
+  // Run diagnostics after everything is set
+  window.addEventListener('load', () => {
+    runDiagnostics();
+  });
 </script>
 </body>
 </html>
