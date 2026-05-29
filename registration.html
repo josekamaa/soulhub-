@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Join SoulHub Management – Register Your Store</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoulHub Management – Register Your Store</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -12,7 +12,6 @@
     body {
       font-family: 'Inter', sans-serif;
       background: #FEFCF8;
-      color: #1E1B18;
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -25,26 +24,20 @@
       background: white;
       border-radius: 36px;
       box-shadow: 0 25px 45px -12px rgba(0,0,0,0.15);
-      overflow: hidden;
       border: 1px solid #F0EAE3;
     }
     .register-header {
       background: linear-gradient(135deg, #1E1B18 0%, #2C241E 100%);
-      padding: 2rem 2rem 1.8rem;
+      padding: 2rem;
       text-align: center;
       color: white;
     }
     .register-header h1 {
       font-family: 'Playfair Display', serif;
       font-size: 1.9rem;
-      margin-bottom: 0.5rem;
-    }
-    .register-header p {
-      opacity: 0.8;
-      font-size: 0.9rem;
     }
     .register-form {
-      padding: 2rem 2rem 2rem;
+      padding: 2rem;
     }
     .form-group {
       margin-bottom: 1.4rem;
@@ -63,18 +56,10 @@
       border-radius: 28px;
       font-family: 'Inter', sans-serif;
       font-size: 0.9rem;
-      transition: 0.2s;
-      background: white;
     }
     input:focus, select:focus {
       outline: none;
       border-color: #C49A6C;
-      box-shadow: 0 0 0 3px rgba(196,154,108,0.2);
-    }
-    .role-hint {
-      font-size: 0.7rem;
-      color: #8F8278;
-      margin-top: 6px;
     }
     .btn-register {
       width: 100%;
@@ -84,10 +69,7 @@
       padding: 14px;
       border-radius: 40px;
       font-weight: 700;
-      font-size: 1rem;
       cursor: pointer;
-      transition: 0.25s;
-      margin-top: 0.5rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -95,28 +77,28 @@
     }
     .btn-register:hover {
       background: #C49A6C;
-      transform: translateY(-2px);
       color: #1E1B18;
     }
-    .error-msg {
-      background: #FEF2F0;
-      color: #C23D2E;
+    .alert {
       padding: 12px;
       border-radius: 28px;
       font-size: 0.8rem;
       margin-bottom: 1.2rem;
-      display: none;
+      display: flex;
       align-items: center;
       gap: 8px;
     }
-    .success-msg {
+    .alert-error {
+      background: #FEF2F0;
+      color: #C23D2E;
+    }
+    .alert-success {
       background: #E6F4EA;
       color: #2E7D32;
-      padding: 12px;
-      border-radius: 28px;
-      font-size: 0.8rem;
-      margin-bottom: 1.2rem;
-      display: none;
+    }
+    .alert-info {
+      background: #E8F0FE;
+      color: #1A56DB;
     }
     .login-link {
       text-align: center;
@@ -135,7 +117,7 @@
       font-size: 0.7rem;
       color: #6B5E54;
     }
-    i.loading-icon {
+    .spinner {
       animation: spin 1s linear infinite;
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -148,21 +130,20 @@
     <p>Create your store account & join the future of shoe retail</p>
   </div>
   <div class="register-form">
-    <div id="errorBox" class="error-msg"><i class="fas fa-exclamation-circle"></i> <span id="errorText"></span></div>
-    <div id="successBox" class="success-msg"><i class="fas fa-check-circle"></i> <span id="successText"></span></div>
-    
+    <div id="statusMessage"></div>
+
     <form id="registerForm">
       <div class="form-group">
         <label><i class="fas fa-user"></i> Full name *</label>
         <input type="text" id="fullName" placeholder="Alex Morgan" required>
       </div>
       <div class="form-group">
-        <label><i class="fas fa-envelope"></i> Email address *</label>
+        <label><i class="fas fa-envelope"></i> Email *</label>
         <input type="email" id="email" placeholder="hello@soulhub.com" required>
       </div>
       <div class="form-group">
         <label><i class="fas fa-lock"></i> Password *</label>
-        <input type="password" id="password" placeholder="••••••••" required>
+        <input type="password" id="password" placeholder="•••••••• (min 6 chars)" required>
       </div>
       <div class="form-group">
         <label><i class="fas fa-check-circle"></i> Confirm password *</label>
@@ -175,14 +156,14 @@
           <option value="manager">📊 Manager (Inventory & team)</option>
           <option value="admin">⚙️ Admin (Full system access)</option>
         </select>
-        <div class="role-hint">Choose the right access level for your dashboard.</div>
+        <div class="role-hint" style="font-size:0.7rem; color:#8F8278; margin-top:5px;">Choose the right access level.</div>
       </div>
       <div class="form-group">
         <label><i class="fas fa-store"></i> Store name (optional)</label>
         <input type="text" id="storeName" placeholder="Sole Haven NYC">
       </div>
       <div class="form-group">
-        <label><i class="fas fa-phone-alt"></i> Phone number (optional)</label>
+        <label><i class="fas fa-phone-alt"></i> Phone (optional)</label>
         <input type="tel" id="phone" placeholder="+1 555 123 4567">
       </div>
       <button type="submit" class="btn-register" id="submitBtn"><i class="fas fa-user-plus"></i> Register store account</button>
@@ -197,40 +178,57 @@
 </div>
 
 <script>
-  // ========= REPLACE WITH YOUR SUPABASE CREDENTIALS =========
+  // ==================== CONFIGURATION ====================
+  // Replace with your actual Supabase credentials
   const SUPABASE_URL = "https://cvjeuiimisqopsieqmex.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_o9aUlBnVhU4C_N-QWyRoOg_6Dufr5JY";
-  // ==========================================================
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_o9aUlBnVhU4C_N-QWyRoOg_6Dufr5JY";
+  // =======================================================
+
+  // Initialize Supabase client
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
   
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  
+  // DOM elements
   const form = document.getElementById('registerForm');
-  const errorBox = document.getElementById('errorBox');
-  const errorText = document.getElementById('errorText');
-  const successBox = document.getElementById('successBox');
-  const successText = document.getElementById('successText');
+  const statusDiv = document.getElementById('statusMessage');
   const submitBtn = document.getElementById('submitBtn');
-  
-  function hideAlerts() {
-    errorBox.style.display = 'none';
-    successBox.style.display = 'none';
+
+  // Helper: show message
+  function showMessage(text, type) {
+    statusDiv.innerHTML = `<div class="alert alert-${type}"><i class="fas ${type === 'error' ? 'fa-exclamation-circle' : (type === 'success' ? 'fa-check-circle' : 'fa-info-circle')}"></i> ${text}</div>`;
+    if (type !== 'error') {
+      setTimeout(() => { if (statusDiv.firstChild) statusDiv.firstChild.remove(); }, 5000);
+    }
   }
-  
-  function showError(msg) {
-    errorText.innerText = msg;
-    errorBox.style.display = 'flex';
-    setTimeout(() => { errorBox.style.display = 'none'; }, 5000);
+
+  // Diagnostic test on page load
+  async function runDiagnostics() {
+    showMessage("🔍 Testing Supabase connection...", "info");
+    try {
+      // Try a light query to profiles table (just existence check)
+      const { error } = await supabase.from('profiles').select('count', { count: 'exact', head: true });
+      if (error) {
+        if (error.message.includes("relation") && error.message.includes("does not exist")) {
+          showMessage("❌ 'profiles' table missing. Run the SQL CREATE TABLE command in Supabase SQL editor.", "error");
+        } else if (error.message.includes("Invalid API key") || error.message.includes("JWT")) {
+          showMessage("❌ Invalid publishable key. Please check your Supabase project settings → API → Publishable key.", "error");
+        } else {
+          showMessage(`⚠️ Connection issue: ${error.message}`, "error");
+        }
+        return false;
+      }
+      showMessage("✅ Supabase connected successfully! Ready to register.", "success");
+      return true;
+    } catch (err) {
+      showMessage(`💥 Fatal: ${err.message} — check URL and key.`, "error");
+      return false;
+    }
   }
-  
-  function showSuccess(msg) {
-    successText.innerText = msg;
-    successBox.style.display = 'flex';
-  }
-  
+
+  // Registration handler
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    hideAlerts();
-    
+    statusDiv.innerHTML = ''; // clear old messages
+
     const fullName = document.getElementById('fullName').value.trim();
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
@@ -238,27 +236,24 @@
     const role = document.getElementById('role').value;
     const storeName = document.getElementById('storeName').value.trim();
     const phone = document.getElementById('phone').value.trim();
-    
+
+    // Validation
     if (!fullName || !email || !password || !confirm) {
-      showError('Please fill all required fields (*)');
+      showMessage("Please fill all required fields (*)", "error");
       return;
     }
     if (password !== confirm) {
-      showError('Passwords do not match');
+      showMessage("Passwords do not match", "error");
       return;
     }
     if (password.length < 6) {
-      showError('Password must be at least 6 characters');
+      showMessage("Password must be at least 6 characters", "error");
       return;
     }
-    if (!['admin', 'manager', 'staff'].includes(role)) {
-      showError('Invalid role selection');
-      return;
-    }
-    
+
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner loading-icon"></i> Creating account...';
-    
+    submitBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Creating account...';
+
     try {
       // 1. Sign up with Supabase Auth
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
@@ -266,42 +261,13 @@
         password,
         options: { data: { full_name: fullName, role: role } }
       });
-      
-      if (signUpError) throw signUpError;
-      if (!authData.user) throw new Error('Signup failed, please try again.');
-      
-      const userId = authData.user.id;
-      // Diagnostic: test connection and auth config
-async function testSupabaseConnection() {
-  console.log("🔍 Testing Supabase connection...");
-  try {
-    // Simple health check - try to get server time
-    const { data, error } = await supabase.from('profiles').select('count', { count: 'exact', head: true });
-    if (error) {
-      console.error("❌ Connection error:", error);
-      if (error.message.includes("Invalid API key")) {
-        console.error("→ Your publishable key seems invalid. Check that it starts with 'sb_publishable_' and is copied correctly.");
-      } else if (error.message.includes("relation") && error.message.includes("does not exist")) {
-        console.error("→ The 'profiles' table does not exist. Run the SQL to create it.");
-      } else {
-        console.error("→ Other error:", error.message);
-      }
-    } else {
-      console.log("✅ Supabase connection successful! Profiles table exists.");
-    }
-    
-    // Also test auth config
-    const { data: session } = await supabase.auth.getSession();
-    console.log("🔐 Auth session:", session?.session ? "User logged in" : "No active session");
-  } catch (err) {
-    console.error("💥 Fatal connection error:", err);
-    console.error("→ Check your SUPABASE_URL and publishable key.");
-  }
-}
 
-testSupabaseConnection();
-      
-// 2. Insert profile record into 'profiles' table
+      if (signUpError) throw signUpError;
+      if (!authData.user) throw new Error("Signup failed, no user returned");
+
+      const userId = authData.user.id;
+
+      // 2. Insert profile into 'profiles' table
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
@@ -311,30 +277,37 @@ testSupabaseConnection();
           store_name: storeName || null,
           phone: phone || null
         });
-      
+
       if (profileError) {
-        console.error('Profile insert error:', profileError);
-        // Attempt to clean up? but user already created.
-        throw new Error('Account created but profile setup failed. Please contact support.');
+        console.error("Profile insert error:", profileError);
+        // The user was created but profile insertion failed – handle gracefully
+        throw new Error("Account created but profile setup incomplete. Please contact support.");
       }
-      
-      // 3. Optional: sign out to force login next time (clean flow)
+
+      // 3. Sign out to force fresh login
       await supabase.auth.signOut();
-      
-      showSuccess(`Welcome ${fullName}! Your ${role} account has been created.`);
+
+      showMessage(`✨ Welcome ${fullName}! Your ${role} account has been created. Redirecting to login...`, "success");
       setTimeout(() => {
-        window.location.href = 'login.html?registered=true';
+        window.location.href = "login.html?registered=true";
       }, 2000);
-      
+
     } catch (err) {
       console.error(err);
       let msg = err.message;
-      if (msg.includes('User already registered')) msg = 'This email is already registered. Try logging in.';
-      showError(msg);
+      if (msg.includes("User already registered")) {
+        msg = "This email is already registered. Please log in instead.";
+      } else if (msg.includes("23505") && msg.includes("duplicate")) {
+        msg = "Email already exists in our system. Try a different one or login.";
+      }
+      showMessage(msg, "error");
       submitBtn.disabled = false;
       submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Register store account';
     }
   });
+
+  // Run diagnostics when page loads
+  runDiagnostics();
 </script>
 </body>
 </html>
