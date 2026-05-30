@@ -156,148 +156,227 @@
 </div>
 
 <script>
-  // Supabase configuration
+(function () {
+  console.log("Login script starting...");
+
+  // ==================== SUPABASE CONFIGURATION ====================
   const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
-  
-  console.log("Supabase URL:", SUPABASE_URL);
-  console.log("Supabase Key exists:", !!SUPABASE_ANON_KEY);
-  
-  let supabase;
-  
-  try {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    console.log("Supabase client created successfully");
-  } catch (err) {
-    console.error("Failed to create Supabase client:", err);
-    alert("Failed to initialize. Please check console.");
+  // =================================================================
+
+  function initSupabase() {
+    if (
+      typeof window.supabase !== "undefined" &&
+      window.supabase.createClient
+    ) {
+      console.log("Supabase library loaded");
+      return window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+      );
+    }
+
+    console.error("Supabase library not loaded");
+    return null;
   }
-  
-  const messageArea = document.getElementById('messageArea');
-  const loginBtn = document.getElementById('loginBtn');
-  const emailInput = document.getElementById('loginEmail');
-  const passwordInput = document.getElementById('loginPassword');
+
+  let supabase = initSupabase();
+
+  // DOM Elements
+  const messageArea = document.getElementById("messageArea");
+  const loginBtn = document.getElementById("loginBtn");
+  const emailInput = document.getElementById("loginEmail");
+  const passwordInput = document.getElementById("loginPassword");
 
   function showMessage(text, type) {
-    messageArea.innerHTML = `<div class="alert alert-${type}"><i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${text}</div>`;
-    setTimeout(() => { 
-      if (messageArea.firstChild) messageArea.firstChild.remove(); 
-    }, 5000);
+    const icon =
+      type === "error"
+        ? "fa-exclamation-circle"
+        : "fa-check-circle";
+
+    messageArea.innerHTML = `
+      <div class="alert alert-${type}">
+        <i class="fas ${icon}"></i>
+        ${text}
+      </div>
+    `;
   }
 
-  // Check if user is already logged in
   async function checkExistingSession() {
-    if (!supabase) return;
-    
     try {
-      console.log("Checking existing session...");
-      const { data: { session }, error } = await supabase.auth.getSession();
+      if (!supabase) return;
+
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
       if (error) {
-        console.error("Session check error:", error);
+        console.error("Session error:", error);
         return;
       }
-      if (session) {
-        console.log("Existing session found, redirecting to dashboard");
-        window.location.href = "dashboard.html";
-      } else {
-        console.log("No existing session");
-      }
-    } catch (err) {
-      console.error("Session check exception:", err);
-    }
-  }
 
-  // Handle login
-  async function handleLogin() {
-    console.log("Login button clicked");
-    
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
-    
-    console.log("Email entered:", email);
-    
-    if (!email) {
-      showMessage("Please enter your email", "error");
-      return;
-    }
-    
-    if (!password) {
-      showMessage("Please enter your password", "error");
-      return;
-    }
-    
-    if (!supabase) {
-      showMessage("System not initialized. Please refresh the page.", "error");
-      console.error("Supabase client is null");
-      return;
-    }
-    
-    // Show loading state
-    loginBtn.disabled = true;
-    loginBtn.innerHTML = '<span class="loading"></span> Logging in...';
-    
-    try {
-      console.log("Attempting to sign in with password...");
-      const { data, error } = await supabase.auth.signInWithPassword({ 
-        email, 
-        password 
-      });
-      
-      console.log("Login response:", { data: data ? { user: data.user?.email } : null, error: error?.message });
-      
-      if (error) {
-        console.error("Login error:", error);
-        showMessage(error.message, "error");
-        loginBtn.disabled = false;
-        loginBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Login';
-      } else {
-        console.log("Login successful! User:", data.user?.email);
-        showMessage("Login successful! Redirecting to dashboard...", "success");
-        // Redirect to dashboard after successful login
+      if (session) {
+        console.log("Existing session found");
+
+        showMessage(
+          "Existing session detected. Redirecting...",
+          "success"
+        );
+
         setTimeout(() => {
           window.location.href = "dashboard.html";
         }, 1000);
       }
     } catch (err) {
-      console.error("Exception during login:", err);
-      showMessage("An unexpected error occurred. Please try again.", "error");
-      loginBtn.disabled = false;
-      loginBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Login';
+      console.error("Session check failed:", err);
     }
   }
 
-  // Attach event listener to button (using type="button" so no form submission)
+  async function handleLogin() {
+    console.log("Login clicked");
+
+    if (!supabase) {
+      supabase = initSupabase();
+
+      if (!supabase) {
+        showMessage(
+          "Unable to connect to authentication service.",
+          "error"
+        );
+        return;
+      }
+    }
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!email) {
+      showMessage("Please enter your email address.", "error");
+      emailInput.focus();
+      return;
+    }
+
+    if (!password) {
+      showMessage("Please enter your password.", "error");
+      passwordInput.focus();
+      return;
+    }
+
+    loginBtn.disabled = true;
+    loginBtn.innerHTML =
+      '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+
+    try {
+      console.log("Attempting login:", email);
+
+      const { data, error } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+      console.log("Login result:", data);
+      console.log("Login error:", error);
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data.user) {
+        throw new Error(
+          "Login failed. No user returned."
+        );
+      }
+
+      console.log("User authenticated:", data.user.email);
+
+      // Verify session
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      console.log("Session:", session);
+
+      if (!session) {
+        throw new Error(
+          "Login succeeded but no session was created."
+        );
+      }
+
+      showMessage(
+        "✅ Login successful! Redirecting...",
+        "success"
+      );
+
+      setTimeout(() => {
+        window.location.href = "dashboard.html";
+      }, 1500);
+    } catch (err) {
+      console.error("Login failed:", err);
+
+      let msg = err.message;
+
+      if (
+        msg.includes("Invalid login credentials")
+      ) {
+        msg =
+          "Incorrect email or password. Please try again.";
+      } else if (
+        msg.includes("Email not confirmed")
+      ) {
+        msg =
+          "Please verify your email before logging in.";
+      }
+
+      showMessage(msg, "error");
+
+      loginBtn.disabled = false;
+      loginBtn.innerHTML =
+        '<i class="fas fa-arrow-right-to-bracket"></i> Login';
+    }
+  }
+
+  // Login Button
   if (loginBtn) {
-    console.log("Attaching click handler to login button");
-    loginBtn.addEventListener('click', handleLogin);
-  } else {
-    console.error("loginBtn not found!");
+    loginBtn.addEventListener("click", handleLogin);
   }
-  
-  // Also allow Enter key to submit
-  if (emailInput && passwordInput) {
-    const inputs = [emailInput, passwordInput];
-    inputs.forEach(input => {
-      input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          console.log("Enter key pressed");
-          e.preventDefault();
-          handleLogin();
-        }
-      });
+
+  // Enter Key Support
+  [emailInput, passwordInput].forEach((input) => {
+    if (!input) return;
+
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleLogin();
+      }
     });
+  });
+
+  // Registration Success Message
+  const params = new URLSearchParams(
+    window.location.search
+  );
+
+  if (params.get("registered") === "true") {
+    const email = params.get("email");
+
+    showMessage(
+      `Account created successfully${
+        email ? " for " + email : ""
+      }. Please log in.`,
+      "success"
+    );
   }
 
-  // Show registration success message if redirected
-  if (window.location.search.includes('registered=true')) {
-    const emailParam = new URLSearchParams(window.location.search).get('email');
-    showMessage(`✅ Account created successfully for ${emailParam || 'you'}! Please log in.`, "success");
-  }
+  window.addEventListener("load", () => {
+    console.log("Page loaded");
+    checkExistingSession();
+  });
 
-  // Check for existing session on page load
-  checkExistingSession();
-  
-  console.log("Login page script loaded successfully");
+  console.log("Login page initialized");
+})();
 </script>
 </body>
 </html>
