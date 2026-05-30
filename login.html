@@ -150,10 +150,11 @@
 </div>
 
 <script>
-  // Same Supabase config as registration.html
-  const SUPABASE_URL = "https://cvjeuiimisqopsieqmex.supabase.co";
-  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_o9aUlBnVhU4C_N-QWyRoOg_6Dufr5JY";
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+  // CORRECT Supabase configuration from your .env.local
+  const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
+  
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const loginContainer = document.getElementById('loginFormContainer');
   const dashboardContainer = document.getElementById('dashboardContainer');
@@ -165,15 +166,38 @@
     setTimeout(() => { if (messageArea.firstChild) messageArea.firstChild.remove(); }, 4000);
   }
 
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
   async function loadUserDashboard(user) {
+    // Try to get profile from profiles table
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('full_name, role, store_name, phone')
+      .select('full_name, role, store_name, phone, store_address, established_year')
       .eq('id', user.id)
       .single();
 
     if (error || !profile) {
-      profileDiv.innerHTML = `<p><i class="fas fa-exclamation-triangle"></i> Could not load profile details.</p>`;
+      // If profile doesn't exist yet, use user metadata from auth
+      const userMeta = user.user_metadata || {};
+      profileDiv.innerHTML = `
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+          <i class="fas fa-user-circle" style="font-size:2.2rem; color:#C49A6C;"></i>
+          <div><strong style="font-size:1.2rem;">${escapeHtml(userMeta.full_name || user.email?.split('@')[0] || 'User')}</strong><br>${escapeHtml(user.email)}</div>
+        </div>
+        <div style="display:grid; gap:8px;">
+          <div><i class="fas fa-tag"></i> <strong>Role:</strong> <span style="background:#E9D9CC; padding:2px 10px; border-radius:40px;">${escapeHtml(userMeta.role || 'staff')}</span></div>
+          ${userMeta.store_name ? `<div><i class="fas fa-store"></i> ${escapeHtml(userMeta.store_name)}</div>` : ''}
+        </div>
+        <p style="margin-top:12px; font-size:0.8rem; color:#8F8278;"><i class="fas fa-info-circle"></i> Profile setup in progress</p>
+      `;
     } else {
       profileDiv.innerHTML = `
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
@@ -184,20 +208,12 @@
           <div><i class="fas fa-tag"></i> <strong>Role:</strong> <span style="background:#E9D9CC; padding:2px 10px; border-radius:40px;">${escapeHtml(profile.role)}</span></div>
           ${profile.store_name ? `<div><i class="fas fa-store"></i> ${escapeHtml(profile.store_name)}</div>` : ''}
           ${profile.phone ? `<div><i class="fas fa-phone"></i> ${escapeHtml(profile.phone)}</div>` : ''}
+          ${profile.store_address ? `<div><i class="fas fa-location-dot"></i> ${escapeHtml(profile.store_address)}</div>` : ''}
         </div>
       `;
     }
     loginContainer.style.display = 'none';
     dashboardContainer.style.display = 'block';
-  }
-
-  function escapeHtml(str) {
-    return str.replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
-    });
   }
 
   async function checkSession() {
@@ -214,10 +230,12 @@
     e.preventDefault();
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
+    
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       showMessage(error.message, "error");
     } else {
+      showMessage("Login successful! Redirecting...", "success");
       await loadUserDashboard(data.user);
     }
   });
@@ -227,11 +245,13 @@
     loginContainer.style.display = 'block';
     dashboardContainer.style.display = 'none';
     document.getElementById('loginForm').reset();
+    showMessage("You have been signed out.", "success");
   });
 
   // Show registration success message if redirected
   if (window.location.search.includes('registered=true')) {
-    showMessage("✅ Account created successfully! Please log in.", "success");
+    const emailParam = new URLSearchParams(window.location.search).get('email');
+    showMessage(`✅ Account created successfully for ${emailParam || 'you'}! Please log in.`, "success");
   }
 
   checkSession();
