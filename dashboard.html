@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +7,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Chart.js for modern charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -20,6 +21,39 @@
       background-color: #FEFCF8;
       color: #1E1B18;
       overflow-x: hidden;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* Dark Mode Styles */
+    body.dark-mode {
+      background-color: #1a1a1a;
+      color: #E9E2D8;
+    }
+
+    body.dark-mode .stat-card,
+    body.dark-mode .recent-section,
+    body.dark-mode .quick-actions {
+      background: #2C2C2C;
+      border-color: #3C3C3C;
+    }
+
+    body.dark-mode .navbar {
+      background: rgba(28, 28, 28, 0.98);
+      border-bottom-color: #3C3C3C;
+    }
+
+    body.dark-mode .user-info {
+      background: #3C3C3C;
+    }
+
+    body.dark-mode .action-btn {
+      background: #3C3C3C;
+      color: #E9E2D8;
+    }
+
+    body.dark-mode .action-btn:hover {
+      background: #C49A6C;
+      color: #1E1B18;
     }
 
     ::-webkit-scrollbar {
@@ -101,7 +135,7 @@
       font-weight: 600;
     }
 
-    .logout-btn {
+    .logout-btn, .dark-mode-toggle {
       background: transparent;
       border: 1px solid #E9E2D8;
       padding: 8px 20px;
@@ -114,6 +148,11 @@
     .logout-btn:hover {
       background: #C23D2E;
       border-color: #C23D2E;
+      color: white;
+    }
+
+    .dark-mode-toggle:hover {
+      background: #1E1B18;
       color: white;
     }
 
@@ -164,6 +203,19 @@
       margin-bottom: 8px;
     }
 
+    .stat-trend {
+      font-size: 0.8rem;
+      margin-top: 8px;
+    }
+
+    .stat-trend.up {
+      color: #10b981;
+    }
+
+    .stat-trend.down {
+      color: #ef4444;
+    }
+
     .stat-label {
       color: #6B5E54;
       font-size: 0.9rem;
@@ -207,15 +259,76 @@
       transform: translateY(-2px);
     }
 
+    .charts-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .chart-card {
+      background: white;
+      border-radius: 28px;
+      padding: 24px;
+      border: 1px solid #F0EAE3;
+    }
+
+    .chart-card h3 {
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+    }
+
     .recent-section {
       background: white;
       border-radius: 28px;
       padding: 32px;
       border: 1px solid #F0EAE3;
+      margin-bottom: 40px;
     }
 
     .recent-section h3 {
       margin-bottom: 20px;
+    }
+
+    .inventory-table {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .inventory-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .inventory-table th,
+    .inventory-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #F0EAE3;
+    }
+
+    .inventory-table th {
+      background: #F9F4ED;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .inventory-table th:hover {
+      background: #F0EAE3;
+    }
+
+    .low-stock {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    .search-bar {
+      margin-bottom: 20px;
+      padding: 10px;
+      width: 300px;
+      border: 1px solid #F0EAE3;
+      border-radius: 40px;
+      font-family: 'Inter', sans-serif;
     }
 
     .profile-card {
@@ -305,6 +418,9 @@
       .stats-grid {
         grid-template-columns: 1fr;
       }
+      .charts-row {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -328,6 +444,9 @@
           <i class="fas fa-chart-line"></i> SoulHub
         </div>
         <div class="user-menu">
+          <button class="dark-mode-toggle" id="darkModeToggle">
+            <i class="fas fa-moon"></i> Dark Mode
+          </button>
           <div class="user-info">
             <div class="user-avatar" id="userAvatar">JD</div>
             <span id="userName">Loading...</span>
@@ -345,11 +464,12 @@
         <p style="color: #6B5E54; margin-top: 8px;">Here's what's happening with your shoe store today.</p>
       </div>
 
-      <!-- Stats Grid -->
+      <!-- Stats Grid with Real Data -->
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
           <div class="stat-value" id="todaySales">$0</div>
+          <div class="stat-trend up" id="salesTrend">↑ 0% from yesterday</div>
           <div class="stat-label">Today's Sales</div>
         </div>
         <div class="stat-card">
@@ -363,9 +483,21 @@
           <div class="stat-label">Active Staff</div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon"><i class="fas fa-store"></i></div>
-          <div class="stat-value" id="storeName">-</div>
-          <div class="stat-label">Store Name</div>
+          <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+          <div class="stat-value" id="totalInventoryValue">$0</div>
+          <div class="stat-label">Inventory Value</div>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <h3><i class="fas fa-chart-line"></i> Sales Trend (Last 7 Days)</h3>
+          <canvas id="salesChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3><i class="fas fa-chart-pie"></i> Top Categories</h3>
+          <canvas id="categoryChart"></canvas>
         </div>
       </div>
 
@@ -388,6 +520,38 @@
         </div>
       </div>
 
+      <!-- Inventory Management Table -->
+      <div class="recent-section">
+        <h3><i class="fas fa-boxes"></i> Inventory Management</h3>
+        <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Search products...">
+        <div class="inventory-table">
+          <table id="inventoryTable">
+            <thead>
+              <tr>
+                <th onclick="sortTable('name')">Product Name <i class="fas fa-sort"></i></th>
+                <th onclick="sortTable('sku')">SKU <i class="fas fa-sort"></i></th>
+                <th onclick="sortTable('category')">Category <i class="fas fa-sort"></i></th>
+                <th onclick="sortTable('price')">Price <i class="fas fa-sort"></i></th>
+                <th onclick="sortTable('stock')">Stock <i class="fas fa-sort"></i></th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryBody">
+              <tr><td colspan="7">Loading products...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Recent Sales Activity -->
+      <div class="recent-section">
+        <h3><i class="fas fa-history"></i> Recent Sales Activity</h3>
+        <div id="recentSalesList">
+          <p>Loading recent sales...</p>
+        </div>
+      </div>
+
       <!-- Profile Information -->
       <div class="recent-section">
         <div class="profile-card">
@@ -407,6 +571,9 @@
       const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
       
       let supabase;
+      let salesChart, categoryChart;
+      let currentProducts = [];
+      let currentSort = { column: 'name', ascending: true };
       
       // Initialize Supabase
       try {
@@ -434,110 +601,6 @@
         return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
       }
       
-      async function loadDashboard() {
-        try {
-          console.log("Starting dashboard load...");
-          
-          // Get current session
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-          
-          if (sessionError) {
-            console.error("Session error:", sessionError);
-            throw new Error("Failed to get session: " + sessionError.message);
-          }
-          
-          if (!session) {
-            console.log("No session found, redirecting to login");
-            window.location.href = "login.html";
-            return;
-          }
-          
-          console.log("Session found for user:", session.user.email);
-          const user = session.user;
-          
-          // Try to get profile from profiles table
-          let profile = null;
-          let profileError = null;
-          
-          try {
-            const { data, error } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', user.id)
-              .single();
-            
-            if (error) {
-              console.warn("Profile fetch error:", error.message);
-              profileError = error;
-            } else {
-              profile = data;
-              console.log("Profile loaded:", profile);
-            }
-          } catch (err) {
-            console.warn("Profile fetch exception:", err);
-          }
-          
-          // Use profile data or fall back to user metadata
-          const fullName = profile?.full_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
-          const firstName = fullName.split(' ')[0];
-          const storeName = profile?.store_name || user.user_metadata?.store_name || 'Your Store';
-          const role = profile?.role || user.user_metadata?.role || 'staff';
-          const phone = profile?.phone || user.user_metadata?.phone || 'Not provided';
-          const storeAddress = profile?.store_address || 'Not provided';
-          
-          console.log("User data:", { fullName, firstName, storeName, role });
-          
-          // Update UI elements
-          document.getElementById('welcomeName').textContent = firstName;
-          document.getElementById('userName').textContent = fullName;
-          document.getElementById('userAvatar').textContent = getInitials(fullName);
-          document.getElementById('storeName').textContent = storeName;
-          
-          // Demo stats (replace with real data from your database later)
-          document.getElementById('todaySales').textContent = `$${Math.floor(Math.random() * 5000) + 1000}`;
-          document.getElementById('lowStock').textContent = Math.floor(Math.random() * 15);
-          document.getElementById('totalStaff').textContent = Math.floor(Math.random() * 20) + 5;
-          
-          // Profile details
-          const profileDetails = document.getElementById('profileDetails');
-          profileDetails.innerHTML = `
-            <div class="profile-detail-item">
-              <i class="fas fa-envelope"></i>
-              <span><strong>Email:</strong> ${escapeHtml(user.email)}</span>
-            </div>
-            <div class="profile-detail-item">
-              <i class="fas fa-tag"></i>
-              <span><strong>Role:</strong> <span style="background: #C49A6C; padding: 4px 12px; border-radius: 20px; color: #1E1B18;">${escapeHtml(role.charAt(0).toUpperCase() + role.slice(1))}</span></span>
-            </div>
-            <div class="profile-detail-item">
-              <i class="fas fa-store"></i>
-              <span><strong>Store:</strong> ${escapeHtml(storeName)}</span>
-            </div>
-            <div class="profile-detail-item">
-              <i class="fas fa-phone"></i>
-              <span><strong>Phone:</strong> ${escapeHtml(phone)}</span>
-            </div>
-            <div class="profile-detail-item">
-              <i class="fas fa-location-dot"></i>
-              <span><strong>Address:</strong> ${escapeHtml(storeAddress)}</span>
-            </div>
-            <div class="profile-detail-item">
-              <i class="fas fa-calendar"></i>
-              <span><strong>Member since:</strong> ${new Date(user.created_at).toLocaleDateString()}</span>
-            </div>
-          `;
-          
-          // Hide loading, show dashboard
-          loadingScreen.style.display = 'none';
-          dashboardContent.style.display = 'block';
-          console.log("Dashboard loaded successfully");
-          
-        } catch (err) {
-          console.error("Dashboard load error:", err);
-          showError(err.message || "Failed to load dashboard. Please try logging in again.");
-        }
-      }
-      
       function escapeHtml(str) {
         if (!str) return '';
         return String(str).replace(/[&<>]/g, function(m) {
@@ -548,17 +611,410 @@
         });
       }
       
-      // Logout handler
-      const logoutBtn = document.getElementById('logoutBtn');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-          console.log("Logging out...");
-          await supabase.auth.signOut();
-          window.location.href = "login.html";
+      // Fetch real dashboard data
+      async function fetchDashboardData() {
+        try {
+          // Get today's sales
+          const today = new Date().toISOString().split('T')[0];
+          const { data: todaySalesData, error: salesError } = await supabase
+            .from('sales')
+            .select('total_amount')
+            .gte('sale_date', today);
+          
+          if (!salesError) {
+            const totalToday = todaySalesData?.reduce((sum, sale) => sum + (sale.total_amount || 0), 0) || 0;
+            document.getElementById('todaySales').textContent = `$${totalToday.toFixed(2)}`;
+            
+            // Get yesterday's sales for trend
+            const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+            const { data: yesterdaySalesData } = await supabase
+              .from('sales')
+              .select('total_amount')
+              .gte('sale_date', yesterday)
+              .lt('sale_date', today);
+            
+            const totalYesterday = yesterdaySalesData?.reduce((sum, sale) => sum + (sale.total_amount || 0), 0) || 0;
+            const trend = totalYesterday > 0 ? ((totalToday - totalYesterday) / totalYesterday * 100).toFixed(1) : 0;
+            const trendElem = document.getElementById('salesTrend');
+            if (trend >= 0) {
+              trendElem.innerHTML = `↑ ${trend}% from yesterday`;
+              trendElem.className = 'stat-trend up';
+            } else {
+              trendElem.innerHTML = `↓ ${Math.abs(trend)}% from yesterday`;
+              trendElem.className = 'stat-trend down';
+            }
+          }
+          
+          // Get low stock items
+          const { data: lowStockData, error: lowStockError } = await supabase
+            .from('products')
+            .select('id')
+            .lte('stock_quantity', 'low_stock_threshold');
+          
+          if (!lowStockError) {
+            document.getElementById('lowStock').textContent = lowStockData?.length || 0;
+          }
+          
+          // Get total staff count
+          const { count: staffCount, error: staffError } = await supabase
+            .from('staff')
+            .select('*', { count: 'exact', head: true });
+          
+          if (!staffError) {
+            document.getElementById('totalStaff').textContent = staffCount || 0;
+          }
+          
+          // Get total inventory value
+          const { data: products, error: productsError } = await supabase
+            .from('products')
+            .select('price, stock_quantity');
+          
+          if (!productsError && products) {
+            const totalValue = products.reduce((sum, p) => sum + ((p.price || 0) * (p.stock_quantity || 0)), 0);
+            document.getElementById('totalInventoryValue').textContent = `$${totalValue.toFixed(2)}`;
+          }
+          
+        } catch (err) {
+          console.error("Error fetching dashboard data:", err);
+        }
+      }
+      
+      // Fetch and display inventory
+      async function fetchInventory() {
+        try {
+          const { data: products, error } = await supabase
+            .from('products')
+            .select('*')
+            .order('name');
+          
+          if (error) throw error;
+          
+          currentProducts = products;
+          displayInventory(products);
+          
+        } catch (err) {
+          console.error("Error fetching inventory:", err);
+          document.getElementById('inventoryBody').innerHTML = '<tr><td colspan="7">Error loading products</td></tr>';
+        }
+      }
+      
+      function displayInventory(products) {
+        const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+        const filtered = products.filter(p => 
+          p.name.toLowerCase().includes(searchTerm) ||
+          p.sku?.toLowerCase().includes(searchTerm) ||
+          p.category?.toLowerCase().includes(searchTerm)
+        );
+        
+        // Apply sorting
+        filtered.sort((a, b) => {
+          let aVal, bVal;
+          switch(currentSort.column) {
+            case 'name': aVal = a.name; bVal = b.name; break;
+            case 'sku': aVal = a.sku || ''; bVal = b.sku || ''; break;
+            case 'category': aVal = a.category || ''; bVal = b.category || ''; break;
+            case 'price': aVal = a.price || 0; bVal = b.price || 0; break;
+            case 'stock': aVal = a.stock_quantity || 0; bVal = b.stock_quantity || 0; break;
+            default: aVal = a.name; bVal = b.name;
+          }
+          if (currentSort.ascending) {
+            return aVal > bVal ? 1 : -1;
+          } else {
+            return aVal < bVal ? 1 : -1;
+          }
+        });
+        
+        const tbody = document.getElementById('inventoryBody');
+        if (filtered.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7">No products found</td></tr>';
+          return;
+        }
+        
+        tbody.innerHTML = filtered.map(product => {
+          const isLowStock = product.stock_quantity <= product.low_stock_threshold;
+          return `
+            <tr>
+              <td>${escapeHtml(product.name)}</td>
+              <td>${escapeHtml(product.sku || '-')}</td>
+              <td>${escapeHtml(product.category || '-')}</td>
+              <td>$${(product.price || 0).toFixed(2)}</td>
+              <td class="${isLowStock ? 'low-stock' : ''}">${product.stock_quantity || 0}</td>
+              <td>${isLowStock ? '<span style="color:#ef4444">⚠️ Low Stock</span>' : '<span style="color:#10b981">✓ In Stock</span>'}</td>
+              <td>
+                <button onclick="alert(\'Edit product: ${product.name}\')" style="background:none; border:none; cursor:pointer; color:#C49A6C;">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+      
+      function sortTable(column) {
+        if (currentSort.column === column) {
+          currentSort.ascending = !currentSort.ascending;
+        } else {
+          currentSort.column = column;
+          currentSort.ascending = true;
+        }
+        displayInventory(currentProducts);
+      }
+      
+      // Fetch recent sales
+      async function fetchRecentSales() {
+        try {
+          const { data: sales, error } = await supabase
+            .from('sales')
+            .select('*')
+            .order('sale_date', { ascending: false })
+            .limit(10);
+          
+          if (error) throw error;
+          
+          const salesList = document.getElementById('recentSalesList');
+          if (!sales || sales.length === 0) {
+            salesList.innerHTML = '<p>No sales yet. Start selling! 🚀</p>';
+            return;
+          }
+          
+          salesList.innerHTML = sales.map(sale => `
+            <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #F0EAE3;">
+              <div>
+                <strong>Invoice: ${escapeHtml(sale.invoice_number || 'N/A')}</strong>
+                <small style="display: block; color: #6B5E54;">${new Date(sale.sale_date).toLocaleString()}</small>
+              </div>
+              <div>
+                <strong style="color: #C49A6C;">$${(sale.total_amount || 0).toFixed(2)}</strong>
+                <small style="display: block; text-align: right;">${escapeHtml(sale.payment_method || 'Cash')}</small>
+              </div>
+            </div>
+          `).join('');
+          
+          // Create sales chart data
+          await fetchSalesChartData();
+          
+        } catch (err) {
+          console.error("Error fetching recent sales:", err);
+          document.getElementById('recentSalesList').innerHTML = '<p>Error loading sales data</p>';
+        }
+      }
+      
+      async function fetchSalesChartData() {
+        try {
+          const { data: sales, error } = await supabase
+            .from('sales')
+            .select('sale_date, total_amount')
+            .gte('sale_date', new Date(Date.now() - 7*86400000).toISOString());
+          
+          if (error) throw error;
+          
+          // Group by date
+          const salesByDate = {};
+          sales.forEach(sale => {
+            const date = sale.sale_date.split('T')[0];
+            salesByDate[date] = (salesByDate[date] || 0) + (sale.total_amount || 0);
+          });
+          
+          const last7Days = [];
+          for (let i = 6; i >= 0; i--) {
+            const date = new Date(Date.now() - i*86400000).toISOString().split('T')[0];
+            last7Days.push({
+              date: date,
+              amount: salesByDate[date] || 0
+            });
+          }
+          
+          createSalesChart(last7Days);
+          
+          // Get category data for pie chart
+          const { data: products } = await supabase
+            .from('products')
+            .select('category, stock_quantity');
+          
+          if (products) {
+            const categoryCount = {};
+            products.forEach(p => {
+              const cat = p.category || 'Uncategorized';
+              categoryCount[cat] = (categoryCount[cat] || 0) + (p.stock_quantity || 0);
+            });
+            createCategoryChart(categoryCount);
+          }
+          
+        } catch (err) {
+          console.error("Error fetching chart data:", err);
+        }
+      }
+      
+      function createSalesChart(data) {
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        if (salesChart) salesChart.destroy();
+        
+        salesChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.map(d => d.date),
+            datasets: [{
+              label: 'Sales ($)',
+              data: data.map(d => d.amount),
+              borderColor: '#C49A6C',
+              backgroundColor: 'rgba(196, 154, 108, 0.1)',
+              tension: 0.4,
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: 'top' }
+            }
+          }
         });
       }
       
-      // Start loading dashboard
+      function createCategoryChart(data) {
+        const ctx = document.getElementById('categoryChart').getContext('2d');
+        if (categoryChart) categoryChart.destroy();
+        
+        categoryChart = new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: Object.keys(data),
+            datasets: [{
+              data: Object.values(data),
+              backgroundColor: ['#C49A6C', '#E9E2D8', '#A2794C', '#6B5E54', '#2C241E']
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: 'bottom' }
+            }
+          }
+        });
+      }
+      
+      // Load user profile
+      async function loadUserProfile() {
+        try {
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          if (userError || !user) throw new Error('User not found');
+          
+          // Try to get staff info
+          const { data: staffData } = await supabase
+            .from('staff')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+          
+          const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+          const firstName = fullName.split(' ')[0];
+          
+          document.getElementById('welcomeName').textContent = firstName;
+          document.getElementById('userName').textContent = fullName;
+          document.getElementById('userAvatar').textContent = getInitials(fullName);
+          
+          const profileDetails = document.getElementById('profileDetails');
+          profileDetails.innerHTML = `
+            <div class="profile-detail-item">
+              <i class="fas fa-envelope"></i>
+              <span><strong>Email:</strong> ${escapeHtml(user.email)}</span>
+            </div>
+            <div class="profile-detail-item">
+              <i class="fas fa-id-badge"></i>
+              <span><strong>Employee Code:</strong> ${escapeHtml(staffData?.employee_code || 'Not assigned')}</span>
+            </div>
+            <div class="profile-detail-item">
+              <i class="fas fa-briefcase"></i>
+              <span><strong>Position:</strong> ${escapeHtml(staffData?.position || 'Staff')}</span>
+            </div>
+            <div class="profile-detail-item">
+              <i class="fas fa-calendar-alt"></i>
+              <span><strong>Hire Date:</strong> ${staffData?.hire_date ? new Date(staffData.hire_date).toLocaleDateString() : 'Not set'}</span>
+            </div>
+          `;
+          
+        } catch (err) {
+          console.error("Error loading profile:", err);
+        }
+      }
+      
+      // Dark mode toggle
+      function initDarkMode() {
+        const toggle = document.getElementById('darkModeToggle');
+        const isDark = localStorage.getItem('darkMode') === 'true';
+        if (isDark) {
+          document.body.classList.add('dark-mode');
+          toggle.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+        }
+        
+        toggle.addEventListener('click', () => {
+          document.body.classList.toggle('dark-mode');
+          const isNowDark = document.body.classList.contains('dark-mode');
+          localStorage.setItem('darkMode', isNowDark);
+          toggle.innerHTML = isNowDark ? '<i class="fas fa-sun"></i> Light Mode' : '<i class="fas fa-moon"></i> Dark Mode';
+        });
+      }
+      
+      // Main load function
+      async function loadDashboard() {
+        try {
+          // Check session
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+          if (sessionError || !session) {
+            window.location.href = "login.html";
+            return;
+          }
+          
+          // Load all data
+          await Promise.all([
+            fetchDashboardData(),
+            fetchInventory(),
+            fetchRecentSales(),
+            loadUserProfile()
+          ]);
+          
+          // Set up search listener
+          document.getElementById('searchInput').addEventListener('input', () => {
+            displayInventory(currentProducts);
+          });
+          
+          // Hide loading, show dashboard
+          loadingScreen.style.display = 'none';
+          dashboardContent.style.display = 'block';
+          
+          // Set up real-time subscription for inventory changes
+          supabase
+            .channel('products_changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
+              fetchInventory();
+            })
+            .subscribe();
+          
+          supabase
+            .channel('sales_changes')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sales' }, () => {
+              fetchDashboardData();
+              fetchRecentSales();
+            })
+            .subscribe();
+          
+        } catch (err) {
+          console.error("Dashboard load error:", err);
+          showError(err.message || "Failed to load dashboard");
+        }
+      }
+      
+      // Logout handler
+      document.getElementById('logoutBtn').addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        window.location.href = "login.html";
+      });
+      
+      // Expose sortTable globally
+      window.sortTable = sortTable;
+      
+      // Initialize
+      initDarkMode();
       loadDashboard();
     })();
   </script>
