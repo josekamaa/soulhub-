@@ -342,10 +342,10 @@
 </div>
 
 <script>
-  // ==================== CONFIGURATION ====================
+  // ==================== CORRECT SUPABASE CONFIGURATION ====================
   const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY2N5ZmFqcGFpdXZxb3Z2cXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNjIwMzAsImV4cCI6MjA5NTYzODAzMH0.mLGYFgTZ3ToIJD8KAiqbxr0h42H8PYN5xh1fyvTNvqo";
-  // =======================================================
+  const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
+  // ========================================================================
 
   let supabase = null;
   let initError = null;
@@ -599,9 +599,9 @@
 
       if (profileError) {
         console.error("Profile insert error:", profileError);
-        // Try to clean up the auth user since profile creation failed
-        await supabase.auth.admin.deleteUser(userId).catch(console.error);
-        throw new Error("Account creation failed. Please try again.");
+        // Note: We can't easily delete the auth user from client-side
+        // The user will still exist but without a profile
+        throw new Error("Account created but profile setup failed. Please contact support.");
       }
 
       // 3. Sign out to force fresh login
@@ -622,7 +622,7 @@
       let msg = err.message;
       if (msg.includes("User already registered")) {
         msg = "This email is already registered. Please log in instead or use a different email.";
-      } else if (msg.includes("23505") && msg.includes("duplicate")) {
+      } else if (msg.includes("duplicate key value violates unique constraint")) {
         msg = "Email already exists. Try logging in or resetting your password.";
       } else if (msg.includes("password")) {
         msg = "Password error. Please ensure it's at least 6 characters.";
