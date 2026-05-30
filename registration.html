@@ -607,4 +607,49 @@
       // 3. Sign out to force fresh login
       await supabase.auth.signOut();
 
-      showMessage(`✨ Welcome ${fullName}! Your ${role} account has been created successfully. Redirect
+      showMessage(`✨ Welcome ${fullName}! Your ${role} account has been created successfully. Redirecting to login...`, "success");
+      setTimeout(() => {
+        window.location.href = "login.html?registered=true&email=" + encodeURIComponent(email);
+      }, 2000);
+
+    } catch (err) {
+      console.error("Registration error details:", {
+        message: err.message,
+        status: err.status,
+        name: err.name
+      });
+      
+      let msg = err.message;
+      if (msg.includes("User already registered")) {
+        msg = "This email is already registered. Please log in instead or use a different email.";
+      } else if (msg.includes("23505") && msg.includes("duplicate")) {
+        msg = "Email already exists. Try logging in or resetting your password.";
+      } else if (msg.includes("password")) {
+        msg = "Password error. Please ensure it's at least 6 characters.";
+      } else {
+        msg = `Registration failed: ${msg}`;
+      }
+      showMessage(msg, "error");
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Register store account';
+    }
+  });
+
+  // Terms and Privacy links (prevent default and show modal)
+  document.getElementById('termsLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    showMessage("Terms: By using SoulHub, you agree to our data processing and security practices.", "info");
+  });
+  
+  document.getElementById('privacyLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    showMessage("Privacy: We protect your data and never share with third parties without consent.", "info");
+  });
+
+  // Run diagnostics on load
+  window.addEventListener('load', () => {
+    runDiagnostics();
+  });
+</script>
+</body>
+</html>
