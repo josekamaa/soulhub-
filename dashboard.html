@@ -270,6 +270,32 @@
       to { transform: rotate(360deg); }
     }
 
+    .error-screen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .error-screen i {
+      font-size: 4rem;
+      color: #C23D2E;
+    }
+
+    .error-screen button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      background: #1E1B18;
+      color: white;
+      border: none;
+      border-radius: 40px;
+      cursor: pointer;
+    }
+
     @media (max-width: 768px) {
       .nav-container {
         flex-direction: column;
@@ -285,6 +311,13 @@
   <div id="loadingScreen" class="loading-screen">
     <div class="spinner"></div>
     <p>Loading your dashboard...</p>
+  </div>
+
+  <div id="errorScreen" class="error-screen" style="display: none;">
+    <i class="fas fa-exclamation-circle"></i>
+    <h2>Unable to Load Dashboard</h2>
+    <p id="errorMessage">Something went wrong. Please try again.</p>
+    <button onclick="window.location.href = 'login.html'">Go to Login</button>
   </div>
 
   <div id="dashboardContent" style="display: none;">
@@ -367,114 +400,166 @@
   </div>
 
   <script>
-    // Supabase configuration
-    const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    const loadingScreen = document.getElementById('loadingScreen');
-    const dashboardContent = document.getElementById('dashboardContent');
-
-    async function checkAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
+    (function() {
+      // Supabase configuration
+      const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
+      const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
       
-      if (!session) {
-        // No active session, redirect to login
-        window.location.href = "login.html";
-        return null;
+      let supabase;
+      
+      // Initialize Supabase
+      try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log("Supabase client created");
+      } catch (err) {
+        console.error("Failed to create Supabase client:", err);
+        showError("Failed to initialize. Please refresh the page.");
+        return;
       }
       
-      return session;
-    }
-
-    async function loadUserProfile(user) {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (error) {
-        console.error('Error loading profile:', error);
-        return user.user_metadata || {};
+      const loadingScreen = document.getElementById('loadingScreen');
+      const dashboardContent = document.getElementById('dashboardContent');
+      const errorScreen = document.getElementById('errorScreen');
+      
+      function showError(message) {
+        loadingScreen.style.display = 'none';
+        dashboardContent.style.display = 'none';
+        errorScreen.style.display = 'flex';
+        document.getElementById('errorMessage').textContent = message;
       }
       
-      return profile;
-    }
-
-    function getInitials(name) {
-      if (!name) return 'U';
-      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-    }
-
-    async function initDashboard() {
-      const session = await checkAuth();
-      if (!session) return;
+      function getInitials(name) {
+        if (!name) return 'U';
+        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+      }
       
-      const user = session.user;
-      const profile = await loadUserProfile(user);
+      async function loadDashboard() {
+        try {
+          console.log("Starting dashboard load...");
+          
+          // Get current session
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+          
+          if (sessionError) {
+            console.error("Session error:", sessionError);
+            throw new Error("Failed to get session: " + sessionError.message);
+          }
+          
+          if (!session) {
+            console.log("No session found, redirecting to login");
+            window.location.href = "login.html";
+            return;
+          }
+          
+          console.log("Session found for user:", session.user.email);
+          const user = session.user;
+          
+          // Try to get profile from profiles table
+          let profile = null;
+          let profileError = null;
+          
+          try {
+            const { data, error } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', user.id)
+              .single();
+            
+            if (error) {
+              console.warn("Profile fetch error:", error.message);
+              profileError = error;
+            } else {
+              profile = data;
+              console.log("Profile loaded:", profile);
+            }
+          } catch (err) {
+            console.warn("Profile fetch exception:", err);
+          }
+          
+          // Use profile data or fall back to user metadata
+          const fullName = profile?.full_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+          const firstName = fullName.split(' ')[0];
+          const storeName = profile?.store_name || user.user_metadata?.store_name || 'Your Store';
+          const role = profile?.role || user.user_metadata?.role || 'staff';
+          const phone = profile?.phone || user.user_metadata?.phone || 'Not provided';
+          const storeAddress = profile?.store_address || 'Not provided';
+          
+          console.log("User data:", { fullName, firstName, storeName, role });
+          
+          // Update UI elements
+          document.getElementById('welcomeName').textContent = firstName;
+          document.getElementById('userName').textContent = fullName;
+          document.getElementById('userAvatar').textContent = getInitials(fullName);
+          document.getElementById('storeName').textContent = storeName;
+          
+          // Demo stats (replace with real data from your database later)
+          document.getElementById('todaySales').textContent = `$${Math.floor(Math.random() * 5000) + 1000}`;
+          document.getElementById('lowStock').textContent = Math.floor(Math.random() * 15);
+          document.getElementById('totalStaff').textContent = Math.floor(Math.random() * 20) + 5;
+          
+          // Profile details
+          const profileDetails = document.getElementById('profileDetails');
+          profileDetails.innerHTML = `
+            <div class="profile-detail-item">
+              <i class="fas fa-envelope"></i>
+              <span><strong>Email:</strong> ${escapeHtml(user.email)}</span>
+            </div>
+            <div class="profile-detail-item">
+              <i class="fas fa-tag"></i>
+              <span><strong>Role:</strong> <span style="background: #C49A6C; padding: 4px 12px; border-radius: 20px; color: #1E1B18;">${escapeHtml(role.charAt(0).toUpperCase() + role.slice(1))}</span></span>
+            </div>
+            <div class="profile-detail-item">
+              <i class="fas fa-store"></i>
+              <span><strong>Store:</strong> ${escapeHtml(storeName)}</span>
+            </div>
+            <div class="profile-detail-item">
+              <i class="fas fa-phone"></i>
+              <span><strong>Phone:</strong> ${escapeHtml(phone)}</span>
+            </div>
+            <div class="profile-detail-item">
+              <i class="fas fa-location-dot"></i>
+              <span><strong>Address:</strong> ${escapeHtml(storeAddress)}</span>
+            </div>
+            <div class="profile-detail-item">
+              <i class="fas fa-calendar"></i>
+              <span><strong>Member since:</strong> ${new Date(user.created_at).toLocaleDateString()}</span>
+            </div>
+          `;
+          
+          // Hide loading, show dashboard
+          loadingScreen.style.display = 'none';
+          dashboardContent.style.display = 'block';
+          console.log("Dashboard loaded successfully");
+          
+        } catch (err) {
+          console.error("Dashboard load error:", err);
+          showError(err.message || "Failed to load dashboard. Please try logging in again.");
+        }
+      }
       
-      // Update UI with user data
-      const fullName = profile.full_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
-      const firstName = fullName.split(' ')[0];
-      const storeName = profile.store_name || user.user_metadata?.store_name || 'Your Store';
-      const role = profile.role || user.user_metadata?.role || 'staff';
-      const phone = profile.phone || user.user_metadata?.phone || 'Not provided';
-      const storeAddress = profile.store_address || 'Not provided';
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+          if (m === '&') return '&amp;';
+          if (m === '<') return '&lt;';
+          if (m === '>') return '&gt;';
+          return m;
+        });
+      }
       
-      // Update header
-      document.getElementById('welcomeName').textContent = firstName;
-      document.getElementById('userName').textContent = fullName;
-      document.getElementById('userAvatar').textContent = getInitials(fullName);
-      document.getElementById('storeName').textContent = storeName;
+      // Logout handler
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+          console.log("Logging out...");
+          await supabase.auth.signOut();
+          window.location.href = "login.html";
+        });
+      }
       
-      // Demo stats (replace with real data later)
-      document.getElementById('todaySales').textContent = `$${Math.floor(Math.random() * 5000) + 1000}`;
-      document.getElementById('lowStock').textContent = Math.floor(Math.random() * 15);
-      document.getElementById('totalStaff').textContent = Math.floor(Math.random() * 20) + 5;
-      
-      // Profile details
-      const profileDetails = document.getElementById('profileDetails');
-      profileDetails.innerHTML = `
-        <div class="profile-detail-item">
-          <i class="fas fa-envelope"></i>
-          <span><strong>Email:</strong> ${user.email}</span>
-        </div>
-        <div class="profile-detail-item">
-          <i class="fas fa-tag"></i>
-          <span><strong>Role:</strong> <span style="background: #C49A6C; padding: 4px 12px; border-radius: 20px; color: #1E1B18;">${role.charAt(0).toUpperCase() + role.slice(1)}</span></span>
-        </div>
-        <div class="profile-detail-item">
-          <i class="fas fa-store"></i>
-          <span><strong>Store:</strong> ${storeName}</span>
-        </div>
-        <div class="profile-detail-item">
-          <i class="fas fa-phone"></i>
-          <span><strong>Phone:</strong> ${phone}</span>
-        </div>
-        <div class="profile-detail-item">
-          <i class="fas fa-location-dot"></i>
-          <span><strong>Address:</strong> ${storeAddress}</span>
-        </div>
-        <div class="profile-detail-item">
-          <i class="fas fa-calendar"></i>
-          <span><strong>Member since:</strong> ${new Date(user.created_at).toLocaleDateString()}</span>
-        </div>
-      `;
-      
-      // Show dashboard, hide loading
-      loadingScreen.style.display = 'none';
-      dashboardContent.style.display = 'block';
-    }
-    
-    // Logout handler
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      window.location.href = "login.html";
-    });
-    
-    // Initialize dashboard
-    initDashboard();
+      // Start loading dashboard
+      loadDashboard();
+    })();
   </script>
 </body>
 </html>
