@@ -74,10 +74,14 @@
       margin-top: 0.5rem;
       transition: all 0.3s ease;
     }
-    .btn-login:hover {
+    .btn-login:hover:not(:disabled) {
       background: #C49A6C;
       color: #1E1B18;
       transform: translateY(-2px);
+    }
+    .btn-login:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
     }
     .alert {
       padding: 10px;
@@ -141,7 +145,7 @@
         <label>Password</label>
         <input type="password" id="loginPassword" required autocomplete="current-password">
       </div>
-      <button type="submit" class="btn-login" id="loginBtn">
+      <button type="button" class="btn-login" id="loginBtn">
         <i class="fas fa-arrow-right-to-bracket"></i> Login
       </button>
     </form>
@@ -156,9 +160,23 @@
   const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
   
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  console.log("Supabase URL:", SUPABASE_URL);
+  console.log("Supabase Key exists:", !!SUPABASE_ANON_KEY);
+  
+  let supabase;
+  
+  try {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log("Supabase client created successfully");
+  } catch (err) {
+    console.error("Failed to create Supabase client:", err);
+    alert("Failed to initialize. Please check console.");
+  }
+  
   const messageArea = document.getElementById('messageArea');
   const loginBtn = document.getElementById('loginBtn');
+  const emailInput = document.getElementById('loginEmail');
+  const passwordInput = document.getElementById('loginPassword');
 
   function showMessage(text, type) {
     messageArea.innerHTML = `<div class="alert alert-${type}"><i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${text}</div>`;
@@ -169,38 +187,106 @@
 
   // Check if user is already logged in
   async function checkExistingSession() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      // User is already logged in, redirect to dashboard
-      window.location.href = "dashboard.html";
+    if (!supabase) return;
+    
+    try {
+      console.log("Checking existing session...");
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error("Session check error:", error);
+        return;
+      }
+      if (session) {
+        console.log("Existing session found, redirecting to dashboard");
+        window.location.href = "dashboard.html";
+      } else {
+        console.log("No existing session");
+      }
+    } catch (err) {
+      console.error("Session check exception:", err);
     }
   }
 
-  // Handle login form submission
-  document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+  // Handle login
+  async function handleLogin() {
+    console.log("Login button clicked");
     
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    
+    console.log("Email entered:", email);
+    
+    if (!email) {
+      showMessage("Please enter your email", "error");
+      return;
+    }
+    
+    if (!password) {
+      showMessage("Please enter your password", "error");
+      return;
+    }
+    
+    if (!supabase) {
+      showMessage("System not initialized. Please refresh the page.", "error");
+      console.error("Supabase client is null");
+      return;
+    }
     
     // Show loading state
     loginBtn.disabled = true;
     loginBtn.innerHTML = '<span class="loading"></span> Logging in...';
     
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    
-    if (error) {
-      showMessage(error.message, "error");
+    try {
+      console.log("Attempting to sign in with password...");
+      const { data, error } = await supabase.auth.signInWithPassword({ 
+        email, 
+        password 
+      });
+      
+      console.log("Login response:", { data: data ? { user: data.user?.email } : null, error: error?.message });
+      
+      if (error) {
+        console.error("Login error:", error);
+        showMessage(error.message, "error");
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Login';
+      } else {
+        console.log("Login successful! User:", data.user?.email);
+        showMessage("Login successful! Redirecting to dashboard...", "success");
+        // Redirect to dashboard after successful login
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 1000);
+      }
+    } catch (err) {
+      console.error("Exception during login:", err);
+      showMessage("An unexpected error occurred. Please try again.", "error");
       loginBtn.disabled = false;
       loginBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Login';
-    } else {
-      showMessage("Login successful! Redirecting to dashboard...", "success");
-      // Redirect to dashboard after successful login
-      setTimeout(() => {
-        window.location.href = "dashboard.html";
-      }, 1000);
     }
-  });
+  }
+
+  // Attach event listener to button (using type="button" so no form submission)
+  if (loginBtn) {
+    console.log("Attaching click handler to login button");
+    loginBtn.addEventListener('click', handleLogin);
+  } else {
+    console.error("loginBtn not found!");
+  }
+  
+  // Also allow Enter key to submit
+  if (emailInput && passwordInput) {
+    const inputs = [emailInput, passwordInput];
+    inputs.forEach(input => {
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          console.log("Enter key pressed");
+          e.preventDefault();
+          handleLogin();
+        }
+      });
+    });
+  }
 
   // Show registration success message if redirected
   if (window.location.search.includes('registered=true')) {
@@ -210,6 +296,8 @@
 
   // Check for existing session on page load
   checkExistingSession();
+  
+  console.log("Login page script loaded successfully");
 </script>
 </body>
 </html>
