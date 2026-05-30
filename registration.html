@@ -31,10 +31,16 @@
       padding: 2rem;
       text-align: center;
       color: white;
+      border-radius: 36px 36px 0 0;
     }
     .register-header h1 {
       font-family: 'Playfair Display', serif;
       font-size: 1.9rem;
+      margin-bottom: 0.5rem;
+    }
+    .register-header p {
+      opacity: 0.9;
+      font-size: 0.9rem;
     }
     .register-form {
       padding: 2rem;
@@ -49,6 +55,10 @@
       margin-bottom: 0.5rem;
       color: #2A241F;
     }
+    label .required {
+      color: #C23D2E;
+      margin-left: 3px;
+    }
     input, select {
       width: 100%;
       padding: 12px 16px;
@@ -56,10 +66,21 @@
       border-radius: 28px;
       font-family: 'Inter', sans-serif;
       font-size: 0.9rem;
+      transition: all 0.3s ease;
     }
     input:focus, select:focus {
       outline: none;
       border-color: #C49A6C;
+      box-shadow: 0 0 0 3px rgba(196,154,108,0.1);
+    }
+    input.error, select.error {
+      border-color: #C23D2E;
+    }
+    .error-message {
+      color: #C23D2E;
+      font-size: 0.7rem;
+      margin-top: 5px;
+      display: block;
     }
     .btn-register {
       width: 100%;
@@ -74,41 +95,73 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
+      transition: all 0.3s ease;
     }
-    .btn-register:hover {
+    .btn-register:hover:not(:disabled) {
       background: #C49A6C;
       color: #1E1B18;
+      transform: translateY(-2px);
+    }
+    .btn-register:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
     }
     .alert {
-      padding: 12px;
+      padding: 12px 16px;
       border-radius: 28px;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       margin-bottom: 1.2rem;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
     .alert-error {
       background: #FEF2F0;
       color: #C23D2E;
+      border-left: 4px solid #C23D2E;
     }
     .alert-success {
       background: #E6F4EA;
       color: #2E7D32;
+      border-left: 4px solid #2E7D32;
     }
     .alert-info {
       background: #E8F0FE;
       color: #1A56DB;
+      border-left: 4px solid #1A56DB;
+    }
+    .alert-warning {
+      background: #FFF4E5;
+      color: #B76E00;
+      border-left: 4px solid #B76E00;
     }
     .login-link {
       text-align: center;
       margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid #F0EAE3;
       font-size: 0.85rem;
     }
     .login-link a {
       color: #C49A6C;
       text-decoration: none;
       font-weight: 600;
+      transition: color 0.3s ease;
+    }
+    .login-link a:hover {
+      color: #1E1B18;
+      text-decoration: underline;
     }
     .footer-note {
       background: #F9F4ED;
@@ -116,11 +169,66 @@
       text-align: center;
       font-size: 0.7rem;
       color: #6B5E54;
+      border-radius: 0 0 36px 36px;
     }
     .spinner {
       animation: spin 1s linear infinite;
     }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes spin { 
+      0% { transform: rotate(0deg); } 
+      100% { transform: rotate(360deg); }
+    }
+    .password-strength {
+      margin-top: 8px;
+      font-size: 0.7rem;
+    }
+    .strength-bar {
+      height: 4px;
+      background: #E9E2D8;
+      border-radius: 2px;
+      margin-top: 5px;
+      overflow: hidden;
+    }
+    .strength-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+      border-radius: 2px;
+    }
+    .strength-weak { background: #C23D2E; width: 33%; }
+    .strength-medium { background: #FF9800; width: 66%; }
+    .strength-strong { background: #4CAF50; width: 100%; }
+    .role-hint {
+      font-size: 0.7rem;
+      color: #8F8278;
+      margin-top: 5px;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 1rem 0;
+    }
+    .checkbox-group input {
+      width: auto;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+    .checkbox-group label {
+      margin: 0;
+      font-weight: 400;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    @media (max-width: 480px) {
+      .register-form {
+        padding: 1.5rem;
+      }
+      .register-header h1 {
+        font-size: 1.5rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -134,40 +242,96 @@
 
     <form id="registerForm">
       <div class="form-group">
-        <label><i class="fas fa-user"></i> Full name *</label>
+        <label><i class="fas fa-user"></i> Full name <span class="required">*</span></label>
         <input type="text" id="fullName" placeholder="Alex Morgan" required>
+        <div class="error-message" id="fullNameError"></div>
       </div>
+      
       <div class="form-group">
-        <label><i class="fas fa-envelope"></i> Email *</label>
+        <label><i class="fas fa-envelope"></i> Email <span class="required">*</span></label>
         <input type="email" id="email" placeholder="hello@soulhub.com" required>
+        <div class="error-message" id="emailError"></div>
       </div>
+      
       <div class="form-group">
-        <label><i class="fas fa-lock"></i> Password *</label>
+        <label><i class="fas fa-lock"></i> Password <span class="required">*</span></label>
         <input type="password" id="password" placeholder="•••••••• (min 6 chars)" required>
+        <div class="password-strength" id="passwordStrength">
+          <div class="strength-bar">
+            <div class="strength-fill" id="strengthFill"></div>
+          </div>
+          <span id="strengthText"></span>
+        </div>
+        <div class="error-message" id="passwordError"></div>
       </div>
+      
       <div class="form-group">
-        <label><i class="fas fa-check-circle"></i> Confirm password *</label>
+        <label><i class="fas fa-check-circle"></i> Confirm password <span class="required">*</span></label>
         <input type="password" id="confirmPassword" placeholder="••••••••" required>
+        <div class="error-message" id="confirmError"></div>
       </div>
+      
       <div class="form-group">
-        <label><i class="fas fa-tag"></i> Role *</label>
+        <label><i class="fas fa-tag"></i> Role <span class="required">*</span></label>
         <select id="role" required>
+          <option value="">Select a role...</option>
           <option value="staff">👟 Staff (Store associate)</option>
           <option value="manager">📊 Manager (Inventory & team)</option>
           <option value="admin">⚙️ Admin (Full system access)</option>
         </select>
-        <div class="role-hint" style="font-size:0.7rem; color:#8F8278; margin-top:5px;">Choose the right access level.</div>
+        <div class="role-hint">
+          <i class="fas fa-info-circle"></i> 
+          Staff: Basic sales & customer service | 
+          Manager: Inventory & team management | 
+          Admin: Full system control
+        </div>
+        <div class="error-message" id="roleError"></div>
       </div>
+      
       <div class="form-group">
-        <label><i class="fas fa-store"></i> Store name (optional)</label>
+        <label><i class="fas fa-store"></i> Store name</label>
         <input type="text" id="storeName" placeholder="Sole Haven NYC">
+        <div class="role-hint">Optional - Your store/business name</div>
       </div>
+      
       <div class="form-group">
-        <label><i class="fas fa-phone-alt"></i> Phone (optional)</label>
+        <label><i class="fas fa-phone-alt"></i> Phone number</label>
         <input type="tel" id="phone" placeholder="+1 555 123 4567">
+        <div class="role-hint">Optional - For account recovery & notifications</div>
       </div>
-      <button type="submit" class="btn-register" id="submitBtn"><i class="fas fa-user-plus"></i> Register store account</button>
+      
+      <div class="form-group">
+        <label><i class="fas fa-building"></i> Store address</label>
+        <input type="text" id="storeAddress" placeholder="123 Main St, City, State ZIP">
+        <div class="role-hint">Optional - Your store location</div>
+      </div>
+      
+      <div class="form-group">
+        <label><i class="fas fa-calendar-alt"></i> Store established year</label>
+        <input type="number" id="establishedYear" placeholder="2024" min="1900" max="2026">
+        <div class="role-hint">Optional - When your store was founded</div>
+      </div>
+      
+      <div class="checkbox-group">
+        <input type="checkbox" id="termsCheckbox" required>
+        <label for="termsCheckbox">
+          I agree to the <a href="#" id="termsLink" style="color:#C49A6C;">Terms of Service</a> and 
+          <a href="#" id="privacyLink" style="color:#C49A6C;">Privacy Policy</a> <span class="required">*</span>
+        </label>
+      </div>
+      
+      <div class="checkbox-group">
+        <input type="checkbox" id="newsletterCheckbox">
+        <label for="newsletterCheckbox">
+          Subscribe to newsletter for updates and offers
+        </label>
+      </div>
+      
+      <button type="submit" class="btn-register" id="submitBtn">
+        <i class="fas fa-user-plus"></i> Register store account
+      </button>
     </form>
+    
     <div class="login-link">
       Already have an account? <a href="login.html">Sign in →</a>
     </div>
@@ -180,7 +344,7 @@
 <script>
   // ==================== CONFIGURATION ====================
   const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
-  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY2N5ZmFqcGFpdXZxb3Z2cXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNjIwMzAsImV4cCI6MjA5NTYzODAzMH0.mLGYFgTZ3ToIJD8KAiqbxr0h42H8PYN5xh1fyvTNvqo";
   // =======================================================
 
   let supabase = null;
@@ -189,8 +353,8 @@
   // Initialize Supabase safely
   try {
     if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-      console.log("✅ Supabase client created");
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      console.log("✅ Supabase client created with anon key");
     } else {
       initError = "Supabase library not loaded. Check your internet connection.";
     }
@@ -203,15 +367,140 @@
   const form = document.getElementById('registerForm');
   const statusDiv = document.getElementById('statusMessage');
   const submitBtn = document.getElementById('submitBtn');
+  const passwordInput = document.getElementById('password');
+  const confirmInput = document.getElementById('confirmPassword');
+  const emailInput = document.getElementById('email');
+  const fullNameInput = document.getElementById('fullName');
+  const roleSelect = document.getElementById('role');
+  const termsCheckbox = document.getElementById('termsCheckbox');
 
   function showMessage(text, type) {
-    statusDiv.innerHTML = `<div class="alert alert-${type}"><i class="fas ${type === 'error' ? 'fa-exclamation-circle' : (type === 'success' ? 'fa-check-circle' : 'fa-info-circle')}"></i> ${text}</div>`;
+    const icon = {
+      'error': 'fa-exclamation-circle',
+      'success': 'fa-check-circle',
+      'info': 'fa-info-circle',
+      'warning': 'fa-exclamation-triangle'
+    };
+    statusDiv.innerHTML = `<div class="alert alert-${type}"><i class="fas ${icon[type]}"></i> ${text}</div>`;
     if (type !== 'error') {
-      setTimeout(() => { if (statusDiv.firstChild) statusDiv.firstChild.remove(); }, 5000);
+      setTimeout(() => { 
+        if (statusDiv.firstChild) statusDiv.firstChild.remove(); 
+      }, 5000);
     }
   }
 
-  // Check if supabase is available
+  // Password strength checker
+  function checkPasswordStrength(password) {
+    let strength = 0;
+    if (password.length >= 6) strength++;
+    if (password.length >= 10) strength++;
+    if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+    if (password.match(/[0-9]/)) strength++;
+    if (password.match(/[^a-zA-Z0-9]/)) strength++;
+    
+    const strengthFill = document.getElementById('strengthFill');
+    const strengthText = document.getElementById('strengthText');
+    
+    if (password.length === 0) {
+      strengthFill.style.width = '0%';
+      strengthText.textContent = '';
+      return;
+    }
+    
+    if (strength <= 2) {
+      strengthFill.className = 'strength-fill strength-weak';
+      strengthText.textContent = 'Weak password';
+      strengthText.style.color = '#C23D2E';
+    } else if (strength <= 4) {
+      strengthFill.className = 'strength-fill strength-medium';
+      strengthText.textContent = 'Medium password';
+      strengthText.style.color = '#FF9800';
+    } else {
+      strengthFill.className = 'strength-fill strength-strong';
+      strengthText.textContent = 'Strong password';
+      strengthText.style.color = '#4CAF50';
+    }
+  }
+
+  // Real-time validation
+  function validateEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  }
+
+  function validateForm() {
+    let isValid = true;
+    
+    // Full name validation
+    if (!fullNameInput.value.trim()) {
+      document.getElementById('fullNameError').textContent = 'Full name is required';
+      isValid = false;
+    } else if (fullNameInput.value.trim().length < 2) {
+      document.getElementById('fullNameError').textContent = 'Name must be at least 2 characters';
+      isValid = false;
+    } else {
+      document.getElementById('fullNameError').textContent = '';
+    }
+    
+    // Email validation
+    if (!emailInput.value.trim()) {
+      document.getElementById('emailError').textContent = 'Email is required';
+      isValid = false;
+    } else if (!validateEmail(emailInput.value)) {
+      document.getElementById('emailError').textContent = 'Please enter a valid email address';
+      isValid = false;
+    } else {
+      document.getElementById('emailError').textContent = '';
+    }
+    
+    // Password validation
+    if (!passwordInput.value) {
+      document.getElementById('passwordError').textContent = 'Password is required';
+      isValid = false;
+    } else if (passwordInput.value.length < 6) {
+      document.getElementById('passwordError').textContent = 'Password must be at least 6 characters';
+      isValid = false;
+    } else {
+      document.getElementById('passwordError').textContent = '';
+    }
+    
+    // Confirm password validation
+    if (passwordInput.value !== confirmInput.value) {
+      document.getElementById('confirmError').textContent = 'Passwords do not match';
+      isValid = false;
+    } else {
+      document.getElementById('confirmError').textContent = '';
+    }
+    
+    // Role validation
+    if (!roleSelect.value) {
+      document.getElementById('roleError').textContent = 'Please select a role';
+      isValid = false;
+    } else {
+      document.getElementById('roleError').textContent = '';
+    }
+    
+    // Terms validation
+    if (!termsCheckbox.checked) {
+      showMessage('Please accept the Terms of Service and Privacy Policy', 'warning');
+      isValid = false;
+    }
+    
+    return isValid;
+  }
+
+  // Add real-time validation listeners
+  fullNameInput.addEventListener('input', validateForm);
+  emailInput.addEventListener('input', validateForm);
+  passwordInput.addEventListener('input', () => {
+    checkPasswordStrength(passwordInput.value);
+    validateForm();
+  });
+  confirmInput.addEventListener('input', validateForm);
+  roleSelect.addEventListener('change', validateForm);
+  termsCheckbox.addEventListener('change', validateForm);
+
+  // Run diagnostics
   async function runDiagnostics() {
     if (initError) {
       showMessage(`⚠️ ${initError}`, "error");
@@ -227,9 +516,9 @@
       const { error } = await supabase.from('profiles').select('count', { count: 'exact', head: true });
       if (error) {
         if (error.message.includes("relation") && error.message.includes("does not exist")) {
-          showMessage("❌ 'profiles' table missing. Run the SQL CREATE TABLE command in Supabase SQL editor.", "error");
-        } else if (error.message.includes("Invalid API key") || error.message.includes("JWT") || error.message.includes("publishable")) {
-          showMessage("❌ Invalid publishable key. Please check your Supabase project settings → API → Publishable key (starts with 'sb_publishable_').", "error");
+          showMessage("❌ 'profiles' table missing. Please run the SQL CREATE TABLE command in Supabase SQL editor.", "error");
+        } else if (error.message.includes("Invalid API key") || error.message.includes("JWT")) {
+          showMessage("❌ Invalid API key. Please check your Supabase anon key.", "error");
         } else {
           showMessage(`⚠️ Connection issue: ${error.message}`, "error");
         }
@@ -243,41 +532,32 @@
     }
   }
 
-  // Registration handler with preventDefault guarantee
+  // Registration handler
   form.addEventListener('submit', async (e) => {
-    e.preventDefault();  // MUST prevent refresh
-    console.log("Form submitted, preventing default");
+    e.preventDefault();
+    console.log("Form submitted");
 
-    // Clear previous messages
     statusDiv.innerHTML = '';
 
-    // If supabase failed to initialize, show error and stop
     if (initError || !supabase) {
       showMessage(`Cannot register: ${initError || "Supabase client missing"}`, "error");
       return;
     }
 
-    const fullName = document.getElementById('fullName').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const confirm = document.getElementById('confirmPassword').value;
-    const role = document.getElementById('role').value;
+    if (!validateForm()) {
+      showMessage("Please fix the errors above before submitting", "error");
+      return;
+    }
+
+    const fullName = fullNameInput.value.trim();
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    const role = roleSelect.value;
     const storeName = document.getElementById('storeName').value.trim();
     const phone = document.getElementById('phone').value.trim();
-
-    // Validation
-    if (!fullName || !email || !password || !confirm) {
-      showMessage("Please fill all required fields (*)", "error");
-      return;
-    }
-    if (password !== confirm) {
-      showMessage("Passwords do not match", "error");
-      return;
-    }
-    if (password.length < 6) {
-      showMessage("Password must be at least 6 characters", "error");
-      return;
-    }
+    const storeAddress = document.getElementById('storeAddress').value.trim();
+    const establishedYear = document.getElementById('establishedYear').value;
+    const subscribeNewsletter = document.getElementById('newsletterCheckbox').checked;
 
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Creating account...';
@@ -287,7 +567,14 @@
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { full_name: fullName, role: role } }
+        options: { 
+          data: { 
+            full_name: fullName, 
+            role: role,
+            store_name: storeName,
+            phone: phone
+          } 
+        }
       });
 
       if (signUpError) throw signUpError;
@@ -295,7 +582,7 @@
 
       const userId = authData.user.id;
 
-      // 2. Insert profile into 'profiles' table
+      // 2. Insert profile into 'profiles' table with additional fields
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
@@ -303,40 +590,21 @@
           full_name: fullName,
           role: role,
           store_name: storeName || null,
-          phone: phone || null
+          phone: phone || null,
+          store_address: storeAddress || null,
+          established_year: establishedYear ? parseInt(establishedYear) : null,
+          newsletter_subscribed: subscribeNewsletter,
+          created_at: new Date().toISOString()
         });
 
       if (profileError) {
         console.error("Profile insert error:", profileError);
-        throw new Error("Account created but profile setup failed. Please contact support.");
+        // Try to clean up the auth user since profile creation failed
+        await supabase.auth.admin.deleteUser(userId).catch(console.error);
+        throw new Error("Account creation failed. Please try again.");
       }
 
       // 3. Sign out to force fresh login
       await supabase.auth.signOut();
 
-      showMessage(`✨ Welcome ${fullName}! Your ${role} account has been created. Redirecting to login...`, "success");
-      setTimeout(() => {
-        window.location.href = "login.html?registered=true";
-      }, 2000);
-
-    } catch (err) {
-      console.error("Registration error:", err);
-      let msg = err.message;
-      if (msg.includes("User already registered")) {
-        msg = "This email is already registered. Please log in instead.";
-      } else if (msg.includes("23505") && msg.includes("duplicate")) {
-        msg = "Email already exists. Try logging in.";
-      }
-      showMessage(msg, "error");
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Register store account';
-    }
-  });
-
-  // Run diagnostics after everything is set
-  window.addEventListener('load', () => {
-    runDiagnostics();
-  });
-</script>
-</body>
-</html>
+      showMessage(`✨ Welcome ${fullName}! Your ${role} account has been created successfully. Redirect
