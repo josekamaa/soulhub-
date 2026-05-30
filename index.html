@@ -459,7 +459,7 @@
       <li><a href="registration.html">Register</a></li>
     </ul>
     <div class="nav-auth">
-      <a href="#" class="login-link" id="loginMockBtn">Log in</a>
+      <a href="login.html" class="login-link">Log in</a>
       <a href="registration.html" class="register-nav-btn">Get Started</a>
     </div>
     <div class="hamburger" id="hamburgerIcon">
@@ -638,48 +638,12 @@
     });
   }
 
-  // "Log in" button demo behavior (just to indicate eventual auth)
-  const loginMock = document.getElementById('loginMockBtn');
-  if (loginMock) {
-    loginMock.addEventListener('click', (e) => {
-      e.preventDefault();
-      alert('🔐 Login portal coming soon — please complete registration first.\n👉 Click "Get Started" to register your store.');
-    });
-  }
-
-  // Any other "Register now" dynamic ensures redirect to registration.html
-  const allRegisterLinks = document.querySelectorAll('a[href="registration.html"]');
-  // already native but ensure none prevent default
-  allRegisterLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-      // just let the browser navigate; no interference
-      console.log('Redirecting to registration page');
-    });
-  });
-
-  // subtle hover & animation : no product cart stuff
-  // Additional effect for CTA block to feel interactive
-  const ctaButton = document.querySelector('.cta-button');
-  if (ctaButton) {
-    ctaButton.addEventListener('mouseenter', () => {
-      // playful micro interaction
-    });
-  }
-
-  // Small adjustment: active menu highlight for current page awareness
-  const currentLocation = window.location.pathname;
-  if (currentLocation.includes('index.html') || currentLocation === '/' || currentLocation.endsWith('/')) {
-    const homeLink = document.querySelector('.nav-links li a[href="#"]');
-    if (homeLink) homeLink.style.fontWeight = '700';
-  }
-  
-  // Demo: show a tiny welcome hint (optional management intro)
+  // subtle hover & animation
   window.addEventListener('load', () => {
-    // fade in effect
     document.body.style.opacity = '1';
     console.log('SoulHub Management System ready — register to unlock full power.');
   });
-  // ensure hero image subtle animation
+  
   const heroImg = document.querySelector('.hero-image img');
   if(heroImg) {
     heroImg.style.animation = 'fadeInUp 0.7s ease-out';
@@ -689,4 +653,4 @@
   document.head.appendChild(styleAnim);
 </script>
 </body>
-  </html>
+</html>
