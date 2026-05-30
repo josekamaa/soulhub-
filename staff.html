@@ -211,7 +211,6 @@
       color: white;
     }
 
-    /* Staff Management Styles */
     .page-header {
       margin: 32px 0 24px;
       display: flex;
@@ -245,7 +244,6 @@
       transform: translateY(-2px);
     }
 
-    /* Stats Grid */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -283,7 +281,6 @@
       font-size: 0.85rem;
     }
 
-    /* Filters */
     .filters-bar {
       display: flex;
       gap: 16px;
@@ -313,7 +310,6 @@
       cursor: pointer;
     }
 
-    /* Staff Grid */
     .staff-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -424,7 +420,6 @@
       color: white;
     }
 
-    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -682,7 +677,6 @@
             </button>
           </div>
 
-          <!-- Stats Grid -->
           <div class="stats-grid">
             <div class="stats-card">
               <div class="stats-icon"><i class="fas fa-users"></i></div>
@@ -706,7 +700,6 @@
             </div>
           </div>
 
-          <!-- Filters -->
           <div class="filters-bar">
             <div class="search-box">
               <input type="text" id="searchInput" placeholder="🔍 Search by name, email, or employee code...">
@@ -717,16 +710,8 @@
               <option value="manager">Manager</option>
               <option value="staff">Staff</option>
             </select>
-            <select id="positionFilter" class="filter-select">
-              <option value="all">All Positions</option>
-              <option value="Cashier">Cashier</option>
-              <option value="Sales Associate">Sales Associate</option>
-              <option value="Manager">Manager</option>
-              <option value="Store Manager">Store Manager</option>
-            </select>
           </div>
 
-          <!-- Staff Grid -->
           <div class="staff-grid" id="staffGrid">
             <div class="spinner"></div>
           </div>
@@ -735,7 +720,6 @@
     </div>
   </div>
 
-  <!-- Add/Edit Staff Modal -->
   <div id="staffModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -766,36 +750,30 @@
               </select>
             </div>
             <div class="form-group">
-              <label>Position</label>
-              <select id="position">
-                <option value="">Select Position</option>
-                <option value="Cashier">Cashier</option>
-                <option value="Sales Associate">Sales Associate</option>
-                <option value="Manager">Manager</option>
-                <option value="Store Manager">Store Manager</option>
-              </select>
+              <label>Employee Code</label>
+              <input type="text" id="employeeCode" placeholder="e.g., EMP-001">
             </div>
           </div>
           
           <div class="form-row">
-            <div class="form-group">
-              <label>Employee Code</label>
-              <input type="text" id="employeeCode" placeholder="e.g., EMP-001">
-            </div>
             <div class="form-group">
               <label>Hourly Rate ($)</label>
               <input type="number" id="hourlyRate" step="0.01" placeholder="0.00">
             </div>
-          </div>
-          
-          <div class="form-row">
             <div class="form-group">
               <label>Phone</label>
               <input type="tel" id="phone" placeholder="e.g., +1 234 567 8900">
             </div>
+          </div>
+          
+          <div class="form-row">
             <div class="form-group">
               <label>Hire Date</label>
               <input type="date" id="hireDate">
+            </div>
+            <div class="form-group">
+              <label>Position</label>
+              <input type="text" id="position" placeholder="e.g., Cashier, Manager">
             </div>
           </div>
           
@@ -810,8 +788,9 @@
           </div>
           
           <div class="form-group">
-            <label>Password (only for new staff)</label>
-            <input type="password" id="password" placeholder="Leave blank if not changing">
+            <label>Password (required for new staff)</label>
+            <input type="password" id="password" placeholder="Enter password">
+            <small style="color: #6B5E54;">Minimum 6 characters</small>
           </div>
         </form>
       </div>
@@ -861,22 +840,44 @@
 
     async function loadStaff() {
       try {
-        // Get all profiles with their staff info
-        const { data: profiles, error } = await supabase
+        console.log("Loading staff data...");
+        
+        // Get all profiles
+        const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
-          .select(`
-            *,
-            staff(*)
-          `)
+          .select('*')
           .order('full_name');
         
-        if (error) throw error;
+        if (profilesError) {
+          console.error("Profiles error:", profilesError);
+          throw profilesError;
+        }
         
-        staffList = profiles || [];
+        console.log("Profiles loaded:", profiles?.length || 0);
+        
+        // Get all staff data
+        const { data: staffData, error: staffError } = await supabase
+          .from('staff')
+          .select('*');
+        
+        if (staffError) {
+          console.error("Staff error:", staffError);
+          throw staffError;
+        }
+        
+        console.log("Staff data loaded:", staffData?.length || 0);
+        
+        // Merge data
+        staffList = (profiles || []).map(profile => ({
+          ...profile,
+          staff: (staffData || []).find(s => s.id === profile.id) || {}
+        }));
+        
+        console.log("Merged staff list:", staffList.length);
+        
         updateStats();
         displayStaff();
         
-        console.log(`Loaded ${staffList.length} staff members`);
       } catch (err) {
         console.error("Error loading staff:", err);
         showToast('Failed to load staff: ' + err.message, true);
@@ -891,6 +892,7 @@
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
       const newThisMonth = staffList.filter(s => {
+        if (!s.created_at) return false;
         const createdDate = new Date(s.created_at);
         return createdDate.getMonth() === currentMonth && createdDate.getFullYear() === currentYear;
       }).length;
@@ -904,7 +906,6 @@
     function displayStaff() {
       const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
       const roleFilter = document.getElementById('roleFilter')?.value || 'all';
-      const positionFilter = document.getElementById('positionFilter')?.value || 'all';
       
       let filtered = staffList.filter(staff => {
         const matchesSearch = !searchTerm || 
@@ -914,9 +915,7 @@
         
         const matchesRole = roleFilter === 'all' || staff.role === roleFilter;
         
-        const matchesPosition = positionFilter === 'all' || staff.staff?.position === positionFilter;
-        
-        return matchesSearch && matchesRole && matchesPosition;
+        return matchesSearch && matchesRole;
       });
       
       const grid = document.getElementById('staffGrid');
@@ -977,7 +976,7 @@
       }).join('');
     }
 
-    async function openEditModal(staffId) {
+    window.openEditModal = async function(staffId) {
       const staff = staffList.find(s => s.id === staffId);
       if (!staff) return;
       
@@ -986,37 +985,37 @@
       document.getElementById('fullName').value = staff.full_name || '';
       document.getElementById('email').value = staff.email || '';
       document.getElementById('role').value = staff.role || 'staff';
-      document.getElementById('position').value = staff.staff?.position || '';
       document.getElementById('employeeCode').value = staff.staff?.employee_code || '';
       document.getElementById('hourlyRate').value = staff.staff?.hourly_rate || '';
       document.getElementById('phone').value = staff.phone || '';
       document.getElementById('hireDate').value = staff.staff?.hire_date || '';
+      document.getElementById('position').value = staff.staff?.position || '';
       document.getElementById('storeName').value = staff.store_name || '';
       document.getElementById('storeAddress').value = staff.store_address || '';
       document.getElementById('password').value = '';
       document.getElementById('password').placeholder = 'Leave blank to keep current password';
       
       document.getElementById('staffModal').style.display = 'block';
-    }
+    };
 
-    function openAddModal() {
+    window.openAddModal = function() {
       document.getElementById('modalTitle').textContent = 'Add New Staff';
       document.getElementById('staffForm').reset();
       document.getElementById('staffId').value = '';
       document.getElementById('password').placeholder = 'Enter password for new staff';
       document.getElementById('staffModal').style.display = 'block';
-    }
+    };
 
-    async function saveStaff() {
+    window.saveStaff = async function() {
       const staffId = document.getElementById('staffId').value;
       const fullName = document.getElementById('fullName').value.trim();
       const email = document.getElementById('email').value.trim();
       const role = document.getElementById('role').value;
-      const position = document.getElementById('position').value;
       const employeeCode = document.getElementById('employeeCode').value.trim();
       const hourlyRate = parseFloat(document.getElementById('hourlyRate').value) || null;
       const phone = document.getElementById('phone').value.trim();
       const hireDate = document.getElementById('hireDate').value;
+      const position = document.getElementById('position').value.trim();
       const storeName = document.getElementById('storeName').value.trim();
       const storeAddress = document.getElementById('storeAddress').value.trim();
       const password = document.getElementById('password').value;
@@ -1026,9 +1025,19 @@
         return;
       }
       
+      if (!staffId && !password) {
+        showToast('Password is required for new staff', true);
+        return;
+      }
+      
+      if (password && password.length < 6) {
+        showToast('Password must be at least 6 characters', true);
+        return;
+      }
+      
       try {
         if (staffId) {
-          // Update existing staff
+          // Update existing staff profile
           const { error: profileError } = await supabase
             .from('profiles')
             .update({
@@ -1043,18 +1052,40 @@
           
           if (profileError) throw profileError;
           
-          // Update staff table
-          const { error: staffError } = await supabase
+          // Check if staff record exists
+          const { data: existingStaff } = await supabase
             .from('staff')
-            .update({
-              position: position || null,
-              employee_code: employeeCode || null,
-              hourly_rate: hourlyRate,
-              hire_date: hireDate || null
-            })
-            .eq('id', staffId);
+            .select('id')
+            .eq('id', staffId)
+            .single();
           
-          if (staffError && staffError.code !== 'PGRST116') throw staffError;
+          if (existingStaff) {
+            // Update existing staff record
+            const { error: staffError } = await supabase
+              .from('staff')
+              .update({
+                employee_code: employeeCode || null,
+                hourly_rate: hourlyRate,
+                hire_date: hireDate || null,
+                position: position || null
+              })
+              .eq('id', staffId);
+            
+            if (staffError) throw staffError;
+          } else if (employeeCode || hourlyRate || hireDate || position) {
+            // Create staff record if it doesn't exist and we have data
+            const { error: staffError } = await supabase
+              .from('staff')
+              .insert([{
+                id: staffId,
+                employee_code: employeeCode || null,
+                hourly_rate: hourlyRate,
+                hire_date: hireDate || null,
+                position: position || null
+              }]);
+            
+            if (staffError) throw staffError;
+          }
           
           showToast('Staff updated successfully!');
         } else {
@@ -1079,25 +1110,29 @@
                 id: userData.user.id,
                 full_name: fullName,
                 role: role,
-                phone: phone,
-                store_name: storeName,
-                store_address: storeAddress
+                phone: phone || null,
+                store_name: storeName || null,
+                store_address: storeAddress || null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
               }]);
             
             if (profileError) throw profileError;
             
-            // Create staff record
-            const { error: staffError } = await supabase
-              .from('staff')
-              .insert([{
-                id: userData.user.id,
-                position: position || null,
-                employee_code: employeeCode || null,
-                hourly_rate: hourlyRate,
-                hire_date: hireDate || new Date().toISOString().split('T')[0]
-              }]);
-            
-            if (staffError) throw staffError;
+            // Create staff record if we have staff-specific data
+            if (employeeCode || hourlyRate || hireDate || position) {
+              const { error: staffError } = await supabase
+                .from('staff')
+                .insert([{
+                  id: userData.user.id,
+                  employee_code: employeeCode || null,
+                  hourly_rate: hourlyRate,
+                  hire_date: hireDate || new Date().toISOString().split('T')[0],
+                  position: position || null
+                }]);
+              
+              if (staffError) throw staffError;
+            }
             
             showToast('Staff added successfully!');
           }
@@ -1110,25 +1145,32 @@
         console.error("Error saving staff:", err);
         showToast('Failed to save staff: ' + err.message, true);
       }
-    }
+    };
 
     window.deleteStaff = async function(staffId, staffName) {
-      if (confirm(`Are you sure you want to delete ${staffName}?`)) {
+      if (confirm(`Are you sure you want to delete ${staffName}? This action cannot be undone.`)) {
         try {
           // Delete from staff table first
-          await supabase.from('staff').delete().eq('id', staffId);
+          const { error: staffError } = await supabase
+            .from('staff')
+            .delete()
+            .eq('id', staffId);
+          
+          if (staffError) console.error("Staff delete error:", staffError);
           
           // Delete from profiles
-          await supabase.from('profiles').delete().eq('id', staffId);
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .delete()
+            .eq('id', staffId);
           
-          // Note: auth.users deletion requires admin privileges
-          // You may need to handle this separately
+          if (profileError) throw profileError;
           
           showToast('Staff deleted successfully!');
           await loadStaff();
         } catch (err) {
           console.error("Error deleting staff:", err);
-          showToast('Failed to delete staff', true);
+          showToast('Failed to delete staff: ' + err.message, true);
         }
       }
     };
@@ -1136,9 +1178,11 @@
     async function loadUserProfile() {
       try {
         const { data: { user }, error } = await supabase.auth.getUser();
-        if (error || !user) {
+        if (error) throw error;
+        
+        if (!user) {
           window.location.href = "login.html";
-          return;
+          return false;
         }
         
         currentUser = user;
@@ -1149,7 +1193,7 @@
         return true;
       } catch (err) {
         console.error("Error loading profile:", err);
-        showErrorScreen("Failed to authenticate");
+        showErrorScreen("Failed to authenticate: " + err.message);
         return false;
       }
     }
@@ -1179,8 +1223,8 @@
     }
 
     // Event Listeners
-    document.getElementById('addStaffBtn').addEventListener('click', openAddModal);
-    document.getElementById('saveStaffBtn').addEventListener('click', saveStaff);
+    document.getElementById('addStaffBtn').addEventListener('click', () => window.openAddModal());
+    document.getElementById('saveStaffBtn').addEventListener('click', () => window.saveStaff());
     document.getElementById('cancelBtn').addEventListener('click', () => {
       document.getElementById('staffModal').style.display = 'none';
     });
@@ -1189,7 +1233,6 @@
     });
     document.getElementById('searchInput').addEventListener('input', () => displayStaff());
     document.getElementById('roleFilter').addEventListener('change', () => displayStaff());
-    document.getElementById('positionFilter').addEventListener('change', () => displayStaff());
     
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await supabase.auth.signOut();
@@ -1197,6 +1240,7 @@
     });
     
     async function init() {
+      console.log("Initializing Staff Management page...");
       const authSuccess = await loadUserProfile();
       if (authSuccess) {
         await loadStaff();
