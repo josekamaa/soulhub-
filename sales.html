@@ -22,7 +22,6 @@
       transition: background-color 0.3s, color 0.3s;
     }
 
-    /* Dark Mode */
     body.dark-mode {
       background-color: #1a1a1a;
       color: #E9E2D8;
@@ -32,7 +31,7 @@
     body.dark-mode .product-card,
     body.dark-mode .cart-item,
     body.dark-mode .modal-content,
-    body.dark-mode .search-results {
+    body.dark-mode .cart-section {
       background: #2C2C2C;
       border-color: #3C3C3C;
     }
@@ -60,13 +59,23 @@
       background: #3C3C3C;
     }
 
-    /* Layout */
+    body.dark-mode .category-btn {
+      background: #3C3C3C;
+      color: #E9E2D8;
+      border-color: #4C4C4C;
+    }
+
+    body.dark-mode .search-box input {
+      background: #3C3C3C;
+      color: #E9E2D8;
+      border-color: #4C4C4C;
+    }
+
     .app-wrapper {
       display: flex;
       min-height: 100vh;
     }
 
-    /* Sidebar */
     .sidebar {
       width: 280px;
       background: white;
@@ -137,13 +146,11 @@
       border-right: 3px solid #C49A6C;
     }
 
-    /* Main Content */
     .main-content {
       flex: 1;
       margin-left: 280px;
     }
 
-    /* Navbar */
     .navbar {
       background: rgba(254, 252, 248, 0.98);
       backdrop-filter: blur(12px);
@@ -214,7 +221,6 @@
       color: white;
     }
 
-    /* POS Layout */
     .pos-grid {
       display: grid;
       grid-template-columns: 1fr 400px;
@@ -222,7 +228,6 @@
       margin-top: 24px;
     }
 
-    /* Products Section */
     .products-header {
       display: flex;
       justify-content: space-between;
@@ -230,10 +235,13 @@
       margin-bottom: 24px;
     }
 
+    .products-header h2 {
+      font-family: 'Playfair Display', serif;
+    }
+
     .search-box {
       flex: 1;
       max-width: 400px;
-      position: relative;
     }
 
     .search-box input {
@@ -285,7 +293,7 @@
       transition: all 0.2s;
     }
 
-    .product-card:hover {
+    .product-card:hover:not(.disabled) {
       transform: translateY(-4px);
       box-shadow: 0 8px 16px rgba(0,0,0,0.1);
       border-color: #C49A6C;
@@ -294,10 +302,6 @@
     .product-card.disabled {
       opacity: 0.5;
       cursor: not-allowed;
-    }
-
-    .product-card.disabled:hover {
-      transform: none;
     }
 
     .product-name {
@@ -329,7 +333,6 @@
       font-weight: 600;
     }
 
-    /* Cart Section */
     .cart-section {
       background: white;
       border-radius: 28px;
@@ -464,7 +467,6 @@
       margin-top: 8px;
     }
 
-    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -528,17 +530,39 @@
       border-radius: 40px;
       font-weight: 600;
       cursor: pointer;
+      border: none;
     }
 
     .btn-primary {
       background: #C49A6C;
       color: white;
-      border: none;
+    }
+
+    .btn-primary:hover {
+      background: #A2794C;
     }
 
     .btn-secondary {
       background: transparent;
       border: 1px solid #E9E2D8;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #E9E2D8;
+      border-radius: 16px;
+      font-family: 'Inter', sans-serif;
     }
 
     .toast {
@@ -566,6 +590,45 @@
         transform: translateX(0);
         opacity: 1;
       }
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid #E9E2D8;
+      border-top-color: #C49A6C;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .error-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .error-container i {
+      font-size: 4rem;
+      color: #C23D2E;
     }
 
     .menu-toggle {
@@ -600,13 +663,20 @@
   </style>
 </head>
 <body>
-  <div id="loadingScreen" style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-    <div class="spinner" style="width: 50px; height: 50px; border: 3px solid #E9E2D8; border-top-color: #C49A6C; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+  <div id="loadingScreen" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading POS System...</p>
+  </div>
+
+  <div id="errorScreen" class="error-container" style="display: none;">
+    <i class="fas fa-exclamation-circle"></i>
+    <h2>Unable to Load POS</h2>
+    <p id="errorMessage">Something went wrong. Please try again.</p>
+    <button onclick="window.location.href = 'login.html'" style="padding: 12px 24px; background: #C49A6C; color: white; border: none; border-radius: 40px; cursor: pointer;">Go to Login</button>
   </div>
 
   <div id="dashboardContent" style="display: none;">
     <div class="app-wrapper">
-      <!-- Sidebar -->
       <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
           <div class="sidebar-logo">
@@ -614,65 +684,33 @@
           </div>
         </div>
         <nav class="nav-menu">
-          <div class="nav-item">
-            <a href="dashboard.html" class="nav-link">
-              <i class="fas fa-home"></i> Dashboard
-            </a>
-          </div>
-          <div class="nav-item">
-            <a href="inventory.html" class="nav-link">
-              <i class="fas fa-boxes"></i> Inventory
-            </a>
-          </div>
-          <div class="nav-item">
-            <a href="sales.html" class="nav-link active">
-              <i class="fas fa-shopping-cart"></i> Sales
-            </a>
-          </div>
-          <div class="nav-item">
-            <a href="staff.html" class="nav-link">
-              <i class="fas fa-users"></i> Staff Management
-            </a>
-          </div>
-          <div class="nav-item">
-            <a href="reports.html" class="nav-link">
-              <i class="fas fa-chart-bar"></i> Reports
-            </a>
-          </div>
-          <div class="nav-item">
-            <a href="settings.html" class="nav-link">
-              <i class="fas fa-cog"></i> Settings
-            </a>
-          </div>
+          <div class="nav-item"><a href="dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></div>
+          <div class="nav-item"><a href="inventory.html" class="nav-link"><i class="fas fa-boxes"></i> Inventory</a></div>
+          <div class="nav-item"><a href="sales.html" class="nav-link active"><i class="fas fa-shopping-cart"></i> Sales</a></div>
+          <div class="nav-item"><a href="staff.html" class="nav-link"><i class="fas fa-users"></i> Staff Management</a></div>
+          <div class="nav-item"><a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i> Reports</a></div>
+          <div class="nav-item"><a href="settings.html" class="nav-link"><i class="fas fa-cog"></i> Settings</a></div>
         </nav>
       </aside>
 
-      <!-- Main Content -->
       <main class="main-content">
         <nav class="navbar">
           <div class="container nav-container">
-            <button class="menu-toggle" id="menuToggle">
-              <i class="fas fa-bars"></i>
-            </button>
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
             <div style="flex:1"></div>
             <div class="user-menu">
-              <button class="dark-mode-toggle" id="darkModeToggle">
-                <i class="fas fa-moon"></i> Dark Mode
-              </button>
+              <button class="dark-mode-toggle" id="darkModeToggle"><i class="fas fa-moon"></i> Dark Mode</button>
               <div class="user-info">
                 <div class="user-avatar" id="userAvatar">JD</div>
                 <span id="userName">Loading...</span>
               </div>
-              <button class="logout-btn" id="logoutBtn">
-                <i class="fas fa-sign-out-alt"></i> Logout
-              </button>
+              <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>
           </div>
         </nav>
 
         <div class="container">
           <div class="pos-grid">
-            <!-- Products Section -->
             <div>
               <div class="products-header">
                 <h2>🛍️ Point of Sale</h2>
@@ -680,45 +718,28 @@
                   <input type="text" id="searchInput" placeholder="🔍 Search products...">
                 </div>
               </div>
-              
               <div class="category-filter" id="categoryFilter">
                 <button class="category-btn active" data-category="all">All</button>
               </div>
-              
               <div class="products-grid" id="productsGrid">
-                <p>Loading products...</p>
+                <div class="spinner"></div>
+                <p style="text-align: center; grid-column: 1/-1;">Loading products...</p>
               </div>
             </div>
 
-            <!-- Cart Section -->
             <div class="cart-section">
               <div class="cart-header">
                 <h3><i class="fas fa-shopping-cart"></i> Current Sale</h3>
               </div>
-              
               <div class="cart-items" id="cartItems">
                 <p style="text-align: center; color: #6B5E54;">Cart is empty</p>
               </div>
-              
               <div class="cart-summary">
-                <div class="summary-row">
-                  <span>Subtotal:</span>
-                  <span id="subtotal">$0.00</span>
-                </div>
-                <div class="summary-row">
-                  <span>Tax (10%):</span>
-                  <span id="tax">$0.00</span>
-                </div>
-                <div class="summary-row total">
-                  <span>Total:</span>
-                  <span id="total">$0.00</span>
-                </div>
-                <button class="checkout-btn" id="checkoutBtn">
-                  <i class="fas fa-credit-card"></i> Process Payment
-                </button>
-                <button class="clear-cart-btn" id="clearCartBtn">
-                  <i class="fas fa-trash"></i> Clear Cart
-                </button>
+                <div class="summary-row"><span>Subtotal:</span><span id="subtotal">$0.00</span></div>
+                <div class="summary-row"><span>Tax (10%):</span><span id="tax">$0.00</span></div>
+                <div class="summary-row total"><span>Total:</span><span id="total">$0.00</span></div>
+                <button class="checkout-btn" id="checkoutBtn"><i class="fas fa-credit-card"></i> Process Payment</button>
+                <button class="clear-cart-btn" id="clearCartBtn"><i class="fas fa-trash"></i> Clear Cart</button>
               </div>
             </div>
           </div>
@@ -727,7 +748,6 @@
     </div>
   </div>
 
-  <!-- Payment Modal -->
   <div id="paymentModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -735,20 +755,20 @@
         <span class="close">&times;</span>
       </div>
       <div class="modal-body">
-        <div class="form-group" style="margin-bottom: 20px;">
+        <div class="form-group">
           <label>Payment Method</label>
-          <select id="paymentMethod" style="width: 100%; padding: 12px; border-radius: 16px; border: 1px solid #E9E2D8;">
+          <select id="paymentMethod">
             <option value="Cash">Cash</option>
             <option value="Card">Card</option>
             <option value="Mobile Money">Mobile Money</option>
             <option value="Bank Transfer">Bank Transfer</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>Amount Received (for cash)</label>
-          <input type="number" id="amountReceived" step="0.01" style="width: 100%; padding: 12px; border-radius: 16px; border: 1px solid #E9E2D8;">
+        <div class="form-group" id="cashAmountGroup" style="display: none;">
+          <label>Amount Received ($)</label>
+          <input type="number" id="amountReceived" step="0.01" placeholder="Enter amount">
+          <div id="changeDue" style="margin-top: 8px; font-weight: 600; color: #10b981;"></div>
         </div>
-        <div id="changeDue" style="margin-top: 12px; font-weight: 600; color: #10b981;"></div>
       </div>
       <div class="modal-footer">
         <button class="btn-secondary" id="cancelPaymentBtn">Cancel</button>
@@ -757,505 +777,525 @@
     </div>
   </div>
 
-  <!-- Receipt Modal -->
   <div id="receiptModal" class="modal">
     <div class="modal-content" style="max-width: 400px;">
       <div class="modal-header">
         <h2>Receipt</h2>
         <span class="close-receipt">&times;</span>
       </div>
-      <div class="modal-body" id="receiptContent">
-        <!-- Receipt content will be inserted here -->
-      </div>
+      <div class="modal-body" id="receiptContent"></div>
       <div class="modal-footer">
-        <button class="btn-primary" id="printReceiptBtn">
-          <i class="fas fa-print"></i> Print Receipt
-        </button>
+        <button class="btn-primary" id="printReceiptBtn"><i class="fas fa-print"></i> Print</button>
         <button class="btn-secondary" id="closeReceiptBtn">Close</button>
       </div>
     </div>
   </div>
 
-  <style>
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-  </style>
-
   <script>
-    (function() {
-      const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
-      const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
-      
-      let supabase;
-      let products = [];
-      let cart = [];
-      let currentUser = null;
-      let selectedCategory = 'all';
-      
+    // Supabase configuration
+    const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let products = [];
+    let cart = [];
+    let currentUser = null;
+    let selectedCategory = 'all';
+
+    function showErrorScreen(message) {
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('errorScreen').style.display = 'flex';
+      document.getElementById('errorMessage').textContent = message;
+    }
+
+    function showToast(message, isError = false) {
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function getInitials(name) {
+      if (!name) return 'U';
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+      });
+    }
+
+    function generateInvoiceNumber() {
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      return `INV-${year}${month}${day}-${hours}${minutes}${seconds}`;
+    }
+
+    async function loadProducts() {
       try {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log("Loading products...");
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('status', 'active')
+          .order('name');
+        
+        if (error) {
+          console.error("Error loading products:", error);
+          showToast('Failed to load products: ' + error.message, true);
+          return;
+        }
+        
+        console.log(`Loaded ${data?.length || 0} products`);
+        products = data || [];
+        displayProducts();
+        loadCategories();
       } catch (err) {
-        console.error("Failed to create Supabase client:", err);
+        console.error("Exception loading products:", err);
+        showToast('Error loading products', true);
       }
+    }
+
+    function loadCategories() {
+      const categories = ['all', ...new Set(products.map(p => p.category).filter(c => c))];
+      const filterDiv = document.getElementById('categoryFilter');
+      filterDiv.innerHTML = categories.map(cat => `
+        <button class="category-btn ${selectedCategory === cat ? 'active' : ''}" data-category="${cat}">
+          ${cat === 'all' ? 'All' : cat}
+        </button>
+      `).join('');
       
-      function showToast(message, isError = false) {
-        const toast = document.createElement('div');
-        toast.className = `toast ${isError ? 'error' : ''}`;
-        toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-      }
-      
-      function getInitials(name) {
-        if (!name) return 'U';
-        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-      }
-      
-      function escapeHtml(str) {
-        if (!str) return '';
-        return String(str).replace(/[&<>]/g, function(m) {
-          if (m === '&') return '&amp;';
-          if (m === '<') return '&lt;';
-          if (m === '>') return '&gt;';
-          return m;
-        });
-      }
-      
-      // Load products
-      async function loadProducts() {
-        try {
-          const { data, error } = await supabase
-            .from('products')
-            .select('*')
-            .eq('status', 'active')
-            .order('name');
-          
-          if (error) throw error;
-          products = data;
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedCategory = btn.dataset.category;
           displayProducts();
-          loadCategories();
-        } catch (err) {
-          console.error("Error loading products:", err);
-          showToast("Failed to load products", true);
-        }
-      }
-      
-      function loadCategories() {
-        const categories = ['all', ...new Set(products.map(p => p.category).filter(c => c))];
-        const filterDiv = document.getElementById('categoryFilter');
-        filterDiv.innerHTML = categories.map(cat => `
-          <button class="category-btn ${selectedCategory === cat ? 'active' : ''}" data-category="${cat}">
-            ${cat === 'all' ? 'All' : cat}
-          </button>
-        `).join('');
-        
-        document.querySelectorAll('.category-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            selectedCategory = btn.dataset.category;
-            displayProducts();
-            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-          });
+          document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
         });
+      });
+    }
+
+    function displayProducts() {
+      let filtered = products;
+      if (selectedCategory !== 'all') {
+        filtered = products.filter(p => p.category === selectedCategory);
       }
       
-      function displayProducts() {
-        const grid = document.getElementById('productsGrid');
-        let filtered = products;
-        
-        if (selectedCategory !== 'all') {
-          filtered = products.filter(p => p.category === selectedCategory);
-        }
-        
-        const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
-        if (searchTerm) {
-          filtered = filtered.filter(p => 
-            p.name.toLowerCase().includes(searchTerm) || 
-            p.sku.toLowerCase().includes(searchTerm)
-          );
-        }
-        
-        if (filtered.length === 0) {
-          grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No products found</p>';
-          return;
-        }
-        
-        grid.innerHTML = filtered.map(product => {
-          const cartItem = cart.find(item => item.id === product.id);
-          const availableStock = product.stock_quantity - (cartItem?.quantity || 0);
-          const isOutOfStock = availableStock <= 0;
-          
-          return `
-            <div class="product-card ${isOutOfStock ? 'disabled' : ''}" onclick="${isOutOfStock ? '' : `addToCart(${JSON.stringify(product).replace(/"/g, '&quot;')})`}">
-              <div class="product-name">${escapeHtml(product.name)}</div>
-              <div class="product-sku">${escapeHtml(product.sku)}</div>
-              <div class="product-price">$${(product.price || 0).toFixed(2)}</div>
-              <div class="product-stock ${availableStock <= product.low_stock_threshold ? 'low-stock-badge' : ''}">
-                Stock: ${availableStock}
-              </div>
-            </div>
-          `;
-        }).join('');
+      const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+      if (searchTerm) {
+        filtered = filtered.filter(p => p.name.toLowerCase().includes(searchTerm) || p.sku.toLowerCase().includes(searchTerm));
       }
       
-      // Cart functions
-      window.addToCart = function(product) {
+      const grid = document.getElementById('productsGrid');
+      if (filtered.length === 0) {
+        grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No products found</p>';
+        return;
+      }
+      
+      grid.innerHTML = filtered.map(product => {
         const cartItem = cart.find(item => item.id === product.id);
-        const currentStock = product.stock_quantity - (cartItem?.quantity || 0);
+        const availableStock = product.stock_quantity - (cartItem?.quantity || 0);
+        const isOutOfStock = availableStock <= 0;
         
-        if (currentStock <= 0) {
-          showToast(`${product.name} is out of stock!`, true);
-          return;
-        }
-        
-        if (cartItem) {
-          cartItem.quantity++;
-        } else {
-          cart.push({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            sku: product.sku,
-            quantity: 1,
-            stock: product.stock_quantity
-          });
-        }
-        
-        updateCart();
-        displayProducts();
-        showToast(`${product.name} added to cart`);
-      };
-      
-      function updateCart() {
-        const cartDiv = document.getElementById('cartItems');
-        
-        if (cart.length === 0) {
-          cartDiv.innerHTML = '<p style="text-align: center; color: #6B5E54;">Cart is empty</p>';
-          updateTotals();
-          return;
-        }
-        
-        cartDiv.innerHTML = cart.map((item, index) => `
-          <div class="cart-item">
-            <div class="cart-item-info">
-              <div class="cart-item-name">${escapeHtml(item.name)}</div>
-              <div class="cart-item-price">$${item.price.toFixed(2)} each</div>
-              <div class="cart-item-quantity">
-                <button class="quantity-btn" onclick="updateQuantity(${index}, -1)">-</button>
-                <span>${item.quantity}</span>
-                <button class="quantity-btn" onclick="updateQuantity(${index}, 1)">+</button>
-              </div>
+        return `
+          <div class="product-card ${isOutOfStock ? 'disabled' : ''}" onclick="${isOutOfStock ? '' : `addToCart(${JSON.stringify(product).replace(/"/g, '&quot;')})`}">
+            <div class="product-name">${escapeHtml(product.name)}</div>
+            <div class="product-sku">${escapeHtml(product.sku)}</div>
+            <div class="product-price">$${(product.price || 0).toFixed(2)}</div>
+            <div class="product-stock ${availableStock <= (product.low_stock_threshold || 5) ? 'low-stock-badge' : ''}">
+              Stock: ${availableStock}
             </div>
-            <div class="cart-item-total">
-              $${(item.price * item.quantity).toFixed(2)}
-              <i class="fas fa-trash remove-item" onclick="removeFromCart(${index})"></i>
-            </div>
-          </div>
-        `).join('');
-        
-        updateTotals();
-      }
-      
-      window.updateQuantity = function(index, change) {
-        const item = cart[index];
-        const newQuantity = item.quantity + change;
-        
-        if (newQuantity < 1) {
-          removeFromCart(index);
-          return;
-        }
-        
-        if (newQuantity > item.stock) {
-          showToast(`Only ${item.stock} available in stock`, true);
-          return;
-        }
-        
-        item.quantity = newQuantity;
-        updateCart();
-        displayProducts();
-      };
-      
-      window.removeFromCart = function(index) {
-        cart.splice(index, 1);
-        updateCart();
-        displayProducts();
-        showToast('Item removed from cart');
-      };
-      
-      function updateTotals() {
-        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const tax = subtotal * 0.10;
-        const total = subtotal + tax;
-        
-        document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
-        document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
-        document.getElementById('total').textContent = `$${total.toFixed(2)}`;
-      }
-      
-      function generateInvoiceNumber() {
-        const date = new Date();
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-        return `INV-${year}${month}${day}-${random}`;
-      }
-      
-      // Process sale
-      async function processSale(paymentMethod, amountReceived = null) {
-        if (cart.length === 0) {
-          showToast('Cart is empty!', true);
-          return false;
-        }
-        
-        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const tax = subtotal * 0.10;
-        const total = subtotal + tax;
-        
-        if (paymentMethod === 'Cash' && amountReceived && amountReceived < total) {
-          showToast('Insufficient amount received!', true);
-          return false;
-        }
-        
-        try {
-          const invoiceNumber = generateInvoiceNumber();
-          
-          // Create sale record
-          const { data: sale, error: saleError } = await supabase
-            .from('sales')
-            .insert([{
-              invoice_number: invoiceNumber,
-              user_id: currentUser?.id,
-              total_amount: total,
-              payment_method: paymentMethod,
-              sale_date: new Date().toISOString()
-            }])
-            .select()
-            .single();
-          
-          if (saleError) throw saleError;
-          
-          // Update stock quantities
-          for (const item of cart) {
-            const { error: updateError } = await supabase
-              .from('products')
-              .update({ 
-                stock_quantity: supabase.raw(`stock_quantity - ${item.quantity}`)
-              })
-              .eq('id', item.id);
-            
-            if (updateError) throw updateError;
-          }
-          
-          showToast(`Sale completed! Invoice: ${invoiceNumber}`);
-          
-          // Show receipt
-          showReceipt(invoiceNumber, cart, subtotal, tax, total, paymentMethod, amountReceived);
-          
-          // Clear cart
-          cart = [];
-          updateCart();
-          await loadProducts();
-          
-          return true;
-        } catch (err) {
-          console.error("Error processing sale:", err);
-          showToast('Failed to process sale', true);
-          return false;
-        }
-      }
-      
-      function showReceipt(invoiceNumber, items, subtotal, tax, total, paymentMethod, amountReceived) {
-        const date = new Date().toLocaleString();
-        const change = amountReceived ? amountReceived - total : 0;
-        
-        const receiptHtml = `
-          <div style="text-align: center; margin-bottom: 20px;">
-            <h3>SoulHub Shoe Store</h3>
-            <p>123 Fashion Avenue, NY</p>
-            <p>Tel: +1 234-567-8900</p>
-            <hr>
-            <p><strong>Invoice: ${invoiceNumber}</strong></p>
-            <p>Date: ${date}</p>
-            <hr>
-          </div>
-          <div style="margin-bottom: 20px;">
-            ${items.map(item => `
-              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                <span>${escapeHtml(item.name)} x ${item.quantity}</span>
-                <span>$${(item.price * item.quantity).toFixed(2)}</span>
-              </div>
-            `).join('')}
-          </div>
-          <hr>
-          <div style="margin-top: 12px;">
-            <div style="display: flex; justify-content: space-between;">
-              <span>Subtotal:</span>
-              <span>$${subtotal.toFixed(2)}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-              <span>Tax (10%):</span>
-              <span>$${tax.toFixed(2)}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-weight: 700; margin-top: 8px;">
-              <span>TOTAL:</span>
-              <span>$${total.toFixed(2)}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-top: 8px;">
-              <span>Payment:</span>
-              <span>${paymentMethod}</span>
-            </div>
-            ${amountReceived ? `
-              <div style="display: flex; justify-content: space-between;">
-                <span>Amount Received:</span>
-                <span>$${amountReceived.toFixed(2)}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between;">
-                <span>Change:</span>
-                <span>$${change.toFixed(2)}</span>
-              </div>
-            ` : ''}
-          </div>
-          <hr>
-          <div style="text-align: center; margin-top: 20px;">
-            <p>Thank you for shopping at SoulHub!</p>
-            <p>Have a great day! 👟</p>
           </div>
         `;
-        
-        document.getElementById('receiptContent').innerHTML = receiptHtml;
-        document.getElementById('receiptModal').style.display = 'block';
+      }).join('');
+    }
+
+    window.addToCart = function(product) {
+      const cartItem = cart.find(item => item.id === product.id);
+      const currentStock = product.stock_quantity - (cartItem?.quantity || 0);
+      
+      if (currentStock <= 0) {
+        showToast(`${product.name} is out of stock!`, true);
+        return;
       }
       
-      // Load user profile
-      async function loadUserProfile() {
-        try {
-          const { data: { user } } = await supabase.auth.getUser();
-          if (!user) {
-            window.location.href = "login.html";
-            return;
-          }
-          
-          currentUser = user;
-          const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
-          document.getElementById('userName').textContent = fullName;
-          document.getElementById('userAvatar').textContent = getInitials(fullName);
-        } catch (err) {
-          console.error("Error loading profile:", err);
-        }
-      }
-      
-      // Dark mode
-      function initDarkMode() {
-        const toggle = document.getElementById('darkModeToggle');
-        const isDark = localStorage.getItem('darkMode') === 'true';
-        if (isDark) {
-          document.body.classList.add('dark-mode');
-          toggle.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
-        }
-        
-        toggle.addEventListener('click', () => {
-          document.body.classList.toggle('dark-mode');
-          const isNowDark = document.body.classList.contains('dark-mode');
-          localStorage.setItem('darkMode', isNowDark);
-          toggle.innerHTML = isNowDark ? '<i class="fas fa-sun"></i> Light Mode' : '<i class="fas fa-moon"></i> Dark Mode';
+      if (cartItem) {
+        cartItem.quantity++;
+      } else {
+        cart.push({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          sku: product.sku,
+          quantity: 1,
+          stock: product.stock_quantity
         });
       }
       
-      // Mobile menu
-      function initMobileMenu() {
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        if (menuToggle) {
-          menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
-        }
+      updateCart();
+      displayProducts();
+      showToast(`${product.name} added to cart`);
+    };
+
+    function updateCart() {
+      const cartDiv = document.getElementById('cartItems');
+      
+      if (cart.length === 0) {
+        cartDiv.innerHTML = '<p style="text-align: center; color: #6B5E54;">Cart is empty</p>';
+        updateTotals();
+        return;
       }
       
-      // Event listeners
-      document.getElementById('clearCartBtn').addEventListener('click', () => {
-        if (cart.length > 0 && confirm('Clear entire cart?')) {
-          cart = [];
-          updateCart();
-          displayProducts();
-          showToast('Cart cleared');
-        }
-      });
+      cartDiv.innerHTML = cart.map((item, index) => `
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <div class="cart-item-name">${escapeHtml(item.name)}</div>
+            <div class="cart-item-price">$${item.price.toFixed(2)} each</div>
+            <div class="cart-item-quantity">
+              <button class="quantity-btn" onclick="updateQuantity(${index}, -1)">-</button>
+              <span>${item.quantity}</span>
+              <button class="quantity-btn" onclick="updateQuantity(${index}, 1)">+</button>
+            </div>
+          </div>
+          <div class="cart-item-total">
+            $${(item.price * item.quantity).toFixed(2)}
+            <i class="fas fa-trash remove-item" onclick="removeFromCart(${index})"></i>
+          </div>
+        </div>
+      `).join('');
       
-      document.getElementById('checkoutBtn').addEventListener('click', () => {
-        if (cart.length === 0) {
-          showToast('Cart is empty!', true);
+      updateTotals();
+    }
+
+    window.updateQuantity = function(index, change) {
+      const item = cart[index];
+      const newQuantity = item.quantity + change;
+      
+      if (newQuantity < 1) {
+        removeFromCart(index);
+        return;
+      }
+      
+      if (newQuantity > item.stock) {
+        showToast(`Only ${item.stock} available in stock`, true);
+        return;
+      }
+      
+      item.quantity = newQuantity;
+      updateCart();
+      displayProducts();
+    };
+
+    window.removeFromCart = function(index) {
+      cart.splice(index, 1);
+      updateCart();
+      displayProducts();
+      showToast('Item removed from cart');
+    };
+
+    function updateTotals() {
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const tax = subtotal * 0.10;
+      const total = subtotal + tax;
+      
+      document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+      document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
+      document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+    }
+
+    async function processSale(paymentMethod, amountReceived = null) {
+      if (cart.length === 0) {
+        showToast('Cart is empty!', true);
+        return false;
+      }
+      
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const tax = subtotal * 0.10;
+      const total = subtotal + tax;
+      
+      if (paymentMethod === 'Cash' && amountReceived && amountReceived < total) {
+        showToast('Insufficient amount received!', true);
+        return false;
+      }
+      
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+          showToast('Please login again', true);
+          return false;
+        }
+        
+        const invoiceNumber = generateInvoiceNumber();
+        
+        const saleData = {
+          invoice_number: invoiceNumber,
+          user_id: user.id,
+          total_amount: total,
+          payment_method: paymentMethod,
+          sale_date: new Date().toISOString()
+        };
+        
+        console.log("Inserting sale:", saleData);
+        
+        const { data: sale, error: saleError } = await supabase
+          .from('sales')
+          .insert([saleData])
+          .select();
+        
+        if (saleError) {
+          console.error('Sale error:', saleError);
+          showToast(`Error: ${saleError.message}`, true);
+          return false;
+        }
+        
+        console.log("Sale successful:", sale);
+        
+        for (const item of cart) {
+          const { data: product } = await supabase
+            .from('products')
+            .select('stock_quantity')
+            .eq('id', item.id)
+            .single();
+          
+          if (product) {
+            const newStock = product.stock_quantity - item.quantity;
+            await supabase
+              .from('products')
+              .update({ stock_quantity: newStock })
+              .eq('id', item.id);
+            console.log(`Updated ${item.name} stock to ${newStock}`);
+          }
+        }
+        
+        showToast(`Sale completed! Invoice: ${invoiceNumber}`);
+        showReceipt(invoiceNumber, cart, subtotal, tax, total, paymentMethod, amountReceived);
+        
+        cart = [];
+        updateCart();
+        await loadProducts();
+        
+        return true;
+      } catch (err) {
+        console.error('Error:', err);
+        showToast('Failed to process sale: ' + err.message, true);
+        return false;
+      }
+    }
+
+    function showReceipt(invoiceNumber, items, subtotal, tax, total, paymentMethod, amountReceived) {
+      const date = new Date().toLocaleString();
+      const change = amountReceived ? amountReceived - total : 0;
+      
+      const receiptHtml = `
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h3>SoulHub Shoe Store</h3>
+          <p>123 Fashion Avenue, NY</p>
+          <p>Tel: +1 234-567-8900</p>
+          <hr>
+          <p><strong>Invoice: ${invoiceNumber}</strong></p>
+          <p>Date: ${date}</p>
+          <hr>
+        </div>
+        <div style="margin-bottom: 20px;">
+          ${items.map(item => `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+              <span>${escapeHtml(item.name)} x ${item.quantity}</span>
+              <span>$${(item.price * item.quantity).toFixed(2)}</span>
+            </div>
+          `).join('')}
+        </div>
+        <hr>
+        <div style="margin-top: 12px;">
+          <div style="display: flex; justify-content: space-between;">
+            <span>Subtotal:</span><span>$${subtotal.toFixed(2)}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span>Tax (10%):</span><span>$${tax.toFixed(2)}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-weight: 700; margin-top: 8px;">
+            <span>TOTAL:</span><span>$${total.toFixed(2)}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+            <span>Payment:</span><span>${paymentMethod}</span>
+          </div>
+          ${amountReceived ? `
+            <div style="display: flex; justify-content: space-between;">
+              <span>Amount Received:</span><span>$${amountReceived.toFixed(2)}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span>Change:</span><span>$${change.toFixed(2)}</span>
+            </div>
+          ` : ''}
+        </div>
+        <hr>
+        <div style="text-align: center; margin-top: 20px;">
+          <p>Thank you for shopping at SoulHub!</p>
+          <p>Have a great day! 👟</p>
+        </div>
+      `;
+      
+      document.getElementById('receiptContent').innerHTML = receiptHtml;
+      document.getElementById('receiptModal').style.display = 'block';
+    }
+
+    async function loadUserProfile() {
+      try {
+        console.log("Checking authentication...");
+        const { data: { user }, error } = await supabase.auth.getUser();
+        
+        if (error) {
+          console.error("Auth error:", error);
+          throw error;
+        }
+        
+        if (!user) {
+          console.log("No user found, redirecting to login");
+          window.location.href = "login.html";
           return;
         }
-        document.getElementById('paymentModal').style.display = 'block';
-      });
-      
-      document.getElementById('confirmPaymentBtn').addEventListener('click', async () => {
-        const paymentMethod = document.getElementById('paymentMethod').value;
-        const amountReceived = parseFloat(document.getElementById('amountReceived').value);
         
-        await processSale(paymentMethod, amountReceived);
+        console.log("User logged in:", user.email);
+        currentUser = user;
+        const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+        document.getElementById('userName').textContent = fullName;
+        document.getElementById('userAvatar').textContent = getInitials(fullName);
+        
+        return true;
+      } catch (err) {
+        console.error("Error loading profile:", err);
+        showErrorScreen("Failed to authenticate: " + err.message);
+        return false;
+      }
+    }
+
+    function initDarkMode() {
+      const toggle = document.getElementById('darkModeToggle');
+      const isDark = localStorage.getItem('darkMode') === 'true';
+      if (isDark) {
+        document.body.classList.add('dark-mode');
+        toggle.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+      }
+      
+      toggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isNowDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isNowDark);
+        toggle.innerHTML = isNowDark ? '<i class="fas fa-sun"></i> Light Mode' : '<i class="fas fa-moon"></i> Dark Mode';
+      });
+    }
+
+    function initMobileMenu() {
+      const menuToggle = document.getElementById('menuToggle');
+      const sidebar = document.getElementById('sidebar');
+      if (menuToggle) {
+        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+      }
+    }
+
+    // Event Listeners
+    document.getElementById('clearCartBtn').addEventListener('click', () => {
+      if (cart.length > 0 && confirm('Clear entire cart?')) {
+        cart = [];
+        updateCart();
+        displayProducts();
+        showToast('Cart cleared');
+      }
+    });
+    
+    document.getElementById('checkoutBtn').addEventListener('click', () => {
+      if (cart.length === 0) {
+        showToast('Cart is empty!', true);
+        return;
+      }
+      document.getElementById('paymentModal').style.display = 'block';
+    });
+    
+    document.getElementById('paymentMethod').addEventListener('change', (e) => {
+      const cashGroup = document.getElementById('cashAmountGroup');
+      cashGroup.style.display = e.target.value === 'Cash' ? 'block' : 'none';
+    });
+    
+    document.getElementById('amountReceived').addEventListener('input', (e) => {
+      const total = parseFloat(document.getElementById('total').textContent.replace('$', ''));
+      const received = parseFloat(e.target.value);
+      if (received >= total) {
+        document.getElementById('changeDue').textContent = `Change: $${(received - total).toFixed(2)}`;
+      } else {
+        document.getElementById('changeDue').textContent = '';
+      }
+    });
+    
+    document.getElementById('confirmPaymentBtn').addEventListener('click', async () => {
+      const paymentMethod = document.getElementById('paymentMethod').value;
+      const amountReceived = paymentMethod === 'Cash' ? parseFloat(document.getElementById('amountReceived').value) : null;
+      
+      const btn = document.getElementById('confirmPaymentBtn');
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+      
+      const success = await processSale(paymentMethod, amountReceived);
+      
+      if (success) {
         document.getElementById('paymentModal').style.display = 'none';
         document.getElementById('amountReceived').value = '';
         document.getElementById('changeDue').textContent = '';
-      });
+      }
       
-      document.getElementById('cancelPaymentBtn').addEventListener('click', () => {
+      btn.disabled = false;
+      btn.textContent = 'Complete Sale';
+    });
+    
+    document.getElementById('cancelPaymentBtn').addEventListener('click', () => {
+      document.getElementById('paymentModal').style.display = 'none';
+    });
+    
+    document.getElementById('printReceiptBtn').addEventListener('click', () => {
+      window.print();
+    });
+    
+    document.getElementById('closeReceiptBtn').addEventListener('click', () => {
+      document.getElementById('receiptModal').style.display = 'none';
+    });
+    
+    document.querySelectorAll('.close, .close-receipt').forEach(btn => {
+      btn.addEventListener('click', () => {
         document.getElementById('paymentModal').style.display = 'none';
-      });
-      
-      document.getElementById('printReceiptBtn').addEventListener('click', () => {
-        window.print();
-      });
-      
-      document.getElementById('closeReceiptBtn').addEventListener('click', () => {
         document.getElementById('receiptModal').style.display = 'none';
       });
-      
-      document.querySelectorAll('.close, .close-receipt').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.getElementById('paymentModal').style.display = 'none';
-          document.getElementById('receiptModal').style.display = 'none';
-        });
-      });
-      
-      document.getElementById('amountReceived').addEventListener('input', (e) => {
-        const total = parseFloat(document.getElementById('total').textContent.replace('$', ''));
-        const received = parseFloat(e.target.value);
-        if (received >= total) {
-          document.getElementById('changeDue').textContent = `Change: $${(received - total).toFixed(2)}`;
-        } else {
-          document.getElementById('changeDue').textContent = '';
-        }
-      });
-      
-      document.getElementById('searchInput').addEventListener('input', () => {
-        displayProducts();
-      });
-      
-      document.getElementById('logoutBtn').addEventListener('click', async () => {
-        await supabase.auth.signOut();
-        window.location.href = "login.html";
-      });
-      
-      // Initialize
-      async function init() {
-        await loadUserProfile();
+    });
+    
+    document.getElementById('searchInput').addEventListener('input', () => displayProducts());
+    
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = "login.html";
+    });
+    
+    // Initialize the page
+    async function init() {
+      console.log("Initializing POS page...");
+      const authSuccess = await loadUserProfile();
+      if (authSuccess) {
         await loadProducts();
         document.getElementById('loadingScreen').style.display = 'none';
         document.getElementById('dashboardContent').style.display = 'block';
-        initDarkMode();
-        initMobileMenu();
       }
-      
-      init();
-    })();
+      initDarkMode();
+      initMobileMenu();
+    }
+    
+    init();
   </script>
 </body>
 </html>
