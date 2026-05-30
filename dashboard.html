@@ -29,10 +29,12 @@
       color: #E9E2D8;
     }
 
+    body.dark-mode .sidebar,
     body.dark-mode .stat-card,
     body.dark-mode .recent-section,
     body.dark-mode .quick-actions,
-    body.dark-mode .modal-content {
+    body.dark-mode .modal-content,
+    body.dark-mode .chart-card {
       background: #2C2C2C;
       border-color: #3C3C3C;
     }
@@ -46,12 +48,15 @@
       background: #3C3C3C;
     }
 
-    body.dark-mode .action-btn {
+    body.dark-mode .action-btn,
+    body.dark-mode .nav-link {
       background: #3C3C3C;
       color: #E9E2D8;
     }
 
-    body.dark-mode .action-btn:hover {
+    body.dark-mode .action-btn:hover,
+    body.dark-mode .nav-link:hover,
+    body.dark-mode .nav-link.active {
       background: #C49A6C;
       color: #1E1B18;
     }
@@ -75,6 +80,89 @@
       border-radius: 8px;
     }
 
+    /* Layout with Sidebar */
+    .app-wrapper {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: white;
+      border-right: 1px solid #F0EAE3;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      transition: all 0.3s;
+      z-index: 99;
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid #F0EAE3;
+    }
+
+    .sidebar-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #2C241E 0%, #A2794C 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-logo i {
+      background: none;
+      color: #C49A6C;
+      font-size: 1.3rem;
+    }
+
+    .nav-menu {
+      padding: 24px 0;
+    }
+
+    .nav-item {
+      margin-bottom: 8px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 24px;
+      color: #6B5E54;
+      text-decoration: none;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .nav-link i {
+      width: 24px;
+      font-size: 1.2rem;
+    }
+
+    .nav-link:hover {
+      background: #F9F4ED;
+      color: #C49A6C;
+    }
+
+    .nav-link.active {
+      background: #F9F4ED;
+      color: #C49A6C;
+      border-right: 3px solid #C49A6C;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+    }
+
     /* Navbar */
     .navbar {
       background: rgba(254, 252, 248, 0.98);
@@ -94,26 +182,8 @@
 
     .nav-container {
       display: flex;
-      align-items: center;
+ align-items: center;
       justify-content: space-between;
-    }
-
-    .logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.6rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #2C241E 0%, #A2794C 100%);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .logo i {
-      background: none;
-      color: #C49A6C;
-      font-size: 1.4rem;
     }
 
     .user-menu {
@@ -259,6 +329,8 @@
       align-items: center;
       gap: 8px;
       font-family: 'Inter', sans-serif;
+      text-decoration: none;
+      color: #1E1B18;
     }
 
     .action-btn:hover {
@@ -363,7 +435,7 @@
       padding: 0;
       border-radius: 28px;
       width: 90%;
-      max-width: 600px;
+      max-width: 700px;
       animation: slideIn 0.3s;
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     }
@@ -595,6 +667,17 @@
     }
 
     @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        z-index: 1000;
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .main-content {
+        margin-left: 0;
+      }
       .nav-container {
         flex-direction: column;
         gap: 16px;
@@ -612,6 +695,18 @@
         margin: 10% auto;
         width: 95%;
       }
+      .menu-toggle {
+        display: block;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        margin-right: 16px;
+      }
+    }
+
+    .menu-toggle {
+      display: none;
     }
   </style>
 </head>
@@ -629,128 +724,176 @@
   </div>
 
   <div id="dashboardContent" style="display: none;">
-    <nav class="navbar">
-      <div class="container nav-container">
-        <div class="logo">
-          <i class="fas fa-chart-line"></i> SoulHub
-        </div>
-        <div class="user-menu">
-          <button class="dark-mode-toggle" id="darkModeToggle">
-            <i class="fas fa-moon"></i> Dark Mode
-          </button>
-          <div class="user-info">
-            <div class="user-avatar" id="userAvatar">JD</div>
-            <span id="userName">Loading...</span>
+    <div class="app-wrapper">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-logo">
+            <i class="fas fa-chart-line"></i> SoulHub
           </div>
-          <button class="logout-btn" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i> Logout
-          </button>
         </div>
-      </div>
-    </nav>
+        <nav class="nav-menu">
+          <div class="nav-item">
+            <a href="dashboard.html" class="nav-link active">
+              <i class="fas fa-home"></i> Dashboard
+            </a>
+          </div>
+          <div class="nav-item">
+            <a href="inventory.html" class="nav-link">
+              <i class="fas fa-boxes"></i> Inventory
+            </a>
+          </div>
+          <div class="nav-item">
+            <a href="sales.html" class="nav-link">
+              <i class="fas fa-shopping-cart"></i> Sales
+            </a>
+          </div>
+          <div class="nav-item">
+            <a href="staff.html" class="nav-link">
+              <i class="fas fa-users"></i> Staff Management
+            </a>
+          </div>
+          <div class="nav-item">
+            <a href="reports.html" class="nav-link">
+              <i class="fas fa-chart-bar"></i> Reports
+            </a>
+          </div>
+          <div class="nav-item">
+            <a href="settings.html" class="nav-link">
+              <i class="fas fa-cog"></i> Settings
+            </a>
+          </div>
+        </nav>
+      </aside>
 
-    <main class="container">
-      <div class="dashboard-header">
-        <h1>Welcome back, <span class="welcome-badge" id="welcomeName">...</span> 👋</h1>
-        <p style="color: #6B5E54; margin-top: 8px;">Here's what's happening with your shoe store today.</p>
-      </div>
+      <!-- Main Content -->
+      <main class="main-content">
+        <nav class="navbar">
+          <div class="container nav-container">
+            <button class="menu-toggle" id="menuToggle">
+              <i class="fas fa-bars"></i>
+            </button>
+            <div style="flex:1"></div>
+            <div class="user-menu">
+              <button class="dark-mode-toggle" id="darkModeToggle">
+                <i class="fas fa-moon"></i> Dark Mode
+              </button>
+              <div class="user-info">
+                <div class="user-avatar" id="userAvatar">JD</div>
+                <span id="userName">Loading...</span>
+              </div>
+              <button class="logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </button>
+            </div>
+          </div>
+        </nav>
 
-      <!-- Stats Grid -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
-          <div class="stat-value" id="todaySales">$0</div>
-          <div class="stat-trend up" id="salesTrend">↑ 0% from yesterday</div>
-          <div class="stat-label">Today's Sales</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fas fa-box"></i></div>
-          <div class="stat-value" id="lowStock">0</div>
-          <div class="stat-label">Low Stock Items</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fas fa-users"></i></div>
-          <div class="stat-value" id="totalStaff">0</div>
-          <div class="stat-label">Active Staff</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
-          <div class="stat-value" id="totalInventoryValue">$0</div>
-          <div class="stat-label">Inventory Value</div>
-        </div>
-      </div>
+        <div class="container">
+          <div class="dashboard-header">
+            <h1>Welcome back, <span class="welcome-badge" id="welcomeName">...</span> 👋</h1>
+            <p style="color: #6B5E54; margin-top: 8px;">Here's what's happening with your shoe store today.</p>
+          </div>
 
-      <!-- Charts -->
-      <div class="charts-row">
-        <div class="chart-card">
-          <h3><i class="fas fa-chart-line"></i> Sales Trend (Last 7 Days)</h3>
-          <canvas id="salesChart"></canvas>
-        </div>
-        <div class="chart-card">
-          <h3><i class="fas fa-chart-pie"></i> Top Categories</h3>
-          <canvas id="categoryChart"></canvas>
-        </div>
-      </div>
+          <!-- Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+              <div class="stat-value" id="todaySales">$0</div>
+              <div class="stat-trend up" id="salesTrend">↑ 0% from yesterday</div>
+              <div class="stat-label">Today's Sales</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon"><i class="fas fa-box"></i></div>
+              <div class="stat-value" id="lowStock">0</div>
+              <div class="stat-label">Low Stock Items</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon"><i class="fas fa-users"></i></div>
+              <div class="stat-value" id="totalStaff">0</div>
+              <div class="stat-label">Active Staff</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+              <div class="stat-value" id="totalInventoryValue">$0</div>
+              <div class="stat-label">Inventory Value</div>
+            </div>
+          </div>
 
-      <!-- Quick Actions -->
-      <div class="quick-actions">
-        <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
-        <div class="action-buttons">
-          <button class="action-btn" id="addProductBtn">
-            <i class="fas fa-plus-circle"></i> Add Product
-          </button>
-          <button class="action-btn" onclick="alert('Process Sale feature coming soon!')">
-            <i class="fas fa-shopping-cart"></i> New Sale
-          </button>
-          <button class="action-btn" onclick="alert('View Reports feature coming soon!')">
-            <i class="fas fa-chart-bar"></i> View Reports
-          </button>
-          <button class="action-btn" onclick="alert('Manage Staff feature coming soon!')">
-            <i class="fas fa-user-plus"></i> Manage Staff
-          </button>
-        </div>
-      </div>
+          <!-- Charts -->
+          <div class="charts-row">
+            <div class="chart-card">
+              <h3><i class="fas fa-chart-line"></i> Sales Trend (Last 7 Days)</h3>
+              <canvas id="salesChart"></canvas>
+            </div>
+            <div class="chart-card">
+              <h3><i class="fas fa-chart-pie"></i> Top Categories</h3>
+              <canvas id="categoryChart"></canvas>
+            </div>
+          </div>
 
-      <!-- Inventory Table -->
-      <div class="recent-section">
-        <h3><i class="fas fa-boxes"></i> Inventory Management</h3>
-        <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Search products...">
-        <div class="inventory-table">
-          <table id="inventoryTable">
-            <thead>
-              <tr>
-                <th onclick="sortTable('name')">Product Name <i class="fas fa-sort"></i></th>
-                <th onclick="sortTable('sku')">SKU <i class="fas fa-sort"></i></th>
-                <th onclick="sortTable('category')">Category <i class="fas fa-sort"></i></th>
-                <th onclick="sortTable('price')">Price <i class="fas fa-sort"></i></th>
-                <th onclick="sortTable('stock')">Stock <i class="fas fa-sort"></i></th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="inventoryBody">
-              <tr><td colspan="7">Loading products...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+          <!-- Quick Actions -->
+          <div class="quick-actions">
+            <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+            <div class="action-buttons">
+              <button class="action-btn" id="addProductBtn">
+                <i class="fas fa-plus-circle"></i> Add Product
+              </button>
+              <a href="sales.html" class="action-btn">
+                <i class="fas fa-shopping-cart"></i> New Sale
+              </a>
+              <a href="reports.html" class="action-btn">
+                <i class="fas fa-chart-bar"></i> View Reports
+              </a>
+              <a href="staff.html" class="action-btn">
+                <i class="fas fa-user-plus"></i> Manage Staff
+              </a>
+            </div>
+          </div>
 
-      <!-- Recent Sales -->
-      <div class="recent-section">
-        <h3><i class="fas fa-history"></i> Recent Sales Activity</h3>
-        <div id="recentSalesList">
-          <p>Loading recent sales...</p>
-        </div>
-      </div>
+          <!-- Inventory Table -->
+          <div class="recent-section">
+            <h3><i class="fas fa-boxes"></i> Recent Inventory</h3>
+            <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Search products...">
+            <div class="inventory-table">
+              <table id="inventoryTable">
+                <thead>
+                  <tr>
+                    <th onclick="sortTable('name')">Product Name <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable('sku')">SKU <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable('category')">Category <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable('brand')">Brand <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable('price')">Price <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable('stock')">Stock <i class="fas fa-sort"></i></th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="inventoryBody">
+                  <tr><td colspan="8">Loading products...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-      <!-- Profile -->
-      <div class="recent-section">
-        <div class="profile-card">
-          <h3><i class="fas fa-user-circle"></i> Your Profile</h3>
-          <div class="profile-details" id="profileDetails"></div>
+          <!-- Recent Sales -->
+          <div class="recent-section">
+            <h3><i class="fas fa-history"></i> Recent Sales Activity</h3>
+            <div id="recentSalesList">
+              <p>Loading recent sales...</p>
+            </div>
+          </div>
+
+          <!-- Profile -->
+          <div class="recent-section">
+            <div class="profile-card">
+              <h3><i class="fas fa-user-circle"></i> Your Profile</h3>
+              <div class="profile-details" id="profileDetails"></div>
+            </div>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   </div>
 
   <!-- Add/Edit Product Modal -->
@@ -784,6 +927,8 @@
                 <option value="Basketball">Basketball</option>
                 <option value="Walking">Walking</option>
                 <option value="Formal">Formal</option>
+                <option value="Sandals">Sandals</option>
+                <option value="Boots">Boots</option>
               </select>
             </div>
           </div>
@@ -810,9 +955,40 @@
             </div>
           </div>
           
+          <div class="form-row">
+            <div class="form-group">
+              <label>Brand</label>
+              <input type="text" id="productBrand" placeholder="e.g., Nike, Adidas">
+            </div>
+            <div class="form-group">
+              <label>Size/Available Sizes</label>
+              <input type="text" id="productSize" placeholder="e.g., 7,8,9,10 or 7-11">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Color</label>
+              <input type="text" id="productColor" placeholder="e.g., Black, White, Red">
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select id="productStatus">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="discontinued">Discontinued</option>
+              </select>
+            </div>
+          </div>
+          
           <div class="form-group">
-            <label>Brand (Optional)</label>
-            <input type="text" id="productBrand" placeholder="e.g., Nike, Adidas">
+            <label>Image URL</label>
+            <input type="url" id="productImageUrl" placeholder="https://example.com/shoe-image.jpg">
+          </div>
+          
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="productDescription" rows="3" placeholder="Product description..."></textarea>
           </div>
         </form>
       </div>
@@ -886,6 +1062,7 @@
         document.getElementById('productForm').reset();
         document.getElementById('productId').value = '';
         document.getElementById('productThreshold').value = '5';
+        document.getElementById('productStatus').value = 'active';
         modal.style.display = 'block';
       };
       
@@ -902,6 +1079,11 @@
         document.getElementById('productStock').value = product.stock_quantity || 0;
         document.getElementById('productThreshold').value = product.low_stock_threshold || 5;
         document.getElementById('productBrand').value = product.brand || '';
+        document.getElementById('productSize').value = product.size || '';
+        document.getElementById('productColor').value = product.color || '';
+        document.getElementById('productImageUrl').value = product.image_url || '';
+        document.getElementById('productDescription').value = product.description || '';
+        document.getElementById('productStatus').value = product.status || 'active';
         modal.style.display = 'block';
       };
       
@@ -915,9 +1097,24 @@
         const stock_quantity = parseInt(document.getElementById('productStock').value);
         const low_stock_threshold = parseInt(document.getElementById('productThreshold').value);
         const brand = document.getElementById('productBrand').value.trim() || null;
+        const size = document.getElementById('productSize').value.trim() || null;
+        const color = document.getElementById('productColor').value.trim() || null;
+        const image_url = document.getElementById('productImageUrl').value.trim() || null;
+        const description = document.getElementById('productDescription').value.trim() || null;
+        const status = document.getElementById('productStatus').value;
         
         if (!name || !sku || !category || isNaN(price) || isNaN(stock_quantity)) {
           showToast('Please fill in all required fields', true);
+          return;
+        }
+        
+        if (price <= 0) {
+          showToast('Price must be greater than 0', true);
+          return;
+        }
+        
+        if (stock_quantity < 0) {
+          showToast('Stock quantity cannot be negative', true);
           return;
         }
         
@@ -929,12 +1126,17 @@
           cost,
           stock_quantity,
           low_stock_threshold,
-          brand
+          brand,
+          size,
+          color,
+          image_url,
+          description,
+          status,
+          updated_at: new Date().toISOString()
         };
         
         try {
           if (currentEditId) {
-            // Update existing product
             const { error } = await supabase
               .from('products')
               .update(productData)
@@ -943,7 +1145,6 @@
             if (error) throw error;
             showToast('Product updated successfully!');
           } else {
-            // Create new product
             const { error } = await supabase
               .from('products')
               .insert([productData]);
@@ -1054,7 +1255,7 @@
           
         } catch (err) {
           console.error("Error fetching inventory:", err);
-          document.getElementById('inventoryBody').innerHTML = '<tr><td colspan="7">Error loading products</td></tr>';
+          document.getElementById('inventoryBody').innerHTML = '<tr><td colspan="8">Error loading products</td></tr>';
         }
       }
       
@@ -1063,7 +1264,8 @@
         const filtered = products.filter(p => 
           p.name.toLowerCase().includes(searchTerm) ||
           p.sku?.toLowerCase().includes(searchTerm) ||
-          p.category?.toLowerCase().includes(searchTerm)
+          p.category?.toLowerCase().includes(searchTerm) ||
+          p.brand?.toLowerCase().includes(searchTerm)
         );
         
         filtered.sort((a, b) => {
@@ -1072,6 +1274,7 @@
             case 'name': aVal = a.name; bVal = b.name; break;
             case 'sku': aVal = a.sku || ''; bVal = b.sku || ''; break;
             case 'category': aVal = a.category || ''; bVal = b.category || ''; break;
+            case 'brand': aVal = a.brand || ''; bVal = b.brand || ''; break;
             case 'price': aVal = a.price || 0; bVal = b.price || 0; break;
             case 'stock': aVal = a.stock_quantity || 0; bVal = b.stock_quantity || 0; break;
             default: aVal = a.name; bVal = b.name;
@@ -1085,20 +1288,27 @@
         
         const tbody = document.getElementById('inventoryBody');
         if (filtered.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="7">No products found</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8">No products found</td></tr>';
           return;
         }
         
         tbody.innerHTML = filtered.map(product => {
           const isLowStock = product.stock_quantity <= product.low_stock_threshold;
+          const statusBadge = product.status === 'active' 
+            ? '<span style="color:#10b981">● Active</span>'
+            : product.status === 'inactive'
+            ? '<span style="color:#f59e0b">○ Inactive</span>'
+            : '<span style="color:#ef4444">✕ Discontinued</span>';
+          
           return `
             <tr>
               <td>${escapeHtml(product.name)}</td>
               <td>${escapeHtml(product.sku || '-')}</td>
               <td>${escapeHtml(product.category || '-')}</td>
+              <td>${escapeHtml(product.brand || '-')}</td>
               <td>$${(product.price || 0).toFixed(2)}</td>
               <td class="${isLowStock ? 'low-stock' : ''}">${product.stock_quantity || 0}</td>
-              <td>${isLowStock ? '<span style="color:#ef4444">⚠️ Low Stock</span>' : '<span style="color:#10b981">✓ In Stock</span>'}</td>
+              <td>${statusBadge}</td>
               <td>
                 <button onclick="openEditProductModal(${JSON.stringify(product).replace(/"/g, '&quot;')})" style="background:none; border:none; cursor:pointer; color:#C49A6C; margin-right: 8px;">
                   <i class="fas fa-edit"></i>
@@ -1107,7 +1317,7 @@
                   <i class="fas fa-trash"></i>
                 </button>
               </td>
-            </tr>
+             </tr>
           `;
         }).join('');
       }
@@ -1233,7 +1443,7 @@
             labels: Object.keys(data),
             datasets: [{
               data: Object.values(data),
-              backgroundColor: ['#C49A6C', '#E9E2D8', '#A2794C', '#6B5E54', '#2C241E']
+              backgroundColor: ['#C49A6C', '#E9E2D8', '#A2794C', '#6B5E54', '#2C241E', '#C23D2E', '#10b981', '#f59e0b']
             }]
           },
           options: {
@@ -1304,6 +1514,17 @@
         });
       }
       
+      function initMobileMenu() {
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        if (menuToggle) {
+          menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+          });
+        }
+      }
+      
       async function loadDashboard() {
         try {
           const { data: { session } } = await supabase.auth.getSession();
@@ -1367,6 +1588,7 @@
       window.openAddProductModal = openAddProductModal;
       
       initDarkMode();
+      initMobileMenu();
       loadDashboard();
     })();
   </script>
