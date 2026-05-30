@@ -7,7 +7,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Chart.js for modern charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     * {
@@ -32,7 +31,8 @@
 
     body.dark-mode .stat-card,
     body.dark-mode .recent-section,
-    body.dark-mode .quick-actions {
+    body.dark-mode .quick-actions,
+    body.dark-mode .modal-content {
       background: #2C2C2C;
       border-color: #3C3C3C;
     }
@@ -54,6 +54,14 @@
     body.dark-mode .action-btn:hover {
       background: #C49A6C;
       color: #1E1B18;
+    }
+
+    body.dark-mode .form-group input,
+    body.dark-mode .form-group select,
+    body.dark-mode .form-group textarea {
+      background: #3C3C3C;
+      border-color: #4C4C4C;
+      color: #E9E2D8;
     }
 
     ::-webkit-scrollbar {
@@ -324,11 +332,187 @@
 
     .search-bar {
       margin-bottom: 20px;
-      padding: 10px;
+      padding: 10px 20px;
       width: 300px;
       border: 1px solid #F0EAE3;
       border-radius: 40px;
       font-family: 'Inter', sans-serif;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 5% auto;
+      padding: 0;
+      border-radius: 28px;
+      width: 90%;
+      max-width: 600px;
+      animation: slideIn 0.3s;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-header {
+      padding: 24px 32px;
+      border-bottom: 1px solid #F0EAE3;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+    }
+
+    .close {
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .close:hover {
+      color: #C23D2E;
+    }
+
+    .modal-body {
+      padding: 32px;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #6B5E54;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #E9E2D8;
+      border-radius: 16px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #C49A6C;
+      box-shadow: 0 0 0 3px rgba(196, 154, 108, 0.1);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .modal-footer {
+      padding: 24px 32px;
+      border-top: 1px solid #F0EAE3;
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .btn-primary, .btn-secondary {
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-primary {
+      background: #C49A6C;
+      color: white;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: #A2794C;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid #E9E2D8;
+      color: #6B5E54;
+    }
+
+    .btn-secondary:hover {
+      background: #F9F4ED;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #10b981;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 1100;
+      animation: slideInRight 0.3s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .toast.error {
+      background: #ef4444;
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
     }
 
     .profile-card {
@@ -421,6 +605,13 @@
       .charts-row {
         grid-template-columns: 1fr;
       }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .modal-content {
+        margin: 10% auto;
+        width: 95%;
+      }
     }
   </style>
 </head>
@@ -464,7 +655,7 @@
         <p style="color: #6B5E54; margin-top: 8px;">Here's what's happening with your shoe store today.</p>
       </div>
 
-      <!-- Stats Grid with Real Data -->
+      <!-- Stats Grid -->
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
@@ -489,7 +680,7 @@
         </div>
       </div>
 
-      <!-- Charts Section -->
+      <!-- Charts -->
       <div class="charts-row">
         <div class="chart-card">
           <h3><i class="fas fa-chart-line"></i> Sales Trend (Last 7 Days)</h3>
@@ -505,7 +696,7 @@
       <div class="quick-actions">
         <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
         <div class="action-buttons">
-          <button class="action-btn" onclick="alert('Add Product feature coming soon!')">
+          <button class="action-btn" id="addProductBtn">
             <i class="fas fa-plus-circle"></i> Add Product
           </button>
           <button class="action-btn" onclick="alert('Process Sale feature coming soon!')">
@@ -520,7 +711,7 @@
         </div>
       </div>
 
-      <!-- Inventory Management Table -->
+      <!-- Inventory Table -->
       <div class="recent-section">
         <h3><i class="fas fa-boxes"></i> Inventory Management</h3>
         <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Search products...">
@@ -544,7 +735,7 @@
         </div>
       </div>
 
-      <!-- Recent Sales Activity -->
+      <!-- Recent Sales -->
       <div class="recent-section">
         <h3><i class="fas fa-history"></i> Recent Sales Activity</h3>
         <div id="recentSalesList">
@@ -552,21 +743,88 @@
         </div>
       </div>
 
-      <!-- Profile Information -->
+      <!-- Profile -->
       <div class="recent-section">
         <div class="profile-card">
           <h3><i class="fas fa-user-circle"></i> Your Profile</h3>
-          <div class="profile-details" id="profileDetails">
-            <!-- Profile details will be inserted here -->
-          </div>
+          <div class="profile-details" id="profileDetails"></div>
         </div>
       </div>
     </main>
   </div>
 
+  <!-- Add/Edit Product Modal -->
+  <div id="productModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Add New Product</h2>
+        <span class="close">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form id="productForm">
+          <input type="hidden" id="productId">
+          
+          <div class="form-group">
+            <label>Product Name *</label>
+            <input type="text" id="productName" required placeholder="e.g., Nike Air Max 2024">
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>SKU *</label>
+              <input type="text" id="productSku" required placeholder="Unique code">
+            </div>
+            <div class="form-group">
+              <label>Category *</label>
+              <select id="productCategory" required>
+                <option value="">Select category</option>
+                <option value="Running">Running</option>
+                <option value="Casual">Casual</option>
+                <option value="Skate">Skate</option>
+                <option value="Basketball">Basketball</option>
+                <option value="Walking">Walking</option>
+                <option value="Formal">Formal</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Price ($) *</label>
+              <input type="number" id="productPrice" step="0.01" required placeholder="0.00">
+            </div>
+            <div class="form-group">
+              <label>Cost ($)</label>
+              <input type="number" id="productCost" step="0.01" placeholder="0.00">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Stock Quantity *</label>
+              <input type="number" id="productStock" required placeholder="0">
+            </div>
+            <div class="form-group">
+              <label>Low Stock Threshold</label>
+              <input type="number" id="productThreshold" placeholder="5" value="5">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Brand (Optional)</label>
+            <input type="text" id="productBrand" placeholder="e.g., Nike, Adidas">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+        <button type="button" class="btn-primary" id="saveProductBtn">Save Product</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     (function() {
-      // Supabase configuration
       const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
       const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
       
@@ -575,7 +833,6 @@
       let currentProducts = [];
       let currentSort = { column: 'name', ascending: true };
       
-      // Initialize Supabase
       try {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log("Supabase client created");
@@ -588,12 +845,23 @@
       const loadingScreen = document.getElementById('loadingScreen');
       const dashboardContent = document.getElementById('dashboardContent');
       const errorScreen = document.getElementById('errorScreen');
+      const modal = document.getElementById('productModal');
+      const modalTitle = document.getElementById('modalTitle');
+      let currentEditId = null;
       
       function showError(message) {
         loadingScreen.style.display = 'none';
         dashboardContent.style.display = 'none';
         errorScreen.style.display = 'flex';
         document.getElementById('errorMessage').textContent = message;
+      }
+      
+      function showToast(message, isError = false) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${isError ? 'error' : ''}`;
+        toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
       }
       
       function getInitials(name) {
@@ -611,10 +879,113 @@
         });
       }
       
-      // Fetch real dashboard data
+      // Open modal for adding product
+      window.openAddProductModal = function() {
+        currentEditId = null;
+        modalTitle.textContent = 'Add New Product';
+        document.getElementById('productForm').reset();
+        document.getElementById('productId').value = '';
+        document.getElementById('productThreshold').value = '5';
+        modal.style.display = 'block';
+      };
+      
+      // Open modal for editing product
+      window.openEditProductModal = function(product) {
+        currentEditId = product.id;
+        modalTitle.textContent = 'Edit Product';
+        document.getElementById('productId').value = product.id;
+        document.getElementById('productName').value = product.name || '';
+        document.getElementById('productSku').value = product.sku || '';
+        document.getElementById('productCategory').value = product.category || '';
+        document.getElementById('productPrice').value = product.price || '';
+        document.getElementById('productCost').value = product.cost || '';
+        document.getElementById('productStock').value = product.stock_quantity || 0;
+        document.getElementById('productThreshold').value = product.low_stock_threshold || 5;
+        document.getElementById('productBrand').value = product.brand || '';
+        modal.style.display = 'block';
+      };
+      
+      // Save product (create or update)
+      async function saveProduct() {
+        const name = document.getElementById('productName').value.trim();
+        const sku = document.getElementById('productSku').value.trim();
+        const category = document.getElementById('productCategory').value;
+        const price = parseFloat(document.getElementById('productPrice').value);
+        const cost = parseFloat(document.getElementById('productCost').value) || null;
+        const stock_quantity = parseInt(document.getElementById('productStock').value);
+        const low_stock_threshold = parseInt(document.getElementById('productThreshold').value);
+        const brand = document.getElementById('productBrand').value.trim() || null;
+        
+        if (!name || !sku || !category || isNaN(price) || isNaN(stock_quantity)) {
+          showToast('Please fill in all required fields', true);
+          return;
+        }
+        
+        const productData = {
+          name,
+          sku,
+          category,
+          price,
+          cost,
+          stock_quantity,
+          low_stock_threshold,
+          brand
+        };
+        
+        try {
+          if (currentEditId) {
+            // Update existing product
+            const { error } = await supabase
+              .from('products')
+              .update(productData)
+              .eq('id', currentEditId);
+            
+            if (error) throw error;
+            showToast('Product updated successfully!');
+          } else {
+            // Create new product
+            const { error } = await supabase
+              .from('products')
+              .insert([productData]);
+            
+            if (error) throw error;
+            showToast('Product added successfully!');
+          }
+          
+          modal.style.display = 'none';
+          await fetchInventory();
+          await fetchDashboardData();
+          
+        } catch (err) {
+          console.error('Error saving product:', err);
+          showToast(err.message || 'Failed to save product', true);
+        }
+      }
+      
+      // Delete product
+      window.deleteProduct = async function(productId, productName) {
+        if (confirm(`Are you sure you want to delete "${productName}"?`)) {
+          try {
+            const { error } = await supabase
+              .from('products')
+              .delete()
+              .eq('id', productId);
+            
+            if (error) throw error;
+            showToast('Product deleted successfully!');
+            await fetchInventory();
+            await fetchDashboardData();
+            
+          } catch (err) {
+            console.error('Error deleting product:', err);
+            showToast(err.message || 'Failed to delete product', true);
+          }
+        }
+      };
+      
+      // Fetch dashboard stats
       async function fetchDashboardData() {
         try {
-          // Get today's sales
           const today = new Date().toISOString().split('T')[0];
           const { data: todaySalesData, error: salesError } = await supabase
             .from('sales')
@@ -625,7 +996,6 @@
             const totalToday = todaySalesData?.reduce((sum, sale) => sum + (sale.total_amount || 0), 0) || 0;
             document.getElementById('todaySales').textContent = `$${totalToday.toFixed(2)}`;
             
-            // Get yesterday's sales for trend
             const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
             const { data: yesterdaySalesData } = await supabase
               .from('sales')
@@ -645,31 +1015,21 @@
             }
           }
           
-          // Get low stock items
-          const { data: lowStockData, error: lowStockError } = await supabase
+          const { data: lowStockData } = await supabase
             .from('products')
             .select('id')
             .lte('stock_quantity', 'low_stock_threshold');
           
-          if (!lowStockError) {
-            document.getElementById('lowStock').textContent = lowStockData?.length || 0;
-          }
+          document.getElementById('lowStock').textContent = lowStockData?.length || 0;
           
-          // Get total staff count
-          const { count: staffCount, error: staffError } = await supabase
+          const { count: staffCount } = await supabase
             .from('staff')
             .select('*', { count: 'exact', head: true });
           
-          if (!staffError) {
-            document.getElementById('totalStaff').textContent = staffCount || 0;
-          }
+          document.getElementById('totalStaff').textContent = staffCount || 0;
           
-          // Get total inventory value
-          const { data: products, error: productsError } = await supabase
-            .from('products')
-            .select('price, stock_quantity');
-          
-          if (!productsError && products) {
+          const { data: products } = await supabase.from('products').select('price, stock_quantity');
+          if (products) {
             const totalValue = products.reduce((sum, p) => sum + ((p.price || 0) * (p.stock_quantity || 0)), 0);
             document.getElementById('totalInventoryValue').textContent = `$${totalValue.toFixed(2)}`;
           }
@@ -679,7 +1039,7 @@
         }
       }
       
-      // Fetch and display inventory
+      // Fetch inventory
       async function fetchInventory() {
         try {
           const { data: products, error } = await supabase
@@ -706,7 +1066,6 @@
           p.category?.toLowerCase().includes(searchTerm)
         );
         
-        // Apply sorting
         filtered.sort((a, b) => {
           let aVal, bVal;
           switch(currentSort.column) {
@@ -741,8 +1100,11 @@
               <td class="${isLowStock ? 'low-stock' : ''}">${product.stock_quantity || 0}</td>
               <td>${isLowStock ? '<span style="color:#ef4444">⚠️ Low Stock</span>' : '<span style="color:#10b981">✓ In Stock</span>'}</td>
               <td>
-                <button onclick="alert(\'Edit product: ${product.name}\')" style="background:none; border:none; cursor:pointer; color:#C49A6C;">
+                <button onclick="openEditProductModal(${JSON.stringify(product).replace(/"/g, '&quot;')})" style="background:none; border:none; cursor:pointer; color:#C49A6C; margin-right: 8px;">
                   <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="deleteProduct('${product.id}', '${product.name.replace(/'/g, "\\'")}')" style="background:none; border:none; cursor:pointer; color:#ef4444;">
+                  <i class="fas fa-trash"></i>
                 </button>
               </td>
             </tr>
@@ -760,7 +1122,6 @@
         displayInventory(currentProducts);
       }
       
-      // Fetch recent sales
       async function fetchRecentSales() {
         try {
           const { data: sales, error } = await supabase
@@ -790,27 +1151,22 @@
             </div>
           `).join('');
           
-          // Create sales chart data
           await fetchSalesChartData();
           
         } catch (err) {
           console.error("Error fetching recent sales:", err);
-          document.getElementById('recentSalesList').innerHTML = '<p>Error loading sales data</p>';
         }
       }
       
       async function fetchSalesChartData() {
         try {
-          const { data: sales, error } = await supabase
+          const { data: sales } = await supabase
             .from('sales')
             .select('sale_date, total_amount')
             .gte('sale_date', new Date(Date.now() - 7*86400000).toISOString());
           
-          if (error) throw error;
-          
-          // Group by date
           const salesByDate = {};
-          sales.forEach(sale => {
+          sales?.forEach(sale => {
             const date = sale.sale_date.split('T')[0];
             salesByDate[date] = (salesByDate[date] || 0) + (sale.total_amount || 0);
           });
@@ -826,11 +1182,7 @@
           
           createSalesChart(last7Days);
           
-          // Get category data for pie chart
-          const { data: products } = await supabase
-            .from('products')
-            .select('category, stock_quantity');
-          
+          const { data: products } = await supabase.from('products').select('category, stock_quantity');
           if (products) {
             const categoryCount = {};
             products.forEach(p => {
@@ -893,13 +1245,11 @@
         });
       }
       
-      // Load user profile
       async function loadUserProfile() {
         try {
-          const { data: { user }, error: userError } = await supabase.auth.getUser();
-          if (userError || !user) throw new Error('User not found');
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) throw new Error('User not found');
           
-          // Try to get staff info
           const { data: staffData } = await supabase
             .from('staff')
             .select('*')
@@ -938,7 +1288,6 @@
         }
       }
       
-      // Dark mode toggle
       function initDarkMode() {
         const toggle = document.getElementById('darkModeToggle');
         const isDark = localStorage.getItem('darkMode') === 'true';
@@ -955,17 +1304,14 @@
         });
       }
       
-      // Main load function
       async function loadDashboard() {
         try {
-          // Check session
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-          if (sessionError || !session) {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (!session) {
             window.location.href = "login.html";
             return;
           }
           
-          // Load all data
           await Promise.all([
             fetchDashboardData(),
             fetchInventory(),
@@ -973,20 +1319,19 @@
             loadUserProfile()
           ]);
           
-          // Set up search listener
           document.getElementById('searchInput').addEventListener('input', () => {
             displayInventory(currentProducts);
           });
           
-          // Hide loading, show dashboard
           loadingScreen.style.display = 'none';
           dashboardContent.style.display = 'block';
           
-          // Set up real-time subscription for inventory changes
+          // Real-time subscriptions
           supabase
             .channel('products_changes')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
               fetchInventory();
+              fetchDashboardData();
             })
             .subscribe();
           
@@ -1004,16 +1349,23 @@
         }
       }
       
-      // Logout handler
+      // Modal event listeners
+      document.getElementById('addProductBtn').addEventListener('click', () => openAddProductModal());
+      document.getElementById('saveProductBtn').addEventListener('click', saveProduct);
+      document.getElementById('cancelBtn').addEventListener('click', () => modal.style.display = 'none');
+      document.querySelector('.close').addEventListener('click', () => modal.style.display = 'none');
+      window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+      
       document.getElementById('logoutBtn').addEventListener('click', async () => {
         await supabase.auth.signOut();
         window.location.href = "login.html";
       });
       
-      // Expose sortTable globally
       window.sortTable = sortTable;
+      window.deleteProduct = deleteProduct;
+      window.openEditProductModal = openEditProductModal;
+      window.openAddProductModal = openAddProductModal;
       
-      // Initialize
       initDarkMode();
       loadDashboard();
     })();
