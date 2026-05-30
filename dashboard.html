@@ -14,26 +14,17 @@
       background: #F5F0EA;
       color: #1E1B18;
     }
-    /* Sidebar + Main Layout */
-    .app-wrapper {
-      display: flex;
-      min-height: 100vh;
-    }
-    /* Sidebar */
+    .app-wrapper { display: flex; min-height: 100vh; }
     .sidebar {
       width: 280px;
       background: #1E1B18;
       color: #E9E2D8;
-      transition: all 0.3s;
       position: fixed;
       height: 100vh;
       overflow-y: auto;
       z-index: 100;
     }
-    .sidebar-header {
-      padding: 28px 24px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
+    .sidebar-header { padding: 28px 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .sidebar-logo {
       font-family: 'Playfair Display', serif;
       font-size: 1.8rem;
@@ -46,13 +37,8 @@
       align-items: center;
       gap: 8px;
     }
-    .sidebar-logo i {
-      color: #C49A6C;
-      font-size: 1.6rem;
-    }
-    .nav-menu {
-      padding: 24px 0;
-    }
+    .sidebar-logo i { color: #C49A6C; font-size: 1.6rem; }
+    .nav-menu { padding: 24px 0; }
     .nav-item {
       padding: 12px 24px;
       margin: 4px 12px;
@@ -64,36 +50,21 @@
       cursor: pointer;
       color: #C8C0B8;
     }
-    .nav-item i {
-      width: 24px;
-      font-size: 1.2rem;
-    }
-    .nav-item.active {
-      background: #C49A6C;
-      color: #1E1B18;
-    }
-    .nav-item:hover:not(.active) {
-      background: rgba(196,154,108,0.2);
-      color: #F5F0EA;
-    }
-    /* Main Content */
+    .nav-item i { width: 24px; font-size: 1.2rem; }
+    .nav-item.active { background: #C49A6C; color: #1E1B18; }
+    .nav-item:hover:not(.active) { background: rgba(196,154,108,0.2); color: #F5F0EA; }
     .main-content {
       flex: 1;
       margin-left: 280px;
       padding: 24px 32px;
     }
-    /* Top Bar */
     .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 32px;
     }
-    .page-title h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.8rem;
-      font-weight: 600;
-    }
+    .page-title h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 600; }
     .user-menu {
       display: flex;
       align-items: center;
@@ -123,7 +94,6 @@
       transition: 0.2s;
     }
     .logout-btn:hover { color: #C23D2E; }
-    /* Stats Grid */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -135,20 +105,12 @@
       border-radius: 28px;
       padding: 24px;
       transition: all 0.3s;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
       border: 1px solid #EDE5DC;
     }
     .stat-card:hover { transform: translateY(-4px); box-shadow: 0 20px 30px -12px rgba(0,0,0,0.1); }
-    .stat-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .stat-icon { font-size: 2rem; color: #C49A6C; }
+    .stat-icon { font-size: 2rem; color: #C49A6C; margin-bottom: 16px; }
     .stat-value { font-size: 2.2rem; font-weight: 800; margin-bottom: 6px; }
     .stat-label { color: #6B5E54; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
-    /* Sections */
     .section-card {
       background: white;
       border-radius: 28px;
@@ -164,38 +126,50 @@
       align-items: center;
       gap: 10px;
     }
-    .low-stock-list { list-style: none; }
     .low-stock-item {
       display: flex;
       justify-content: space-between;
       padding: 12px 0;
       border-bottom: 1px solid #F0EAE3;
     }
+    .btn-outline-sm, .action-btn {
+      background: #1E1B18;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Inter', sans-serif;
+    }
     .btn-outline-sm {
       background: transparent;
       border: 1px solid #C49A6C;
-      border-radius: 40px;
-      padding: 6px 14px;
-      font-size: 0.75rem;
-      cursor: pointer;
-      transition: 0.2s;
+      color: #1E1B18;
     }
-    .btn-outline-sm:hover { background: #C49A6C; color: white; }
+    .btn-outline-sm:hover, .action-btn:hover { background: #C49A6C; color: #1E1B18; transform: translateY(-2px); }
     .loading-spinner { text-align: center; padding: 40px; }
+    .error-box {
+      background: #FEF2F0;
+      border-left: 4px solid #C23D2E;
+      padding: 16px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+    }
     @media (max-width: 900px) {
       .sidebar { transform: translateX(-100%); position: fixed; }
       .main-content { margin-left: 0; }
-      .sidebar.open { transform: translateX(0); }
     }
   </style>
 </head>
 <body>
 <div class="app-wrapper">
-  <!-- Sidebar -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo"><i class="fas fa-chart-line"></i> SoulHub</div>
-    </div>
+  <aside class="sidebar">
+    <div class="sidebar-header"><div class="sidebar-logo"><i class="fas fa-chart-line"></i> SoulHub</div></div>
     <nav class="nav-menu">
       <div class="nav-item active" data-page="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</div>
       <div class="nav-item" data-page="inventory"><i class="fas fa-boxes"></i> Inventory</div>
@@ -205,7 +179,6 @@
     </nav>
   </aside>
 
-  <!-- Main Content -->
   <main class="main-content">
     <div class="top-bar">
       <div class="page-title"><h1>Dashboard</h1></div>
@@ -215,9 +188,8 @@
         <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
       </div>
     </div>
-
     <div id="dashboardContent">
-      <!-- Stats will be injected -->
+      <div class="loading-spinner"><i class="fas fa-spinner fa-pulse fa-2x"></i> Loading dashboard...</div>
     </div>
   </main>
 </div>
@@ -229,43 +201,91 @@
 
   let currentUser = null;
 
-  async function fetchDashboardData() {
-    // Fetch total products
-    const { count: totalProducts } = await supabase.from('products').select('*', { count: 'exact', head: true });
-    // Low stock products (stock <= threshold or < 10)
-    const { data: lowStock } = await supabase.from('products').select('name, stock_quantity, low_stock_threshold').lt('stock_quantity', supabase.raw('COALESCE(low_stock_threshold, 10)'));
-    // Today's sales total
-    const today = new Date().toISOString().split('T')[0];
-    const { data: todaySalesData } = await supabase.from('sales').select('total_amount').gte('sale_date', today);
-    const todaySales = todaySalesData?.reduce((sum, s) => sum + parseFloat(s.total_amount), 0) || 0;
-    // Staff count
-    const { count: staffCount } = await supabase.from('staff').select('*', { count: 'exact', head: true });
+  // Helper: safely fetch count from a table
+  async function safeCount(tableName) {
+    try {
+      const { count, error } = await supabase.from(tableName).select('*', { count: 'exact', head: true });
+      if (error) throw error;
+      return count || 0;
+    } catch (err) {
+      console.warn(`Error counting ${tableName}:`, err.message);
+      return 0;
+    }
+  }
 
-    return {
-      totalProducts: totalProducts || 0,
-      lowStockCount: lowStock?.length || 0,
-      lowStockItems: lowStock || [],
-      todaySales,
-      staffCount: staffCount || 0
-    };
+  // Helper: fetch low stock products (stock_quantity < 10, if column exists)
+  async function fetchLowStockProducts() {
+    try {
+      // First check if 'stock_quantity' column exists by trying to select it
+      const { data, error } = await supabase.from('products').select('name, stock_quantity').lt('stock_quantity', 10).limit(20);
+      if (error) {
+        if (error.message.includes('column') && error.message.includes('does not exist')) {
+          return { items: [], count: 0, error: 'Products table exists but no stock_quantity column yet.' };
+        }
+        throw error;
+      }
+      return { items: data || [], count: data?.length || 0, error: null };
+    } catch (err) {
+      console.warn("Low stock fetch error:", err);
+      return { items: [], count: 0, error: err.message };
+    }
+  }
+
+  // Helper: fetch today's sales total
+  async function fetchTodaySales() {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const { data, error } = await supabase
+        .from('sales')
+        .select('total_amount')
+        .gte('sale_date', today);
+      if (error) throw error;
+      const total = data?.reduce((sum, s) => sum + parseFloat(s.total_amount || 0), 0) || 0;
+      return { total, error: null };
+    } catch (err) {
+      console.warn("Today's sales error:", err);
+      return { total: 0, error: err.message };
+    }
   }
 
   async function renderDashboard() {
     const container = document.getElementById('dashboardContent');
     container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-pulse fa-2x"></i> Loading data...</div>';
-    const data = await fetchDashboardData();
-    container.innerHTML = `
+    
+    // Fetch all data in parallel
+    const [totalProducts, staffCount, lowStockResult, salesResult] = await Promise.all([
+      safeCount('products'),
+      safeCount('staff'),
+      fetchLowStockProducts(),
+      fetchTodaySales()
+    ]);
+    
+    const hasErrors = (lowStockResult.error || salesResult.error);
+    const errorMessages = [];
+    if (lowStockResult.error && lowStockResult.error !== 'Products table exists but no stock_quantity column yet.') 
+      errorMessages.push(`Products: ${lowStockResult.error}`);
+    if (salesResult.error) errorMessages.push(`Sales: ${salesResult.error}`);
+    
+    let lowStockHtml = '';
+    if (lowStockResult.error && lowStockResult.error.includes('no stock_quantity column')) {
+      lowStockHtml = '<p>⚠️ The "products" table is missing the <strong>stock_quantity</strong> column. Run the setup SQL to add it.</p>';
+    } else if (lowStockResult.items.length === 0) {
+      lowStockHtml = '<p>✅ All products have sufficient stock (10+ units).</p>';
+    } else {
+      lowStockHtml = `<ul class="low-stock-list">${lowStockResult.items.map(p => `<li class="low-stock-item"><span>${escapeHtml(p.name)}</span><span><strong>${p.stock_quantity}</strong> left</span></li>`).join('')}</ul>`;
+    }
+    
+    const dashboardHtml = `
+      ${hasErrors ? `<div class="error-box"><i class="fas fa-exclamation-triangle"></i> Some data could not be loaded: ${errorMessages.join('; ')}</div>` : ''}
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-header"><div class="stat-icon"><i class="fas fa-shoe-prints"></i></div></div><div class="stat-value">${data.totalProducts}</div><div class="stat-label">Total Products</div></div>
-        <div class="stat-card"><div class="stat-header"><div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div></div><div class="stat-value">${data.lowStockCount}</div><div class="stat-label">Low Stock Items</div></div>
-        <div class="stat-card"><div class="stat-header"><div class="stat-icon"><i class="fas fa-dollar-sign"></i></div></div><div class="stat-value">$${data.todaySales.toFixed(2)}</div><div class="stat-label">Today's Sales</div></div>
-        <div class="stat-card"><div class="stat-header"><div class="stat-icon"><i class="fas fa-users"></i></div></div><div class="stat-value">${data.staffCount}</div><div class="stat-label">Staff Members</div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-shoe-prints"></i></div><div class="stat-value">${totalProducts}</div><div class="stat-label">Total Products</div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-value">${lowStockResult.count}</div><div class="stat-label">Low Stock Items</div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-dollar-sign"></i></div><div class="stat-value">$${salesResult.total.toFixed(2)}</div><div class="stat-label">Today's Sales</div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-value">${staffCount}</div><div class="stat-label">Staff Members</div></div>
       </div>
       <div class="section-card">
         <div class="section-title"><i class="fas fa-box-open"></i> Low Stock Alerts</div>
-        ${data.lowStockItems.length === 0 ? '<p>All products have sufficient stock ✅</p>' : 
-          `<ul class="low-stock-list">${data.lowStockItems.map(p => `<li class="low-stock-item"><span>${p.name}</span><span><strong>${p.stock_quantity}</strong> left</span></li>`).join('')}</ul>`
-        }
+        ${lowStockHtml}
         <button class="btn-outline-sm" style="margin-top:16px" onclick="window.location.href='inventory.html'">Manage Inventory →</button>
       </div>
       <div class="section-card">
@@ -277,11 +297,17 @@
         </div>
       </div>
     `;
+    container.innerHTML = dashboardHtml;
   }
 
+  function escapeHtml(str) { return String(str || '').replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
   async function loadUserProfile() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { window.location.href = 'login.html'; return; }
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) {
+      window.location.href = 'login.html';
+      return;
+    }
     currentUser = user;
     const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
     const name = profile?.full_name || user.email.split('@')[0];
@@ -289,13 +315,11 @@
     document.getElementById('userAvatar').innerText = name.charAt(0).toUpperCase();
   }
 
-  // Logout
   document.getElementById('logoutBtn').addEventListener('click', async () => {
     await supabase.auth.signOut();
     window.location.href = 'login.html';
   });
 
-  // Navigation handlers (for sidebar)
   document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
       const page = item.dataset.page;
@@ -304,25 +328,7 @@
     });
   });
 
-  // Init
   loadUserProfile().then(() => renderDashboard());
 </script>
-<style>
-  .action-btn {
-    background: #1E1B18;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 40px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .action-btn:hover { background: #C49A6C; color: #1E1B18; transform: translateY(-2px); }
-  .low-stock-list { margin-top: 8px; }
-</style>
 </body>
 </html>
