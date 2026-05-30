@@ -55,10 +55,12 @@
       border: 1.5px solid #E9E2D8;
       border-radius: 32px;
       font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
     }
     input:focus {
       outline: none;
       border-color: #C49A6C;
+      box-shadow: 0 0 0 3px rgba(196,154,108,0.1);
     }
     .btn-login {
       width: 100%;
@@ -70,10 +72,12 @@
       font-weight: 700;
       cursor: pointer;
       margin-top: 0.5rem;
+      transition: all 0.3s ease;
     }
     .btn-login:hover {
       background: #C49A6C;
       color: #1E1B18;
+      transform: translateY(-2px);
     }
     .alert {
       padding: 10px;
@@ -92,27 +96,31 @@
       background: #E6F4EA;
       color: #2E7D32;
     }
-    .profile-box {
-      background: #F9F4ED;
-      border-radius: 24px;
-      padding: 1rem;
-      margin-bottom: 1.2rem;
-    }
-    .logout-btn {
-      background: transparent;
-      border: 1px solid #C49A6C;
-      color: #C49A6C;
-      padding: 8px 16px;
-      border-radius: 40px;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 1rem;
-    }
     .register-link {
       text-align: center;
       margin-top: 1.2rem;
       font-size: 0.85rem;
+    }
+    .register-link a {
+      color: #C49A6C;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .register-link a:hover {
+      text-decoration: underline;
+    }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #C49A6C;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -122,130 +130,76 @@
     <h2><i class="fas fa-chart-line"></i> SoulHub</h2>
     <p>Sign in to your management console</p>
   </div>
-  <div class="login-body" id="loginFormContainer">
+  <div class="login-body">
     <div id="messageArea"></div>
     <form id="loginForm">
       <div class="form-group">
         <label>Email</label>
-        <input type="email" id="loginEmail" required>
+        <input type="email" id="loginEmail" required autocomplete="email">
       </div>
       <div class="form-group">
         <label>Password</label>
-        <input type="password" id="loginPassword" required>
+        <input type="password" id="loginPassword" required autocomplete="current-password">
       </div>
-      <button type="submit" class="btn-login"><i class="fas fa-arrow-right-to-bracket"></i> Login</button>
+      <button type="submit" class="btn-login" id="loginBtn">
+        <i class="fas fa-arrow-right-to-bracket"></i> Login
+      </button>
     </form>
     <div class="register-link">
-      Don't have an account? <a href="registration.html" style="color:#C49A6C;">Register now →</a>
-    </div>
-  </div>
-
-  <div class="login-body" id="dashboardContainer" style="display: none;">
-    <div id="profileCard" class="profile-box"></div>
-    <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sign out</button>
-    <div class="register-link">
-      <a href="index.html" style="color:#C49A6C;">← Back to SoulHub landing</a>
+      Don't have an account? <a href="registration.html">Register now →</a>
     </div>
   </div>
 </div>
 
 <script>
-  // CORRECT Supabase configuration from your .env.local
+  // Supabase configuration
   const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
   
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const loginContainer = document.getElementById('loginFormContainer');
-  const dashboardContainer = document.getElementById('dashboardContainer');
-  const profileDiv = document.getElementById('profileCard');
   const messageArea = document.getElementById('messageArea');
+  const loginBtn = document.getElementById('loginBtn');
 
   function showMessage(text, type) {
     messageArea.innerHTML = `<div class="alert alert-${type}"><i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${text}</div>`;
-    setTimeout(() => { if (messageArea.firstChild) messageArea.firstChild.remove(); }, 4000);
+    setTimeout(() => { 
+      if (messageArea.firstChild) messageArea.firstChild.remove(); 
+    }, 5000);
   }
 
-  function escapeHtml(str) {
-    if (!str) return '';
-    return String(str).replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
-    });
-  }
-
-  async function loadUserDashboard(user) {
-    // Try to get profile from profiles table
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('full_name, role, store_name, phone, store_address, established_year')
-      .eq('id', user.id)
-      .single();
-
-    if (error || !profile) {
-      // If profile doesn't exist yet, use user metadata from auth
-      const userMeta = user.user_metadata || {};
-      profileDiv.innerHTML = `
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-          <i class="fas fa-user-circle" style="font-size:2.2rem; color:#C49A6C;"></i>
-          <div><strong style="font-size:1.2rem;">${escapeHtml(userMeta.full_name || user.email?.split('@')[0] || 'User')}</strong><br>${escapeHtml(user.email)}</div>
-        </div>
-        <div style="display:grid; gap:8px;">
-          <div><i class="fas fa-tag"></i> <strong>Role:</strong> <span style="background:#E9D9CC; padding:2px 10px; border-radius:40px;">${escapeHtml(userMeta.role || 'staff')}</span></div>
-          ${userMeta.store_name ? `<div><i class="fas fa-store"></i> ${escapeHtml(userMeta.store_name)}</div>` : ''}
-        </div>
-        <p style="margin-top:12px; font-size:0.8rem; color:#8F8278;"><i class="fas fa-info-circle"></i> Profile setup in progress</p>
-      `;
-    } else {
-      profileDiv.innerHTML = `
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-          <i class="fas fa-user-circle" style="font-size:2.2rem; color:#C49A6C;"></i>
-          <div><strong style="font-size:1.2rem;">${escapeHtml(profile.full_name)}</strong><br>${escapeHtml(user.email)}</div>
-        </div>
-        <div style="display:grid; gap:8px;">
-          <div><i class="fas fa-tag"></i> <strong>Role:</strong> <span style="background:#E9D9CC; padding:2px 10px; border-radius:40px;">${escapeHtml(profile.role)}</span></div>
-          ${profile.store_name ? `<div><i class="fas fa-store"></i> ${escapeHtml(profile.store_name)}</div>` : ''}
-          ${profile.phone ? `<div><i class="fas fa-phone"></i> ${escapeHtml(profile.phone)}</div>` : ''}
-          ${profile.store_address ? `<div><i class="fas fa-location-dot"></i> ${escapeHtml(profile.store_address)}</div>` : ''}
-        </div>
-      `;
-    }
-    loginContainer.style.display = 'none';
-    dashboardContainer.style.display = 'block';
-  }
-
-  async function checkSession() {
+  // Check if user is already logged in
+  async function checkExistingSession() {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
-      await loadUserDashboard(session.user);
-    } else {
-      loginContainer.style.display = 'block';
-      dashboardContainer.style.display = 'none';
+      // User is already logged in, redirect to dashboard
+      window.location.href = "dashboard.html";
     }
   }
 
+  // Handle login form submission
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     
+    // Show loading state
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = '<span class="loading"></span> Logging in...';
+    
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    
     if (error) {
       showMessage(error.message, "error");
+      loginBtn.disabled = false;
+      loginBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Login';
     } else {
-      showMessage("Login successful! Redirecting...", "success");
-      await loadUserDashboard(data.user);
+      showMessage("Login successful! Redirecting to dashboard...", "success");
+      // Redirect to dashboard after successful login
+      setTimeout(() => {
+        window.location.href = "dashboard.html";
+      }, 1000);
     }
-  });
-
-  document.getElementById('logoutBtn').addEventListener('click', async () => {
-    await supabase.auth.signOut();
-    loginContainer.style.display = 'block';
-    dashboardContainer.style.display = 'none';
-    document.getElementById('loginForm').reset();
-    showMessage("You have been signed out.", "success");
   });
 
   // Show registration success message if redirected
@@ -254,7 +208,8 @@
     showMessage(`✅ Account created successfully for ${emailParam || 'you'}! Please log in.`, "success");
   }
 
-  checkSession();
+  // Check for existing session on page load
+  checkExistingSession();
 </script>
 </body>
 </html>
