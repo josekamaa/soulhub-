@@ -16,107 +16,101 @@
 </head>
 <body>
   <h1>Staff Management - Debug Mode</h1>
-  <div id="logs"></div>
+  <div id="logs">Loading... Please wait</div>
 
   <script>
-    const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
-    function addLog(message, type = 'info') {
+    // Wait for DOM to load
+    document.addEventListener('DOMContentLoaded', function() {
       const logsDiv = document.getElementById('logs');
-      const logEntry = document.createElement('div');
-      logEntry.className = `log ${type}`;
-      logEntry.textContent = new Date().toLocaleTimeString() + ' - ' + message;
-      logsDiv.appendChild(logEntry);
-      console.log(message);
-    }
-
-    async function debug() {
-      addLog('🔍 Starting debug...', 'info');
       
-      // Step 1: Check authentication
-      addLog('Step 1: Checking authentication...', 'info');
-      try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError) {
-          addLog(`❌ Auth error: ${userError.message}`, 'error');
-          return;
-        }
-        if (!user) {
-          addLog('❌ No user logged in. Redirecting to login...', 'error');
-          setTimeout(() => { window.location.href = "login.html"; }, 2000);
-          return;
-        }
-        addLog(`✅ Logged in as: ${user.email} (ID: ${user.id})`, 'success');
-      } catch (err) {
-        addLog(`❌ Auth exception: ${err.message}`, 'error');
-        return;
+      function addLog(message, type = 'info') {
+        const logEntry = document.createElement('div');
+        logEntry.className = `log ${type}`;
+        logEntry.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+        logsDiv.appendChild(logEntry);
+        console.log(message);
       }
       
-      // Step 2: Check profiles table
-      addLog('Step 2: Checking profiles table...', 'info');
-      try {
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('*')
-          .limit(5);
-        
-        if (profilesError) {
-          addLog(`❌ Profiles table error: ${profilesError.message}`, 'error');
-          addLog(`   Hint: Make sure the 'profiles' table exists and has RLS policies`, 'error');
-        } else {
-          addLog(`✅ Profiles table accessible! Found ${profiles?.length || 0} records (showing first 5)`, 'success');
-          addLog(`   Sample: ${JSON.stringify(profiles?.slice(0, 2))}`, 'info');
-        }
-      } catch (err) {
-        addLog(`❌ Profiles exception: ${err.message}`, 'error');
-      }
-      
-      // Step 3: Check staff table
-      addLog('Step 3: Checking staff table...', 'info');
-      try {
-        const { data: staff, error: staffError } = await supabase
-          .from('staff')
-          .select('*')
-          .limit(5);
-        
-        if (staffError) {
-          addLog(`❌ Staff table error: ${staffError.message}`, 'error');
-          addLog(`   Hint: Make sure the 'staff' table exists`, 'error');
-        } else {
-          addLog(`✅ Staff table accessible! Found ${staff?.length || 0} records`, 'success');
-          if (staff && staff.length > 0) {
-            addLog(`   Sample: ${JSON.stringify(staff.slice(0, 2))}`, 'info');
+      async function debug() {
+        try {
+          addLog('🔍 Starting debug...', 'info');
+          
+          // Check if Supabase is loaded
+          if (typeof window.supabase === 'undefined') {
+            addLog('❌ Supabase library not loaded! Check internet connection.', 'error');
+            return;
           }
+          addLog('✅ Supabase library loaded', 'success');
+          
+          // Initialize Supabase
+          const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
+          const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
+          const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          addLog('✅ Supabase client created', 'success');
+          
+          // Step 1: Check authentication
+          addLog('Step 1: Checking authentication...', 'info');
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          
+          if (userError) {
+            addLog(`❌ Auth error: ${userError.message}`, 'error');
+            return;
+          }
+          if (!user) {
+            addLog('❌ No user logged in. Redirecting to login in 3 seconds...', 'error');
+            setTimeout(() => { window.location.href = "login.html"; }, 3000);
+            return;
+          }
+          addLog(`✅ Logged in as: ${user.email} (ID: ${user.id})`, 'success');
+          
+          // Step 2: Check profiles table
+          addLog('Step 2: Checking profiles table...', 'info');
+          const { data: profiles, error: profilesError } = await supabase
+            .from('profiles')
+            .select('*')
+            .limit(3);
+          
+          if (profilesError) {
+            addLog(`❌ Profiles table error: ${profilesError.message}`, 'error');
+            addLog(`   Message: ${profilesError.message}`, 'error');
+            addLog(`   Hint: Make sure the 'profiles' table exists`, 'error');
+          } else {
+            addLog(`✅ Profiles table accessible!`, 'success');
+            addLog(`   Found ${profiles?.length || 0} records`, 'success');
+            if (profiles && profiles.length > 0) {
+              addLog(`   Sample: ${JSON.stringify(profiles[0])}`, 'info');
+            }
+          }
+          
+          // Step 3: Check staff table
+          addLog('Step 3: Checking staff table...', 'info');
+          const { data: staff, error: staffError } = await supabase
+            .from('staff')
+            .select('*')
+            .limit(3);
+          
+          if (staffError) {
+            addLog(`❌ Staff table error: ${staffError.message}`, 'error');
+            addLog(`   Hint: Make sure the 'staff' table exists`, 'error');
+          } else {
+            addLog(`✅ Staff table accessible!`, 'success');
+            addLog(`   Found ${staff?.length || 0} records`, 'success');
+            if (staff && staff.length > 0) {
+              addLog(`   Sample: ${JSON.stringify(staff[0])}`, 'info');
+            }
+          }
+          
+          addLog('🏁 Debug complete!', 'success');
+          
+        } catch (err) {
+          addLog(`❌ Unexpected error: ${err.message}`, 'error');
+          console.error(err);
         }
-      } catch (err) {
-        addLog(`❌ Staff exception: ${err.message}`, 'error');
       }
       
-      // Step 4: Check RLS policies
-      addLog('Step 4: Testing insert permission on profiles...', 'info');
-      try {
-        // Just a test query to check permissions
-        const { error: testError } = await supabase
-          .from('profiles')
-          .select('count')
-          .limit(1);
-        
-        if (testError) {
-          addLog(`⚠️ Permission issue: ${testError.message}`, 'error');
-          addLog(`   You may need to run RLS policies SQL`, 'error');
-        } else {
-          addLog(`✅ Read permission OK`, 'success');
-        }
-      } catch (err) {
-        addLog(`⚠️ Permission check failed: ${err.message}`, 'error');
-      }
-      
-      addLog('🏁 Debug complete! Check the errors above.', 'info');
-    }
-    
-    debug();
+      // Run debug
+      debug();
+    });
   </script>
 </body>
 </html>l
