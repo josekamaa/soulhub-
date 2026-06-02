@@ -1026,21 +1026,15 @@
             updated_at: new Date().toISOString()
           };
           
+          // Remove email from update since it might not exist in profiles table
+          delete updateData.email;
+          
           const { error: profileError } = await supabase
             .from('profiles')
             .update(updateData)
             .eq('id', staffId);
           
           if (profileError) throw profileError;
-          
-          // Update password if provided
-          if (password) {
-            const { error: pwdError } = await supabase.auth.admin.updateUserById(
-              staffId,
-              { password: password }
-            );
-            if (pwdError) console.warn("Could not update password (admin rights needed):", pwdError);
-          }
           
           showToast('Staff updated successfully!');
         } else {
@@ -1059,20 +1053,24 @@
           if (signUpError) throw signUpError;
           
           if (userData.user) {
-            // Create profile
+            // Create profile - note: email might not be in profiles table based on your schema
+            const profileData = {
+              id: userData.user.id,
+              full_name: fullName,
+              role: role,
+              phone: phone || null,
+              store_name: storeName || null,
+              store_address: storeAddress || null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            };
+            
+            // Only add email if the column exists (check from your earlier output - it doesn't)
+            // Based on your profiles table structure, email is NOT a column
+            
             const { error: profileError } = await supabase
               .from('profiles')
-              .insert([{
-                id: userData.user.id,
-                full_name: fullName,
-                email: email,
-                role: role,
-                phone: phone || null,
-                store_name: storeName || null,
-                store_address: storeAddress || null,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-              }]);
+              .insert([profileData]);
             
             if (profileError) throw profileError;
             
@@ -1099,7 +1097,7 @@
             return;
           }
           
-          // Delete from profiles (this will cascade or we need to delete auth user)
+          // Delete from profiles
           const { error: profileError } = await supabase
             .from('profiles')
             .delete()
@@ -1171,12 +1169,6 @@
       }
     }
 
-    // Make functions available globally
-    window.openEditModal = openEditModal;
-    window.openAddModal = openAddModal;
-    window.saveStaff = saveStaff;
-    window.deleteStaff = deleteStaff;
-
     // Event Listeners
     document.getElementById('addStaffBtn').addEventListener('click', () => window.openAddModal());
     document.getElementById('saveStaffBtn').addEventListener('click', () => window.saveStaff());
@@ -1186,8 +1178,10 @@
     document.querySelector('.close').addEventListener('click', () => {
       document.getElementById('staffModal').style.display = 'none';
     });
+    
     const searchInput = document.getElementById('searchInput');
     if (searchInput) searchInput.addEventListener('input', () => displayStaff());
+    
     const roleFilter = document.getElementById('roleFilter');
     if (roleFilter) roleFilter.addEventListener('change', () => displayStaff());
     
