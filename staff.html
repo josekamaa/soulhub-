@@ -653,7 +653,7 @@
   </div>
 
   <div id="errorScreen" class="error-container" style="display: none;">
-    <i class="fas fa-exclamation-circle"></i>
+    <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: #C23D2E;"></i>
     <h2>Unable to Load Staff Management</h2>
     <p id="errorMessage">Something went wrong. Please try again.</p>
     <button onclick="window.location.href = 'login.html'" style="padding: 12px 24px; background: #C49A6C; color: white; border: none; border-radius: 40px; cursor: pointer;">Go to Login</button>
@@ -714,8 +714,8 @@
             </div>
             <div class="stats-card">
               <div class="stats-icon"><i class="fas fa-user"></i></div>
-              <div class="stats-value" id="staffCount">0</div>
-              <div class="stats-label">Regular Staff</div>
+              <div class="stats-value" id="managerCount">0</div>
+              <div class="stats-label">Managers</div>
             </div>
             <div class="stats-card">
               <div class="stats-icon"><i class="fas fa-calendar-alt"></i></div>
@@ -726,7 +726,7 @@
 
           <div class="filters-bar">
             <div class="search-box">
-              <input type="text" id="searchInput" placeholder="🔍 Search by name, email, or employee code...">
+              <input type="text" id="searchInput" placeholder="🔍 Search by name, email, or role...">
             </div>
             <select id="roleFilter" class="filter-select">
               <option value="all">All Roles</option>
@@ -764,51 +764,29 @@
             <input type="email" id="email" required placeholder="staff@example.com">
           </div>
           
-          <div class="form-row">
-            <div class="form-group">
-              <label>Role *</label>
-              <select id="role" required>
-                <option value="staff">Staff</option>
-                <option value="manager">Manager</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Employee Code</label>
-              <input type="text" id="employeeCode" placeholder="e.g., EMP-001">
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label>Hourly Rate ($)</label>
-              <input type="number" id="hourlyRate" step="0.01" placeholder="0.00">
-            </div>
-            <div class="form-group">
-              <label>Phone</label>
-              <input type="tel" id="phone" placeholder="e.g., +1 234 567 8900">
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label>Hire Date</label>
-              <input type="date" id="hireDate">
-            </div>
-            <div class="form-group">
-              <label>Position</label>
-              <input type="text" id="position" placeholder="e.g., Cashier, Manager">
-            </div>
+          <div class="form-group">
+            <label>Role *</label>
+            <select id="role" required>
+              <option value="staff">Staff</option>
+              <option value="manager">Manager</option>
+              <option value="admin">Admin</option>
+            </select>
           </div>
           
           <div class="form-group">
-            <label>Store Name</label>
-            <input type="text" id="storeName" placeholder="Store name">
+            <label>Phone</label>
+            <input type="tel" id="phone" placeholder="e.g., +1 234 567 8900">
           </div>
           
-          <div class="form-group">
-            <label>Store Address</label>
-            <input type="text" id="storeAddress" placeholder="Store address">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Store Name</label>
+              <input type="text" id="storeName" placeholder="Store name">
+            </div>
+            <div class="form-group">
+              <label>Store Address</label>
+              <input type="text" id="storeAddress" placeholder="Store address">
+            </div>
           </div>
           
           <div class="form-group">
@@ -864,13 +842,13 @@
 
     async function loadStaff() {
       try {
-        console.log("Loading staff data...");
+        console.log("Loading staff data from profiles table...");
         
-        // Get all profiles
+        // Get all profiles (users)
         const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
           .select('*')
-          .order('full_name');
+          .order('created_at', { ascending: false });
         
         if (profilesError) {
           console.error("Profiles error:", profilesError);
@@ -879,25 +857,8 @@
         
         console.log("Profiles loaded:", profiles?.length || 0);
         
-        // Get all staff data
-        const { data: staffData, error: staffError } = await supabase
-          .from('staff')
-          .select('*');
-        
-        if (staffError) {
-          console.error("Staff error:", staffError);
-          throw staffError;
-        }
-        
-        console.log("Staff data loaded:", staffData?.length || 0);
-        
-        // Merge data
-        staffList = (profiles || []).map(profile => ({
-          ...profile,
-          staff: (staffData || []).find(s => s.id === profile.id) || {}
-        }));
-        
-        console.log("Merged staff list:", staffList.length);
+        // Store the staff list
+        staffList = profiles || [];
         
         updateStats();
         displayStaff();
@@ -911,7 +872,7 @@
     function updateStats() {
       const total = staffList.length;
       const admins = staffList.filter(s => s.role === 'admin').length;
-      const regularStaff = staffList.filter(s => s.role === 'staff' || s.role === 'manager').length;
+      const managers = staffList.filter(s => s.role === 'manager').length;
       
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
@@ -923,7 +884,7 @@
       
       document.getElementById('totalStaff').textContent = total;
       document.getElementById('adminCount').textContent = admins;
-      document.getElementById('staffCount').textContent = regularStaff;
+      document.getElementById('managerCount').textContent = managers;
       document.getElementById('newThisMonth').textContent = newThisMonth;
     }
 
@@ -935,7 +896,7 @@
         const matchesSearch = !searchTerm || 
           staff.full_name?.toLowerCase().includes(searchTerm) ||
           staff.email?.toLowerCase().includes(searchTerm) ||
-          staff.staff?.employee_code?.toLowerCase().includes(searchTerm);
+          staff.role?.toLowerCase().includes(searchTerm);
         
         const matchesRole = roleFilter === 'all' || staff.role === roleFilter;
         
@@ -958,15 +919,15 @@
       }
       
       grid.innerHTML = filtered.map(staff => {
-        const staffData = staff.staff || {};
         const roleColor = staff.role === 'admin' ? '#ef4444' : staff.role === 'manager' ? '#f59e0b' : '#10b981';
+        const roleDisplay = staff.role?.toUpperCase() || 'STAFF';
         
         return `
           <div class="staff-card">
             <div class="staff-card-header">
               <div class="staff-avatar">${getInitials(staff.full_name)}</div>
               <div class="staff-role-badge" style="background: ${roleColor}20; color: ${roleColor}">
-                ${staff.role?.toUpperCase() || 'STAFF'}
+                ${roleDisplay}
               </div>
             </div>
             <div class="staff-card-body">
@@ -976,16 +937,8 @@
                 <span>${escapeHtml(staff.email || 'N/A')}</span>
               </div>
               <div class="staff-detail">
-                <i class="fas fa-id-badge"></i>
-                <span>${escapeHtml(staffData.employee_code || 'No code')}</span>
-              </div>
-              <div class="staff-detail">
                 <i class="fas fa-briefcase"></i>
-                <span>${escapeHtml(staffData.position || 'No position')}</span>
-              </div>
-              <div class="staff-detail">
-                <i class="fas fa-dollar-sign"></i>
-                <span>$${(staffData.hourly_rate || 0).toFixed(2)}/hr</span>
+                <span>${escapeHtml(staff.role || 'No role')}</span>
               </div>
               <div class="staff-detail">
                 <i class="fas fa-phone"></i>
@@ -994,6 +947,10 @@
               <div class="staff-detail">
                 <i class="fas fa-store"></i>
                 <span>${escapeHtml(staff.store_name || 'N/A')}</span>
+              </div>
+              <div class="staff-detail">
+                <i class="fas fa-calendar"></i>
+                <span>Joined: ${staff.created_at ? new Date(staff.created_at).toLocaleDateString() : 'N/A'}</span>
               </div>
             </div>
             <div class="staff-card-footer">
@@ -1018,15 +975,12 @@
       document.getElementById('fullName').value = staff.full_name || '';
       document.getElementById('email').value = staff.email || '';
       document.getElementById('role').value = staff.role || 'staff';
-      document.getElementById('employeeCode').value = staff.staff?.employee_code || '';
-      document.getElementById('hourlyRate').value = staff.staff?.hourly_rate || '';
       document.getElementById('phone').value = staff.phone || '';
-      document.getElementById('hireDate').value = staff.staff?.hire_date || '';
-      document.getElementById('position').value = staff.staff?.position || '';
       document.getElementById('storeName').value = staff.store_name || '';
       document.getElementById('storeAddress').value = staff.store_address || '';
       document.getElementById('password').value = '';
       document.getElementById('password').placeholder = 'Leave blank to keep current password';
+      document.getElementById('password').required = false;
       
       document.getElementById('staffModal').style.display = 'block';
     };
@@ -1036,6 +990,7 @@
       document.getElementById('staffForm').reset();
       document.getElementById('staffId').value = '';
       document.getElementById('password').placeholder = 'Enter password for new staff';
+      document.getElementById('password').required = true;
       document.getElementById('staffModal').style.display = 'block';
     };
 
@@ -1044,11 +999,7 @@
       const fullName = document.getElementById('fullName').value.trim();
       const email = document.getElementById('email').value.trim();
       const role = document.getElementById('role').value;
-      const employeeCode = document.getElementById('employeeCode').value.trim();
-      const hourlyRate = parseFloat(document.getElementById('hourlyRate').value) || null;
       const phone = document.getElementById('phone').value.trim();
-      const hireDate = document.getElementById('hireDate').value;
-      const position = document.getElementById('position').value.trim();
       const storeName = document.getElementById('storeName').value.trim();
       const storeAddress = document.getElementById('storeAddress').value.trim();
       const password = document.getElementById('password').value;
@@ -1058,66 +1009,37 @@
         return;
       }
       
-      if (!staffId && !password) {
-        showToast('Password is required for new staff', true);
-        return;
-      }
-      
-      if (password && password.length < 6) {
-        showToast('Password must be at least 6 characters', true);
+      if (!staffId && (!password || password.length < 6)) {
+        showToast('Password is required for new staff (minimum 6 characters)', true);
         return;
       }
       
       try {
         if (staffId) {
           // Update existing staff profile
+          const updateData = {
+            full_name: fullName,
+            role: role,
+            phone: phone || null,
+            store_name: storeName || null,
+            store_address: storeAddress || null,
+            updated_at: new Date().toISOString()
+          };
+          
           const { error: profileError } = await supabase
             .from('profiles')
-            .update({
-              full_name: fullName,
-              role: role,
-              phone: phone,
-              store_name: storeName,
-              store_address: storeAddress,
-              updated_at: new Date().toISOString()
-            })
+            .update(updateData)
             .eq('id', staffId);
           
           if (profileError) throw profileError;
           
-          // Check if staff record exists
-          const { data: existingStaff } = await supabase
-            .from('staff')
-            .select('id')
-            .eq('id', staffId)
-            .single();
-          
-          if (existingStaff) {
-            // Update existing staff record
-            const { error: staffError } = await supabase
-              .from('staff')
-              .update({
-                employee_code: employeeCode || null,
-                hourly_rate: hourlyRate,
-                hire_date: hireDate || null,
-                position: position || null
-              })
-              .eq('id', staffId);
-            
-            if (staffError) throw staffError;
-          } else if (employeeCode || hourlyRate || hireDate || position) {
-            // Create staff record if it doesn't exist
-            const { error: staffError } = await supabase
-              .from('staff')
-              .insert([{
-                id: staffId,
-                employee_code: employeeCode || null,
-                hourly_rate: hourlyRate,
-                hire_date: hireDate || null,
-                position: position || null
-              }]);
-            
-            if (staffError) throw staffError;
+          // Update password if provided
+          if (password) {
+            const { error: pwdError } = await supabase.auth.admin.updateUserById(
+              staffId,
+              { password: password }
+            );
+            if (pwdError) console.warn("Could not update password (admin rights needed):", pwdError);
           }
           
           showToast('Staff updated successfully!');
@@ -1128,7 +1050,8 @@
             password: password,
             options: {
               data: {
-                full_name: fullName
+                full_name: fullName,
+                role: role
               }
             }
           });
@@ -1142,6 +1065,7 @@
               .insert([{
                 id: userData.user.id,
                 full_name: fullName,
+                email: email,
                 role: role,
                 phone: phone || null,
                 store_name: storeName || null,
@@ -1151,19 +1075,6 @@
               }]);
             
             if (profileError) throw profileError;
-            
-            // Create staff record
-            const { error: staffError } = await supabase
-              .from('staff')
-              .insert([{
-                id: userData.user.id,
-                employee_code: employeeCode || null,
-                hourly_rate: hourlyRate,
-                hire_date: hireDate || new Date().toISOString().split('T')[0],
-                position: position || null
-              }]);
-            
-            if (staffError) throw staffError;
             
             showToast('Staff added successfully!');
           }
@@ -1181,15 +1092,14 @@
     window.deleteStaff = async function(staffId, staffName) {
       if (confirm(`Are you sure you want to delete ${staffName}? This action cannot be undone.`)) {
         try {
-          // Delete from staff table first
-          const { error: staffError } = await supabase
-            .from('staff')
-            .delete()
-            .eq('id', staffId);
+          // First check if the user is not deleting themselves
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user && user.id === staffId) {
+            showToast('You cannot delete your own account', true);
+            return;
+          }
           
-          if (staffError) console.error("Staff delete error:", staffError);
-          
-          // Delete from profiles
+          // Delete from profiles (this will cascade or we need to delete auth user)
           const { error: profileError } = await supabase
             .from('profiles')
             .delete()
@@ -1217,7 +1127,15 @@
         }
         
         currentUser = user;
-        const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+        
+        // Get user profile from profiles table
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        
+        const fullName = profile?.full_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
         document.getElementById('userName').textContent = fullName;
         document.getElementById('userAvatar').textContent = getInitials(fullName);
         
@@ -1253,6 +1171,12 @@
       }
     }
 
+    // Make functions available globally
+    window.openEditModal = openEditModal;
+    window.openAddModal = openAddModal;
+    window.saveStaff = saveStaff;
+    window.deleteStaff = deleteStaff;
+
     // Event Listeners
     document.getElementById('addStaffBtn').addEventListener('click', () => window.openAddModal());
     document.getElementById('saveStaffBtn').addEventListener('click', () => window.saveStaff());
@@ -1262,13 +1186,23 @@
     document.querySelector('.close').addEventListener('click', () => {
       document.getElementById('staffModal').style.display = 'none';
     });
-    document.getElementById('searchInput').addEventListener('input', () => displayStaff());
-    document.getElementById('roleFilter').addEventListener('change', () => displayStaff());
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) searchInput.addEventListener('input', () => displayStaff());
+    const roleFilter = document.getElementById('roleFilter');
+    if (roleFilter) roleFilter.addEventListener('change', () => displayStaff());
     
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await supabase.auth.signOut();
       window.location.href = "login.html";
     });
+    
+    // Click outside modal to close
+    window.onclick = function(event) {
+      const modal = document.getElementById('staffModal');
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    }
     
     async function init() {
       console.log("Initializing Staff Management page...");
