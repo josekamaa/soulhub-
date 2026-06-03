@@ -22,7 +22,6 @@
       overflow-x: hidden;
     }
 
-    /* Dark Mode Styles */
     body.dark-mode {
       background: #1a1a1a;
       color: #FEFCF8;
@@ -31,23 +30,19 @@
     body.dark-mode .sidebar,
     body.dark-mode .top-bar,
     body.dark-mode .card,
-    body.dark-mode .modal-content {
+    body.dark-mode .modal-content,
+    body.dark-mode .chart-container,
+    body.dark-mode .data-table {
       background: #2d2d2d;
       color: #FEFCF8;
-    }
-
-    body.dark-mode .card {
-      background: #2d2d2d;
       border-color: #404040;
     }
 
-    /* Layout */
     .app-container {
       display: flex;
       min-height: 100vh;
     }
 
-    /* Sidebar */
     .sidebar {
       width: 280px;
       background: white;
@@ -59,18 +54,9 @@
       z-index: 100;
     }
 
-    body.dark-mode .sidebar {
-      background: #2d2d2d;
-      border-right-color: #404040;
-    }
-
     .sidebar-header {
       padding: 24px;
       border-bottom: 1px solid #F0EAE3;
-    }
-
-    body.dark-mode .sidebar-header {
-      border-bottom-color: #404040;
     }
 
     .logo {
@@ -102,17 +88,9 @@
       color: #5E5348;
     }
 
-    body.dark-mode .nav-item {
-      color: #B0A89F;
-    }
-
     .nav-item:hover {
       background: #F9F4ED;
       color: #C49A6C;
-    }
-
-    body.dark-mode .nav-item:hover {
-      background: #3d3d3d;
     }
 
     .nav-item.active {
@@ -122,17 +100,13 @@
 
     .nav-item i {
       width: 24px;
-      font-size: 1.2rem;
     }
 
-    /* Main Content */
     .main-content {
       flex: 1;
       margin-left: 280px;
-      transition: all 0.3s ease;
     }
 
-    /* Top Bar */
     .top-bar {
       background: white;
       border-bottom: 1px solid #F0EAE3;
@@ -143,11 +117,6 @@
       position: sticky;
       top: 0;
       z-index: 99;
-    }
-
-    body.dark-mode .top-bar {
-      background: #2d2d2d;
-      border-bottom-color: #404040;
     }
 
     .page-title h1 {
@@ -169,11 +138,6 @@
       transition: all 0.2s;
     }
 
-    .theme-toggle:hover, .notifications:hover {
-      background: #F9F4ED;
-      color: #C49A6C;
-    }
-
     .user-menu {
       display: flex;
       align-items: center;
@@ -182,10 +146,6 @@
       padding: 8px 16px;
       border-radius: 40px;
       background: #F9F4ED;
-    }
-
-    body.dark-mode .user-menu {
-      background: #3d3d3d;
     }
 
     .user-avatar {
@@ -199,12 +159,10 @@
       color: white;
     }
 
-    /* Content Area */
     .content-area {
       padding: 32px;
     }
 
-    /* KPI Cards */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -239,12 +197,6 @@
       margin-bottom: 8px;
     }
 
-    .card-change {
-      font-size: 0.85rem;
-      color: #4CAF50;
-    }
-
-    /* Charts Grid */
     .charts-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -252,28 +204,21 @@
       margin-bottom: 32px;
     }
 
-    .chart-container {
+    .chart-container, .data-table {
       background: white;
       border: 1px solid #F0EAE3;
       border-radius: 20px;
       padding: 24px;
     }
 
-    body.dark-mode .chart-container {
-      background: #2d2d2d;
-      border-color: #404040;
-    }
-
-    .chart-container h3 {
+    .chart-container h3, .data-table h3 {
       margin-bottom: 20px;
-      font-size: 1.2rem;
     }
 
     canvas {
       max-height: 300px;
     }
 
-    /* Tables and Lists */
     .data-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -281,45 +226,23 @@
       margin-bottom: 32px;
     }
 
-    .data-table {
-      background: white;
-      border: 1px solid #F0EAE3;
-      border-radius: 20px;
-      padding: 24px;
-    }
-
-    body.dark-mode .data-table {
-      background: #2d2d2d;
-      border-color: #404040;
-    }
-
-    .data-table h3 {
-      margin-bottom: 16px;
-      font-size: 1.2rem;
-    }
-
-    .data-table table {
+    table {
       width: 100%;
       border-collapse: collapse;
     }
 
-    .data-table th,
-    .data-table td {
+    th, td {
       padding: 12px;
       text-align: left;
       border-bottom: 1px solid #F0EAE3;
     }
 
-    body.dark-mode .data-table th,
-    body.dark-mode .data-table td {
-      border-bottom-color: #404040;
-    }
-
     .badge {
-      padding: 4px 8px;
+      padding: 4px 12px;
       border-radius: 12px;
       font-size: 0.75rem;
       font-weight: 600;
+      display: inline-block;
     }
 
     .badge-warning {
@@ -332,7 +255,6 @@
       color: #2E7D32;
     }
 
-    /* Quick Actions */
     .quick-actions {
       display: flex;
       gap: 16px;
@@ -358,7 +280,6 @@
       transform: translateY(-2px);
     }
 
-    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -382,12 +303,6 @@
       padding: 32px;
       max-width: 500px;
       width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-
-    body.dark-mode .modal-content {
-      background: #2d2d2d;
     }
 
     .modal-header {
@@ -412,8 +327,7 @@
       font-weight: 500;
     }
 
-    .form-group input,
-    .form-group select {
+    .form-group input, .form-group select {
       width: 100%;
       padding: 10px;
       border: 1px solid #E9E2D8;
@@ -421,7 +335,20 @@
       font-family: 'Inter', sans-serif;
     }
 
-    /* Mobile Responsive */
+    .loading {
+      text-align: center;
+      padding: 60px;
+    }
+
+    .spinner {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     @media (max-width: 768px) {
       .sidebar {
         transform: translateX(-100%);
@@ -431,19 +358,6 @@
       }
       .main-content {
         margin-left: 0;
-      }
-      .charts-grid,
-      .data-grid {
-        grid-template-columns: 1fr;
-      }
-      .kpi-grid {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      }
-      .top-bar {
-        padding: 12px 16px;
-      }
-      .content-area {
-        padding: 16px;
       }
       .menu-toggle {
         display: block;
@@ -458,19 +372,24 @@
       }
     }
 
-    .loading {
+    .error-container {
       text-align: center;
-      padding: 40px;
+      padding: 60px;
     }
 
-    .spinner {
-      animation: spin 1s linear infinite;
+    .setup-btn {
+      background: #C49A6C;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 40px;
+      cursor: pointer;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
 <div class="app-container">
-  <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="logo">
@@ -494,22 +413,13 @@
         <i class="fas fa-users"></i>
         <span>Customers</span>
       </div>
-      <div class="nav-item" data-page="staff" id="staffNav" style="display: none;">
-        <i class="fas fa-user-tie"></i>
-        <span>Staff Management</span>
-      </div>
       <div class="nav-item" data-page="reports">
         <i class="fas fa-chart-bar"></i>
         <span>Reports</span>
       </div>
-      <div class="nav-item" data-page="settings" id="settingsNav" style="display: none;">
-        <i class="fas fa-cog"></i>
-        <span>Settings</span>
-      </div>
     </nav>
   </aside>
 
-  <!-- Main Content -->
   <main class="main-content">
     <div class="top-bar">
       <div class="menu-toggle" id="menuToggle">
@@ -536,12 +446,14 @@
     </div>
 
     <div class="content-area" id="contentArea">
-      <!-- Dashboard Content will be loaded here -->
+      <div class="loading">
+        <i class="fas fa-spinner spinner" style="font-size: 2rem;"></i>
+        <p style="margin-top: 20px;">Loading dashboard...</p>
+      </div>
     </div>
   </main>
 </div>
 
-<!-- Modals -->
 <div id="saleModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
@@ -551,15 +463,11 @@
     <form id="saleForm">
       <div class="form-group">
         <label>Product SKU</label>
-        <input type="text" id="productSku" required>
+        <input type="text" id="productSku" required placeholder="e.g., NK-001">
       </div>
       <div class="form-group">
         <label>Quantity</label>
         <input type="number" id="quantity" min="1" value="1" required>
-      </div>
-      <div class="form-group">
-        <label>Customer Email (optional)</label>
-        <input type="email" id="customerEmail">
       </div>
       <div class="form-group">
         <label>Payment Method</label>
@@ -574,28 +482,7 @@
   </div>
 </div>
 
-<div id="stockModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>Add Stock</h2>
-      <span class="close-modal">&times;</span>
-    </div>
-    <form id="stockForm">
-      <div class="form-group">
-        <label>Product SKU</label>
-        <input type="text" id="stockSku" required>
-      </div>
-      <div class="form-group">
-        <label>Quantity to Add</label>
-        <input type="number" id="addQuantity" min="1" required>
-      </div>
-      <button type="submit" class="action-btn" style="width: 100%;">Update Stock</button>
-    </form>
-  </div>
-</div>
-
 <script>
-  // Supabase Configuration
   const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY2N5ZmFqcGFpdXZxb3Z2cXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNjIwMzAsImV4cCI6MjA5NTYzODAzMH0.mLGYFgTZ3ToIJD8KAiqbxr0h42H8PYN5xh1fyvTNvqo";
   
@@ -604,11 +491,9 @@
   let revenueChart = null;
   let categoryChart = null;
 
-  // Initialize Supabase
   async function initSupabase() {
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
-    // Check current session
     const { data: { session }, error } = await supabase.auth.getSession();
     if (error || !session) {
       window.location.href = "login.html";
@@ -617,7 +502,6 @@
     
     currentUser = session.user;
     
-    // Get user profile
     const { data: profile } = await supabase
       .from('profiles')
       .select('*')
@@ -626,185 +510,200 @@
     
     if (profile) {
       document.getElementById('userName').textContent = profile.full_name || currentUser.email;
-      
-      // Show/hide admin-only nav items
-      if (profile.role === 'admin') {
-        document.getElementById('staffNav').style.display = 'flex';
-        document.getElementById('settingsNav').style.display = 'flex';
-      } else if (profile.role === 'manager') {
-        document.getElementById('staffNav').style.display = 'flex';
-      }
+    } else {
+      document.getElementById('userName').textContent = currentUser.email;
     }
     
-    // Load dashboard
-    loadDashboard();
+    // Check if tables exist and create if needed
+    await initializeDatabase();
     
-    // Setup realtime subscriptions
-    setupRealtime();
+    loadDashboard();
   }
-  
-  // Setup real-time updates
-  function setupRealtime() {
-    const channel = supabase.channel('db-changes');
-    channel
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sales' }, () => {
-        loadDashboard();
-      })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'products' }, () => {
-        loadDashboard();
-      })
-      .subscribe();
+
+  async function initializeDatabase() {
+    // Check if products table exists and has data
+    const { data: products, error } = await supabase.from('products').select('count', { count: 'exact', head: true });
+    
+    if (error || products?.count === 0) {
+      console.log("Creating sample data...");
+      await createSampleData();
+    }
   }
-  
-  // Load Dashboard
+
+  async function createSampleData() {
+    const sampleProducts = [
+      { sku: 'NK-001', name: 'Nike Air Max', category: 'sneakers', selling_price: 129.99, stock_quantity: 15, low_stock_threshold: 5 },
+      { sku: 'AD-001', name: 'Adidas Samba', category: 'casual', selling_price: 89.99, stock_quantity: 3, low_stock_threshold: 5 },
+      { sku: 'NB-001', name: 'New Balance 574', category: 'casual', selling_price: 84.99, stock_quantity: 8, low_stock_threshold: 5 },
+      { sku: 'TM-001', name: 'Timberland Boots', category: 'boots', selling_price: 159.99, stock_quantity: 2, low_stock_threshold: 5 },
+      { sku: 'CON-001', name: 'Converse All Star', category: 'casual', selling_price: 54.99, stock_quantity: 12, low_stock_threshold: 5 },
+      { sku: 'VANS-001', name: 'Vans Old Skool', category: 'casual', selling_price: 59.99, stock_quantity: 7, low_stock_threshold: 5 },
+      { sku: 'PRADA-001', name: 'Prada Monolith', category: 'formal', selling_price: 850.00, stock_quantity: 4, low_stock_threshold: 5 },
+      { sku: 'GUCCI-001', name: 'Gucci Ace', category: 'formal', selling_price: 620.00, stock_quantity: 2, low_stock_threshold: 5 }
+    ];
+    
+    for (const product of sampleProducts) {
+      const { error } = await supabase.from('products').upsert([product], { onConflict: 'sku' });
+      if (error) console.error('Error inserting product:', error);
+    }
+    
+    // Create sample sales
+    const sampleSales = [
+      { user_id: currentUser?.id, total_amount: 129.99, payment_method: 'card', sale_date: new Date() },
+      { user_id: currentUser?.id, total_amount: 89.99, payment_method: 'cash', sale_date: new Date(Date.now() - 86400000) },
+      { user_id: currentUser?.id, total_amount: 159.99, payment_method: 'mobile', sale_date: new Date(Date.now() - 172800000) }
+    ];
+    
+    for (const sale of sampleSales) {
+      const { error } = await supabase.from('sales').insert([sale]);
+      if (error) console.error('Error inserting sale:', error);
+    }
+  }
+
   async function loadDashboard() {
     showLoading();
     
-    // Fetch all required data
-    const [salesData, productsData, customersData] = await Promise.all([
-      fetchSalesData(),
-      fetchProductsData(),
-      fetchCustomersData()
-    ]);
-    
-    const dashboardHtml = `
-      <!-- KPI Cards -->
-      <div class="kpi-grid">
-        <div class="card">
-          <div class="card-header">
-            <span>Today's Revenue</span>
-            <i class="fas fa-dollar-sign"></i>
-          </div>
-          <div class="card-value">$${calculateTodayRevenue(salesData)}</div>
-          <div class="card-change">+12% vs yesterday</div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <span>Units Sold</span>
-            <i class="fas fa-shoe-prints"></i>
-          </div>
-          <div class="card-value">${calculateTodayUnits(salesData)}</div>
-          <div class="card-change">${calculateTodayUnits(salesData)} today</div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <span>Low Stock Alert</span>
-            <i class="fas fa-exclamation-triangle"></i>
-          </div>
-          <div class="card-value">${getLowStockCount(productsData)}</div>
-          <div class="card-change">items below threshold</div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <span>Top Product</span>
-            <i class="fas fa-trophy"></i>
-          </div>
-          <div class="card-value">${getTopProduct(productsData, salesData)}</div>
-          <div class="card-change">best seller</div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <span>Profit Margin</span>
-            <i class="fas fa-chart-line"></i>
-          </div>
-          <div class="card-value">42%</div>
-          <div class="card-change">+5% this month</div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <span>Active Customers</span>
-            <i class="fas fa-users"></i>
-          </div>
-          <div class="card-value">${customersData.length}</div>
-          <div class="card-change">total registered</div>
-        </div>
-      </div>
+    try {
+      const [productsData, salesData, customersData] = await Promise.all([
+        fetchProducts(),
+        fetchSales(),
+        fetchCustomers()
+      ]);
       
-      <!-- Quick Actions -->
-      <div class="quick-actions">
-        <button class="action-btn" onclick="openSaleModal()">
-          <i class="fas fa-plus"></i> New Sale
-        </button>
-        <button class="action-btn" onclick="openStockModal()">
-          <i class="fas fa-box"></i> Add Stock
-        </button>
-        <button class="action-btn" onclick="addCustomer()">
-          <i class="fas fa-user-plus"></i> Add Customer
-        </button>
-        <button class="action-btn" onclick="exportReport()">
-          <i class="fas fa-download"></i> Export Report
-        </button>
-      </div>
+      const dashboardHtml = `
+        <div class="kpi-grid">
+          <div class="card">
+            <div class="card-header">
+              <span>Today's Revenue</span>
+              <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="card-value">$${calculateTodayRevenue(salesData)}</div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span>Units Sold</span>
+              <i class="fas fa-shoe-prints"></i>
+            </div>
+            <div class="card-value">${calculateTodayUnits(salesData)}</div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span>Low Stock Alert</span>
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="card-value">${getLowStockCount(productsData)}</div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span>Top Product</span>
+              <i class="fas fa-trophy"></i>
+            </div>
+            <div class="card-value">${getTopProduct(productsData)}</div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span>Total Customers</span>
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="card-value">${customersData.length}</div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span>Total Products</span>
+              <i class="fas fa-box"></i>
+            </div>
+            <div class="card-value">${productsData.length}</div>
+          </div>
+        </div>
+        
+        <div class="quick-actions">
+          <button class="action-btn" onclick="openSaleModal()">
+            <i class="fas fa-plus"></i> New Sale
+          </button>
+          <button class="action-btn" onclick="addSampleProduct()">
+            <i class="fas fa-box"></i> Add Sample Product
+          </button>
+          <button class="action-btn" onclick="exportReport()">
+            <i class="fas fa-download"></i> Export Report
+          </button>
+        </div>
+        
+        <div class="charts-grid">
+          <div class="chart-container">
+            <h3>Sales Trend (Last 7 Days)</h3>
+            <canvas id="revenueChart"></canvas>
+          </div>
+          <div class="chart-container">
+            <h3>Products by Category</h3>
+            <canvas id="categoryChart"></canvas>
+          </div>
+        </div>
+        
+        <div class="data-grid">
+          <div class="data-table">
+            <h3>Low Stock Alerts</h3>
+            <table>
+              <thead>
+                <tr><th>Product</th><th>Stock</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                ${getLowStockTableRows(productsData)}
+              </tbody>
+            </table>
+          </div>
+          <div class="data-table">
+            <h3>Recent Sales</h3>
+            <table>
+              <thead>
+                <tr><th>Date</th><th>Amount</th><th>Payment</th></tr>
+              </thead>
+              <tbody>
+                ${getRecentSalesRows(salesData)}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
       
-      <!-- Charts -->
-      <div class="charts-grid">
-        <div class="chart-container">
-          <h3>Sales Trend (Last 7 Days)</h3>
-          <canvas id="revenueChart"></canvas>
-        </div>
-        <div class="chart-container">
-          <h3>Sales by Category</h3>
-          <canvas id="categoryChart"></canvas>
-        </div>
-      </div>
+      document.getElementById('contentArea').innerHTML = dashboardHtml;
       
-      <!-- Data Tables -->
-      <div class="data-grid">
-        <div class="data-table">
-          <h3>Low Stock Alerts</h3>
-          <table>
-            <thead>
-              <tr><th>Product</th><th>Stock</th><th>Action</th></tr>
-            </thead>
-            <tbody>
-              ${getLowStockTableRows(productsData)}
-            </tbody>
-          </table>
+      initRevenueChart(salesData);
+      initCategoryChart(productsData);
+      
+    } catch (error) {
+      console.error('Error loading dashboard:', error);
+      document.getElementById('contentArea').innerHTML = `
+        <div class="error-container">
+          <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #C49A6C;"></i>
+          <h3>Database Setup Required</h3>
+          <p>Please run the SQL setup script in your Supabase SQL editor to create the required tables.</p>
+          <button class="setup-btn" onclick="location.reload()">Retry Connection</button>
         </div>
-        <div class="data-table">
-          <h3>Recent Sales</h3>
-          <table>
-            <thead>
-              <tr><th>Time</th><th>Amount</th><th>Items</th></tr>
-            </thead>
-            <tbody>
-              ${getRecentSalesRows(salesData)}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    `;
-    
-    document.getElementById('contentArea').innerHTML = dashboardHtml;
-    
-    // Initialize charts
-    initRevenueChart(salesData);
-    initCategoryChart(productsData, salesData);
+      `;
+    }
   }
-  
-  // Helper functions for data processing
+
   function calculateTodayRevenue(salesData) {
     const today = new Date().toDateString();
     const todaySales = salesData.filter(sale => new Date(sale.sale_date).toDateString() === today);
-    return todaySales.reduce((sum, sale) => sum + sale.total_amount, 0).toFixed(2);
+    return todaySales.reduce((sum, sale) => sum + (sale.total_amount || 0), 0).toFixed(2);
   }
-  
+
   function calculateTodayUnits(salesData) {
     const today = new Date().toDateString();
     const todaySales = salesData.filter(sale => new Date(sale.sale_date).toDateString() === today);
-    // This would need sale_items table, using placeholder
-    return todaySales.length * 2;
+    return todaySales.length;
   }
-  
+
   function getLowStockCount(productsData) {
     return productsData.filter(p => p.stock_quantity <= (p.low_stock_threshold || 5)).length;
   }
-  
-  function getTopProduct(productsData, salesData) {
+
+  function getTopProduct(productsData) {
     if (productsData.length === 0) return 'N/A';
     return productsData[0]?.name || 'Nike Air Max';
   }
-  
+
   function getLowStockTableRows(productsData) {
     const lowStock = productsData.filter(p => p.stock_quantity <= (p.low_stock_threshold || 5));
     if (lowStock.length === 0) {
@@ -814,190 +713,153 @@
       <tr>
         <td>${p.name}</td>
         <td>${p.stock_quantity} left</td>
-        <td><button class="badge badge-warning" onclick="reorderStock('${p.sku}')">Reorder</button></td>
+        <td><span class="badge badge-warning">Low Stock</span></td>
       </tr>
     `).join('');
   }
-  
+
   function getRecentSalesRows(salesData) {
     if (salesData.length === 0) {
       return '<tr><td colspan="3">No sales yet</td></tr>';
     }
     return salesData.slice(0, 5).map(sale => `
       <tr>
-        <td>${new Date(sale.sale_date).toLocaleTimeString()}</td>
+        <td>${new Date(sale.sale_date).toLocaleDateString()}</td>
         <td>$${sale.total_amount}</td>
-        <td>${sale.items_count || 2} items</td>
+        <td><span class="badge badge-success">${sale.payment_method}</span></td>
       </tr>
     `).join('');
   }
-  
+
   function initRevenueChart(salesData) {
     const ctx = document.getElementById('revenueChart')?.getContext('2d');
     if (!ctx) return;
     
     const last7Days = Array.from({length: 7}, (_, i) => {
       const d = new Date();
-      d.setDate(d.getDate() - i);
-      return d.toDateString();
-    }).reverse();
+      d.setDate(d.getDate() - (6 - i));
+      return d;
+    });
     
     const revenueByDay = last7Days.map(day => {
-      const daySales = salesData.filter(sale => new Date(sale.sale_date).toDateString() === day);
-      return daySales.reduce((sum, sale) => sum + sale.total_amount, 0);
+      const daySales = salesData.filter(sale => {
+        const saleDate = new Date(sale.sale_date);
+        return saleDate.toDateString() === day.toDateString();
+      });
+      return daySales.reduce((sum, sale) => sum + (sale.total_amount || 0), 0);
     });
     
     if (revenueChart) revenueChart.destroy();
     revenueChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: last7Days.map(d => d.slice(0, 3)),
+        labels: last7Days.map(d => d.toLocaleDateString('en-US', { weekday: 'short' })),
         datasets: [{
-          label: 'Revenue',
+          label: 'Revenue ($)',
           data: revenueByDay,
           borderColor: '#C49A6C',
           backgroundColor: 'rgba(196,154,108,0.1)',
           tension: 0.4,
           fill: true
         }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true
       }
     });
   }
-  
-  function initCategoryChart(productsData, salesData) {
+
+  function initCategoryChart(productsData) {
     const ctx = document.getElementById('categoryChart')?.getContext('2d');
     if (!ctx) return;
     
-    const categories = ['sneakers', 'boots', 'casual', 'formal', 'sandals'];
-    const categoryCounts = categories.map(cat => 
-      productsData.filter(p => p.category === cat).length
-    );
+    const categories = {};
+    productsData.forEach(p => {
+      const cat = p.category || 'other';
+      categories[cat] = (categories[cat] || 0) + 1;
+    });
     
     if (categoryChart) categoryChart.destroy();
     categoryChart = new Chart(ctx, {
       type: 'pie',
       data: {
-        labels: ['Sneakers', 'Boots', 'Casual', 'Formal', 'Sandals'],
+        labels: Object.keys(categories).map(c => c.toUpperCase()),
         datasets: [{
-          data: categoryCounts,
+          data: Object.values(categories),
           backgroundColor: ['#C49A6C', '#E2B386', '#F0D5B0', '#A2794C', '#D4A574']
         }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true
       }
     });
   }
-  
-  // API fetch functions
-  async function fetchSalesData() {
-    const { data, error } = await supabase
-      .from('sales')
-      .select('*')
-      .order('sale_date', { ascending: false })
-      .limit(50);
-    
-    if (error) console.error('Error fetching sales:', error);
+
+  async function fetchProducts() {
+    const { data, error } = await supabase.from('products').select('*').limit(100);
+    if (error) return [];
     return data || [];
   }
-  
-  async function fetchProductsData() {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .limit(100);
-    
-    if (error) console.error('Error fetching products:', error);
+
+  async function fetchSales() {
+    const { data, error } = await supabase.from('sales').select('*').order('sale_date', { ascending: false }).limit(50);
+    if (error) return [];
     return data || [];
   }
-  
-  async function fetchCustomersData() {
-    const { data, error } = await supabase
-      .from('customers')
-      .select('*')
-      .limit(100);
-    
-    if (error) console.error('Error fetching customers:', error);
+
+  async function fetchCustomers() {
+    const { data, error } = await supabase.from('customers').select('*').limit(100);
+    if (error) return [];
     return data || [];
   }
-  
-  // Modal functions
+
+  function showLoading() {
+    document.getElementById('contentArea').innerHTML = `
+      <div class="loading">
+        <i class="fas fa-spinner spinner" style="font-size: 2rem;"></i>
+        <p style="margin-top: 20px;">Loading dashboard...</p>
+      </div>
+    `;
+  }
+
   function openSaleModal() {
     document.getElementById('saleModal').classList.add('active');
   }
-  
-  function openStockModal() {
-    document.getElementById('stockModal').classList.add('active');
-  }
-  
-  async function addCustomer() {
-    const email = prompt('Enter customer email:');
-    if (!email) return;
-    
-    const name = prompt('Enter customer name:');
+
+  async function addSampleProduct() {
+    const name = prompt('Enter product name:', 'Sample Shoe');
     if (!name) return;
     
-    const { error } = await supabase
-      .from('customers')
-      .insert([{ full_name: name, email: email, loyalty_points: 0 }]);
+    const price = parseFloat(prompt('Enter selling price:', '99.99'));
+    if (!price) return;
+    
+    const sku = name.substring(0, 3).toUpperCase() + '-' + Math.floor(Math.random() * 1000);
+    
+    const { error } = await supabase.from('products').insert([{
+      sku: sku,
+      name: name,
+      category: 'casual',
+      selling_price: price,
+      stock_quantity: 10,
+      low_stock_threshold: 5
+    }]);
     
     if (error) {
-      alert('Error adding customer: ' + error.message);
+      alert('Error: ' + error.message);
     } else {
-      alert('Customer added successfully!');
+      alert('Product added successfully!');
       loadDashboard();
     }
   }
-  
-  async function reorderStock(sku) {
-    const quantity = prompt('Enter reorder quantity:');
-    if (!quantity) return;
-    
-    // Get current product
-    const { data: product } = await supabase
-      .from('products')
-      .select('*')
-      .eq('sku', sku)
-      .single();
-    
-    if (product) {
-      const { error } = await supabase
-        .from('products')
-        .update({ stock_quantity: product.stock_quantity + parseInt(quantity) })
-        .eq('sku', sku);
-      
-      if (error) {
-        alert('Error updating stock: ' + error.message);
-      } else {
-        alert('Stock updated successfully!');
-        loadDashboard();
-      }
-    }
-  }
-  
+
   function exportReport() {
-    alert('Export feature: Would generate CSV/PDF report of all sales and inventory');
+    alert('📊 Export feature: This would generate a CSV/PDF report of all sales and inventory data.');
   }
-  
-  function showLoading() {
-    document.getElementById('contentArea').innerHTML = '<div class="loading"><i class="fas fa-spinner spinner"></i> Loading dashboard...</div>';
-  }
-  
-  // Navigation
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', async () => {
-      document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-      item.classList.add('active');
-      const page = item.dataset.page;
-      document.getElementById('pageTitle').textContent = page.charAt(0).toUpperCase() + page.slice(1);
-      
-      if (page === 'dashboard') {
-        loadDashboard();
-      } else {
-        document.getElementById('contentArea').innerHTML = `<div class="loading"><i class="fas fa-spinner spinner"></i> Loading ${page} page...<br><br>This feature is coming soon!</div>`;
-      }
-    });
-  });
-  
-  // Theme toggle
-  document.getElementById('themeToggle').addEventListener('click', () => {
+
+  // Event Listeners
+  document.getElementById('themeToggle')?.addEventListener('click', () => {
     document.body.classList.toggle('dark-mode');
     const icon = document.querySelector('#themeToggle i');
     if (document.body.classList.contains('dark-mode')) {
@@ -1008,32 +870,24 @@
       icon.classList.add('fa-moon');
     }
   });
-  
-  // Mobile menu toggle
-  document.getElementById('menuToggle').addEventListener('click', () => {
+
+  document.getElementById('menuToggle')?.addEventListener('click', () => {
     document.getElementById('sidebar').classList.toggle('mobile-open');
   });
-  
-  // Close modals
+
   document.querySelectorAll('.close-modal').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.modal').forEach(modal => modal.classList.remove('active'));
     });
   });
-  
-  // Handle sale form submission
+
   document.getElementById('saleForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const sku = document.getElementById('productSku').value;
     const quantity = parseInt(document.getElementById('quantity').value);
     const paymentMethod = document.getElementById('paymentMethod').value;
     
-    // Get product price
-    const { data: product } = await supabase
-      .from('products')
-      .select('*')
-      .eq('sku', sku)
-      .single();
+    const { data: product } = await supabase.from('products').select('*').eq('sku', sku).single();
     
     if (!product) {
       alert('Product not found!');
@@ -1041,100 +895,70 @@
     }
     
     if (product.stock_quantity < quantity) {
-      alert('Insufficient stock!');
+      alert('Insufficient stock! Available: ' + product.stock_quantity);
       return;
     }
     
     const totalAmount = product.selling_price * quantity;
     
-    // Create sale
-    const { data: sale, error: saleError } = await supabase
-      .from('sales')
-      .insert([{
-        user_id: currentUser.id,
-        total_amount: totalAmount,
-        payment_method: paymentMethod
-      }])
-      .select()
-      .single();
+    const { error: saleError } = await supabase.from('sales').insert([{
+      user_id: currentUser.id,
+      total_amount: totalAmount,
+      payment_method: paymentMethod
+    }]);
     
     if (saleError) {
-      alert('Error processing sale: ' + saleError.message);
+      alert('Error: ' + saleError.message);
       return;
     }
     
-    // Update stock
-    await supabase
-      .from('products')
-      .update({ stock_quantity: product.stock_quantity - quantity })
-      .eq('sku', sku);
+    await supabase.from('products').update({ stock_quantity: product.stock_quantity - quantity }).eq('sku', sku);
     
     alert('Sale completed! Total: $' + totalAmount);
     document.getElementById('saleModal').classList.remove('active');
     loadDashboard();
   });
-  
-  // Handle stock form submission
-  document.getElementById('stockForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const sku = document.getElementById('stockSku').value;
-    const quantity = parseInt(document.getElementById('addQuantity').value);
-    
-    const { data: product } = await supabase
-      .from('products')
-      .select('*')
-      .eq('sku', sku)
-      .single();
-    
-    if (!product) {
-      alert('Product not found!');
-      return;
-    }
-    
-    const { error } = await supabase
-      .from('products')
-      .update({ stock_quantity: product.stock_quantity + quantity })
-      .eq('sku', sku);
-    
-    if (error) {
-      alert('Error updating stock: ' + error.message);
-    } else {
-      alert('Stock updated successfully!');
-      document.getElementById('stockModal').classList.remove('active');
-      loadDashboard();
-    }
-  });
-  
-  // Logout (from user menu)
+
   document.getElementById('userMenu')?.addEventListener('click', async () => {
-    if (confirm('Are you sure you want to logout?')) {
+    if (confirm('Logout?')) {
       await supabase.auth.signOut();
       window.location.href = 'login.html';
     }
   });
-  
-  // Notifications
+
   document.getElementById('notifications')?.addEventListener('click', () => {
-    alert('🔔 Notifications:\n- Check low stock items\n- Review today\'s sales\n- Update inventory');
+    alert('🔔 Welcome to SoulHub! Start by adding products and processing sales.');
   });
-  
-  // Initialize
+
+  // Navigation
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+      item.classList.add('active');
+      const page = item.dataset.page;
+      document.getElementById('pageTitle').textContent = page.charAt(0).toUpperCase() + page.slice(1);
+      
+      if (page !== 'dashboard') {
+        document.getElementById('contentArea').innerHTML = `
+          <div class="loading">
+            <i class="fas fa-spinner spinner" style="font-size: 2rem;"></i>
+            <p style="margin-top: 20px;">${page.toUpperCase()} page coming soon!</p>
+            <button class="action-btn" style="margin-top: 20px;" onclick="loadDashboard()">Back to Dashboard</button>
+          </div>
+        `;
+      } else {
+        loadDashboard();
+      }
+    });
+  });
+
+  // Make functions global for onclick handlers
+  window.openSaleModal = openSaleModal;
+  window.addSampleProduct = addSampleProduct;
+  window.exportReport = exportReport;
+  window.loadDashboard = loadDashboard;
+
   initSupabase();
-  
-  // Sample data creator for empty database
-  async function createSampleData() {
-    const sampleProducts = [
-      { sku: 'NK-001', name: 'Nike Air Max', category: 'sneakers', selling_price: 129.99, stock_quantity: 15 },
-      { sku: 'AD-001', name: 'Adidas Samba', category: 'casual', selling_price: 89.99, stock_quantity: 3 },
-      { sku: 'NB-001', name: 'New Balance 574', category: 'casual', selling_price: 84.99, stock_quantity: 8 },
-      { sku: 'TM-001', name: 'Timberland Boots', category: 'boots', selling_price: 159.99, stock_quantity: 2 }
-    ];
-    
-    for (const product of sampleProducts) {
-      const { error } = await supabase.from('products').upsert([product]);
-      if (error) console.error('Error inserting sample:', error);
-    }
-  }
 </script>
 </body>
 </html>
