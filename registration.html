@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>SoulHub Management – Register Your Store</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -11,7 +11,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Inter', sans-serif;
-      background: #FEFCF8;
+      background: linear-gradient(135deg, #FEFCF8 0%, #F9F4ED 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -19,12 +19,16 @@
       padding: 2rem 1rem;
     }
     .register-container {
-      max-width: 580px;
+      max-width: 620px;
       width: 100%;
       background: white;
       border-radius: 36px;
       box-shadow: 0 25px 45px -12px rgba(0,0,0,0.15);
       border: 1px solid #F0EAE3;
+      transition: transform 0.3s ease;
+    }
+    .register-container:hover {
+      transform: translateY(-5px);
     }
     .register-header {
       background: linear-gradient(135deg, #1E1B18 0%, #2C241E 100%);
@@ -67,6 +71,7 @@
       font-family: 'Inter', sans-serif;
       font-size: 0.9rem;
       transition: all 0.3s ease;
+      background: white;
     }
     input:focus, select:focus {
       outline: none;
@@ -94,11 +99,13 @@
       justify-content: center;
       gap: 8px;
       transition: all 0.3s ease;
+      font-size: 1rem;
     }
     .btn-register:hover:not(:disabled) {
       background: #C49A6C;
       color: #1E1B18;
       transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(196,154,108,0.3);
     }
     .btn-register:disabled {
       opacity: 0.7;
@@ -219,12 +226,40 @@
       font-size: 0.8rem;
       cursor: pointer;
     }
-    @media (max-width: 480px) {
+    @media (max-width: 580px) {
       .register-form {
         padding: 1.5rem;
       }
       .register-header h1 {
         font-size: 1.5rem;
+      }
+      .register-header p {
+        font-size: 0.8rem;
+      }
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      .role-hint {
+        font-size: 0.6rem;
+        line-height: 1.3;
+      }
+    }
+    @media (max-width: 480px) {
+      body {
+        padding: 1rem;
+      }
+      .register-header {
+        padding: 1.5rem;
+      }
+      .register-form {
+        padding: 1.2rem;
+      }
+      .btn-register {
+        padding: 12px;
+        font-size: 0.9rem;
+      }
+      .checkbox-group label {
+        font-size: 0.7rem;
       }
     }
   </style>
@@ -341,28 +376,24 @@
 
 <script>
   (function() {
-    console.log("Script starting...");
-    
-    // ==================== SUPABASE CONFIGURATION ====================
+    // CORRECT Supabase configuration
     const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
-    // =================================================================
-
-    // Wait for Supabase to be available
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY2N5ZmFqcGFpdXZxb3Z2cXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNjIwMzAsImV4cCI6MjA5NTYzODAzMH0.mLGYFgTZ3ToIJD8KAiqbxr0h42H8PYN5xh1fyvTNvqo";
+    
+    let supabase = null;
+    
+    // Initialize Supabase
     function initSupabase() {
       if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-        console.log("Supabase library found, creating client...");
+        console.log("✅ Supabase library loaded, creating client...");
         return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       } else {
-        console.error("Supabase library not loaded yet");
+        console.error("❌ Supabase library not loaded yet");
         return null;
       }
     }
-
-    let supabase = initSupabase();
-
+    
     // DOM elements
-    const form = document.getElementById('registerForm');
     const statusDiv = document.getElementById('statusMessage');
     const submitBtn = document.getElementById('submitBtn');
     const passwordInput = document.getElementById('password');
@@ -371,9 +402,8 @@
     const fullNameInput = document.getElementById('fullName');
     const roleSelect = document.getElementById('role');
     const termsCheckbox = document.getElementById('termsCheckbox');
-
+    
     function showMessage(text, type) {
-      console.log("Message:", type, text);
       const icon = {
         'error': 'fa-exclamation-circle',
         'success': 'fa-check-circle',
@@ -387,7 +417,7 @@
         }, 5000);
       }
     }
-
+    
     // Password strength checker
     function checkPasswordStrength(password) {
       let strength = 0;
@@ -420,12 +450,12 @@
         strengthText.style.color = '#4CAF50';
       }
     }
-
+    
     function validateEmail(email) {
       const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return re.test(email);
     }
-
+    
     function validateForm() {
       let isValid = true;
       
@@ -475,32 +505,27 @@
       
       return isValid;
     }
-
+    
     // Add real-time validation listeners
-    if (fullNameInput) fullNameInput.addEventListener('input', validateForm);
-    if (emailInput) emailInput.addEventListener('input', validateForm);
-    if (passwordInput) {
-      passwordInput.addEventListener('input', () => {
-        checkPasswordStrength(passwordInput.value);
-        validateForm();
-      });
-    }
-    if (confirmInput) confirmInput.addEventListener('input', validateForm);
-    if (roleSelect) roleSelect.addEventListener('change', validateForm);
-
+    fullNameInput.addEventListener('input', validateForm);
+    emailInput.addEventListener('input', validateForm);
+    passwordInput.addEventListener('input', () => {
+      checkPasswordStrength(passwordInput.value);
+      validateForm();
+    });
+    confirmInput.addEventListener('input', validateForm);
+    roleSelect.addEventListener('change', validateForm);
+    
     // Registration handler
     async function handleRegister() {
-      console.log("Register button clicked!");
-      
       // Clear previous messages
       statusDiv.innerHTML = '';
       
-      // Check if Supabase is initialized
+      // Initialize Supabase if not already
       if (!supabase) {
-        console.log("Supabase not initialized, trying to reinitialize...");
         supabase = initSupabase();
         if (!supabase) {
-          showMessage("Supabase failed to initialize. Please refresh the page and try again.", "error");
+          showMessage("Failed to initialize connection. Please refresh the page.", "error");
           return;
         }
       }
@@ -526,14 +551,13 @@
       const establishedYear = document.getElementById('establishedYear').value;
       const subscribeNewsletter = document.getElementById('newsletterCheckbox').checked;
       
-      console.log("Attempting to register:", { email, fullName, role });
+      console.log("📝 Attempting to register:", { email, fullName, role });
       
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Creating account...';
       
       try {
         // 1. Sign up with Supabase Auth
-        console.log("Calling supabase.auth.signUp...");
         const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
@@ -547,44 +571,47 @@
           }
         });
         
-        console.log("SignUp response:", { authData, error: signUpError });
-        
         if (signUpError) throw signUpError;
-        if (!authData.user) throw new Error("Signup failed, no user returned");
         
-        const userId = authData.user.id;
-        console.log("User created with ID:", userId);
-        
-        // 2. Insert profile into 'profiles' table
-        console.log("Inserting profile...");
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: userId,
-            full_name: fullName,
-            role: role,
-            store_name: storeName || null,
-            phone: phone || null,
-            store_address: storeAddress || null,
-            established_year: establishedYear ? parseInt(establishedYear) : null,
-            newsletter_subscribed: subscribeNewsletter,
-            created_at: new Date().toISOString()
-          });
-        
-        if (profileError) {
-          console.error("Profile insert error:", profileError);
-          throw new Error("Account created but profile setup failed: " + profileError.message);
+        if (!authData.user) {
+          throw new Error("Signup failed - no user returned");
         }
         
-        console.log("Profile created successfully!");
+        const userId = authData.user.id;
+        console.log("✅ User created with ID:", userId);
         
-        showMessage(`✨ Welcome ${fullName}! Your ${role} account has been created successfully. Redirecting to login...`, "success");
+        // 2. Insert profile into 'profiles' table
+        const profileData = {
+          id: userId,
+          full_name: fullName,
+          role: role,
+          store_name: storeName || null,
+          phone: phone || null,
+          store_address: storeAddress || null,
+          established_year: establishedYear ? parseInt(establishedYear) : null,
+          newsletter_subscribed: subscribeNewsletter
+        };
+        
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([profileData]);
+        
+        if (profileError) {
+          console.error("❌ Profile insert error:", profileError);
+          // If profile insert fails, the user is still created in auth
+          showMessage(`Account created but profile setup had an issue. Please contact support.`, "warning");
+        } else {
+          console.log("✅ Profile created successfully!");
+        }
+        
+        showMessage(`✨ Welcome ${fullName}! Your ${role} account has been created successfully. Please check your email to verify your account, then log in.`, "success");
+        
         setTimeout(() => {
           window.location.href = "login.html?registered=true&email=" + encodeURIComponent(email);
-        }, 2000);
+        }, 3000);
         
       } catch (err) {
-        console.error("Registration error:", err);
+        console.error("❌ Registration error:", err);
         
         let msg = err.message;
         if (msg.includes("User already registered")) {
@@ -597,64 +624,59 @@
           msg = `Registration failed: ${msg}`;
         }
         showMessage(msg, "error");
+      } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Register store account';
       }
     }
     
-    // Attach event listener to button
-    if (submitBtn) {
-      console.log("Attaching click handler to submitBtn");
-      submitBtn.addEventListener('click', handleRegister);
-    } else {
-      console.error("submitBtn not found!");
-    }
+    // Attach event listener
+    submitBtn.addEventListener('click', handleRegister);
     
     // Terms and Privacy links
-    const termsLink = document.getElementById('termsLink');
-    const privacyLink = document.getElementById('privacyLink');
-    if (termsLink) {
-      termsLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        showMessage("Terms: By using SoulHub, you agree to our data processing and security practices.", "info");
-      });
-    }
-    if (privacyLink) {
-      privacyLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        showMessage("Privacy: We protect your data and never share with third parties without consent.", "info");
-      });
-    }
+    document.getElementById('termsLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      showMessage("Terms: By using SoulHub, you agree to our data processing and security practices.", "info");
+    });
     
-    // Test Supabase connection on load
+    document.getElementById('privacyLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      showMessage("Privacy: We protect your data and never share with third parties without consent.", "info");
+    });
+    
+    // Test connection on load
     async function testConnection() {
+      supabase = initSupabase();
       if (!supabase) {
-        console.log("Waiting for Supabase...");
         setTimeout(testConnection, 500);
         return;
       }
       
-      console.log("Testing Supabase connection...");
+      console.log("🔌 Testing Supabase connection...");
       try {
         const { error } = await supabase.from('profiles').select('count', { count: 'exact', head: true });
         if (error) {
-          console.warn("Connection test warning:", error.message);
-          showMessage(`Note: ${error.message}. You may need to create the profiles table in Supabase.`, "info");
+          console.warn("⚠️ Connection test warning:", error.message);
+          if (error.message.includes("relation") && error.message.includes("does not exist")) {
+            showMessage("ℹ️ Database setup in progress. Please run the SQL setup script in Supabase first.", "info");
+          } else {
+            showMessage(`ℹ️ ${error.message}`, "info");
+          }
         } else {
-          console.log("Supabase connection successful!");
+          console.log("✅ Supabase connection successful!");
           showMessage("✅ Ready to register! Fill out the form below.", "success");
           setTimeout(() => {
             if (statusDiv.firstChild) statusDiv.firstChild.remove();
           }, 3000);
         }
       } catch (err) {
-        console.error("Connection test error:", err);
+        console.error("❌ Connection test error:", err);
       }
     }
     
     // Start after page loads
     window.addEventListener('load', () => {
-      console.log("Page loaded, initializing...");
+      console.log("📄 Page loaded, initializing...");
       testConnection();
     });
     
