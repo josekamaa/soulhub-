@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>SoulHub | Shoe Store Management System</title>
+  <title>SoulHub | Shoe Store Management System - Modern & Responsive</title>
   <!-- Google Fonts + Font Awesome -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -39,15 +39,15 @@
       padding: 0 24px;
     }
 
-    /* navbar */
+    /* navbar - improved sticky + safe padding */
     .navbar {
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(254, 252, 248, 0.94);
-      backdrop-filter: blur(12px);
+      background: rgba(254, 252, 248, 0.96);
+      backdrop-filter: blur(14px);
       border-bottom: 1px solid rgba(0,0,0,0.05);
-      padding: 18px 0;
+      padding: 16px 0;
       transition: all 0.3s ease;
     }
 
@@ -120,6 +120,7 @@
       padding: 8px 18px;
       border-radius: 40px;
       font-weight: 600;
+      transition: all 0.2s;
     }
     .register-nav-btn:hover {
       background: #C49A6C;
@@ -132,11 +133,15 @@
       font-size: 1.8rem;
       cursor: pointer;
       color: #2A241F;
+      transition: 0.2s;
+    }
+    .hamburger:hover {
+      color: #C49A6C;
     }
 
-    /* hero section */
+    /* hero section improvements */
     .hero {
-      padding: 70px 0 80px;
+      padding: 60px 0 70px;
     }
     .hero-grid {
       display: grid;
@@ -146,7 +151,7 @@
     }
     .hero-content h1 {
       font-family: 'Playfair Display', serif;
-      font-size: 3.8rem;
+      font-size: 3.6rem;
       font-weight: 600;
       line-height: 1.2;
       letter-spacing: -1px;
@@ -158,9 +163,9 @@
       display: inline-block;
     }
     .hero-content p {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       color: #4A423C;
-      margin: 24px 0 32px;
+      margin: 24px 0 28px;
       max-width: 90%;
       line-height: 1.5;
     }
@@ -188,7 +193,7 @@
     .btn-primary:hover {
       background: #C49A6C;
       transform: translateY(-3px);
-      box-shadow: 0 12px 20px -8px rgba(196,154,108,0.3);
+      box-shadow: 0 12px 20px -8px rgba(196,154,108,0.4);
       color: #1E1B18;
     }
     .btn-outline {
@@ -212,21 +217,21 @@
       width: 100%;
       border-radius: 32px;
       object-fit: cover;
-      box-shadow: 0 25px 40px -15px rgba(0,0,0,0.2);
-      transition: transform 0.4s ease;
+      box-shadow: 0 25px 40px -15px rgba(0,0,0,0.18);
+      transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
     }
     .hero-image img:hover {
-      transform: scale(1.01);
+      transform: scale(1.02);
     }
 
-    /* management features grid */
+    /* features grid */
     .section-header {
       text-align: center;
       margin-bottom: 48px;
     }
     .section-header h2 {
       font-family: 'Playfair Display', serif;
-      font-size: 2.6rem;
+      font-size: 2.5rem;
       font-weight: 600;
       color: #1E1B18;
     }
@@ -261,17 +266,17 @@
       margin-bottom: 20px;
     }
     .mgt-card h3 {
-      font-size: 1.4rem;
+      font-size: 1.35rem;
       font-weight: 700;
       margin-bottom: 12px;
     }
     .mgt-card p {
       color: #5E5348;
-      line-height: 1.4;
+      line-height: 1.45;
       font-size: 0.95rem;
     }
 
-    /* benefits row (management style) */
+    /* benefits row */
     .benefits {
       margin: 80px 0;
       background: #F9F4ED;
@@ -303,7 +308,7 @@
       font-size: 0.85rem;
     }
 
-    /* registration CTA block */
+    /* registration CTA improved */
     .register-cta {
       background: linear-gradient(115deg, #1E1B18 0%, #2C241E 100%);
       border-radius: 48px;
@@ -394,16 +399,35 @@
       color: #8F8278;
     }
 
+    /* ========== FULL RESPONSIVENESS (PC + MOBILE FINE-TUNED) ========== */
+    @media (max-width: 1024px) {
+      .hero-content h1 {
+        font-size: 3rem;
+      }
+      .hero-grid {
+        gap: 2rem;
+      }
+    }
+
     @media (max-width: 900px) {
       .hero-grid {
         grid-template-columns: 1fr;
         text-align: center;
+        gap: 2.2rem;
       }
       .hero-content p {
         max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
       }
       .btn-group {
         justify-content: center;
+      }
+      .hero-content .btn-group {
+        justify-content: center;
+      }
+      .hero-content h1 br {
+        display: none;
       }
       .nav-links {
         display: none;
@@ -414,6 +438,7 @@
         gap: 1.4rem;
         margin-top: 20px;
         border-top: 1px solid #ece3db;
+        text-align: center;
       }
       .nav-links.active {
         display: flex;
@@ -431,15 +456,74 @@
         font-size: 2rem;
       }
       .register-cta {
-        padding: 40px 24px;
+        padding: 40px 28px;
+      }
+      .register-cta h3 {
+        font-size: 1.7rem;
+      }
+      .benefits {
+        border-radius: 32px;
+        margin: 60px 0;
+      }
+      .features-mgt-grid {
+        gap: 24px;
       }
     }
-    @media (max-width: 580px) {
+
+    @media (max-width: 680px) {
       .container {
         padding: 0 20px;
       }
+      .hero {
+        padding: 40px 0 50px;
+      }
       .hero-content h1 {
-        font-size: 2.6rem;
+        font-size: 2.4rem;
+      }
+      .section-header h2 {
+        font-size: 1.8rem;
+      }
+      .mgt-card {
+        padding: 22px 18px;
+      }
+      .btn-primary, .btn-outline {
+        padding: 12px 24px;
+        font-size: 0.85rem;
+      }
+      .footer-grid {
+        flex-direction: column;
+        gap: 32px;
+      }
+      .benefit-item {
+        min-width: 140px;
+      }
+      .benefits-grid {
+        gap: 30px;
+      }
+      .register-cta {
+        padding: 32px 20px;
+        margin: 40px 0 60px;
+        border-radius: 32px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-content h1 {
+        font-size: 2rem;
+        line-height: 1.25;
+      }
+      .logo {
+        font-size: 1.5rem;
+      }
+      .hero-content p {
+        font-size: 0.95rem;
+      }
+      .mgt-card h3 {
+        font-size: 1.2rem;
+      }
+      .cta-button {
+        padding: 12px 28px;
+        font-size: 0.9rem;
       }
     }
   </style>
@@ -469,7 +553,7 @@
 </header>
 
 <main>
-  <!-- Hero section with registration CTA -->
+  <!-- Hero section -->
   <section class="hero">
     <div class="container hero-grid">
       <div class="hero-content">
@@ -479,7 +563,7 @@
           <a href="registration.html" class="btn-primary"><i class="fas fa-user-plus"></i> Start free registration</a>
           <button class="btn-outline" id="featuresBtn"><i class="fas fa-cogs"></i> Explore features</button>
         </div>
-        <div style="margin-top: 32px; display: flex; gap: 20px; font-size: 0.85rem; flex-wrap: wrap;">
+        <div style="margin-top: 32px; display: flex; gap: 20px; font-size: 0.85rem; flex-wrap: wrap; justify-content: center; justify-content: flex-start;">
           <span><i class="fas fa-database" style="color:#C49A6C;"></i> Real-time sync</span>
           <span><i class="fas fa-chart-simple" style="color:#C49A6C;"></i> Smart analytics</span>
           <span><i class="fas fa-shield-alt" style="color:#C49A6C;"></i> Enterprise security</span>
@@ -491,7 +575,7 @@
     </div>
   </section>
 
-  <!-- Core management features (replaces product grid) -->
+  <!-- Core management features -->
   <div class="container" id="features">
     <div class="section-header">
       <h2>Designed for shoe retailers</h2>
@@ -531,7 +615,7 @@
     </div>
   </div>
 
-  <!-- Benefits row (management twist) -->
+  <!-- Benefits row -->
   <div class="benefits" id="benefits">
     <div class="container benefits-grid">
       <div class="benefit-item">
@@ -557,7 +641,7 @@
     </div>
   </div>
 
-  <!-- Primary registration call to action block (leads to registration.html) -->
+  <!-- Primary registration CTA -->
   <div class="container" id="register-cta">
     <div class="register-cta">
       <h3>Ready to transform your shoe store operations?</h3>
@@ -574,15 +658,15 @@
         <div class="logo" style="font-size:1.6rem;"><i class="fas fa-chart-line"></i> SoulHub</div>
         <p>All-in-one management system for modern shoe retailers. From inventory to insights.</p>
         <div class="social-icons" style="margin-top: 16px;">
-          <a href="#"><i class="fab fa-linkedin-in"></i></a>
-          <a href="#"><i class="fab fa-x-twitter"></i></a>
-          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
         </div>
       </div>
       <div class="footer-links">
         <h4>Platform</h4>
         <ul>
-          <li><a href="#">Features</a></li>
+          <li><a href="#features">Features</a></li>
           <li><a href="#">Inventory</a></li>
           <li><a href="#">Analytics</a></li>
           <li><a href="#">Integrations</a></li>
@@ -611,46 +695,102 @@
 </footer>
 
 <script>
-  // Mobile menu toggle
-  const hamburger = document.getElementById('hamburgerIcon');
-  const navLinks = document.getElementById('navLinks');
-  if (hamburger && navLinks) {
-    hamburger.addEventListener('click', (e) => {
-      e.stopPropagation();
-      navLinks.classList.toggle('active');
-    });
-    // close mobile menu on link click
-    document.querySelectorAll('.nav-links li a').forEach(link => {
-      link.addEventListener('click', () => {
-        if (window.innerWidth <= 900) navLinks.classList.remove('active');
+  // Enhanced mobile menu with better UX
+  (function() {
+    const hamburger = document.getElementById('hamburgerIcon');
+    const navLinks = document.getElementById('navLinks');
+    if (hamburger && navLinks) {
+      hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navLinks.classList.toggle('active');
+        // Optional: change icon style
+        const icon = hamburger.querySelector('i');
+        if (navLinks.classList.contains('active')) {
+          icon.classList.remove('fa-bars');
+          icon.classList.add('fa-times');
+        } else {
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        }
+      });
+      
+      // close mobile menu when clicking any nav link, also if window resizes above 900px
+      const allLinks = document.querySelectorAll('.nav-links li a');
+      allLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth <= 900 && navLinks.classList.contains('active')) {
+            navLinks.classList.remove('active');
+            const icon = hamburger.querySelector('i');
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+          }
+        });
+      });
+      
+      // Close menu on resize if screen becomes desktop
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 900 && navLinks.classList.contains('active')) {
+          navLinks.classList.remove('active');
+          const icon = hamburger.querySelector('i');
+          if (icon) {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+          }
+        }
+      });
+    }
+
+    // smooth scroll to features section
+    const featuresBtn = document.getElementById('featuresBtn');
+    if (featuresBtn) {
+      featuresBtn.addEventListener('click', () => {
+        const featureSection = document.getElementById('features');
+        if (featureSection) {
+          featureSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
+    
+    // handle any hash links for smooth internal navigation (benefits & register)
+    const allHashLinks = document.querySelectorAll('a[href^="#"]');
+    allHashLinks.forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const targetId = this.getAttribute('href');
+        if (targetId === "#" || targetId === "") return;
+        const targetElem = document.querySelector(targetId);
+        if (targetElem) {
+          e.preventDefault();
+          targetElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       });
     });
-  }
-
-  // Smooth scroll to Features section from hero button
-  const featuresBtn = document.getElementById('featuresBtn');
-  if (featuresBtn) {
-    featuresBtn.addEventListener('click', () => {
-      const featureSection = document.getElementById('features');
-      if (featureSection) {
-        featureSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+    
+    // add subtle entrance animations
+    window.addEventListener('load', () => {
+      document.body.style.opacity = '1';
+      const cards = document.querySelectorAll('.mgt-card');
+      cards.forEach((card, idx) => {
+        card.style.animation = `fadeInUp 0.5s ease-out forwards`;
+        card.style.opacity = '0';
+        card.style.animationDelay = `${idx * 0.05}s`;
+      });
+      const styleAnim = document.createElement('style');
+      styleAnim.textContent = `
+        @keyframes fadeInUp {
+          from { opacity:0; transform: translateY(20px); }
+          to { opacity:1; transform: translateY(0); }
+        }
+        .mgt-card {
+          opacity: 0;
+          animation: fadeInUp 0.5s ease-out forwards;
+        }
+        .hero-image img {
+          animation: fadeInUp 0.6s ease-out;
+        }
+      `;
+      document.head.appendChild(styleAnim);
     });
-  }
-
-  // subtle hover & animation
-  window.addEventListener('load', () => {
-    document.body.style.opacity = '1';
-    console.log('SoulHub Management System ready — register to unlock full power.');
-  });
-  
-  const heroImg = document.querySelector('.hero-image img');
-  if(heroImg) {
-    heroImg.style.animation = 'fadeInUp 0.7s ease-out';
-  }
-  const styleAnim = document.createElement('style');
-  styleAnim.textContent = `@keyframes fadeInUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } } .hero-image img { animation: fadeInUp 0.6s ease-out; }`;
-  document.head.appendChild(styleAnim);
+  })();
 </script>
 </body>
 </html>
