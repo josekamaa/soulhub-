@@ -2,73 +2,207 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SoulHub Management – Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>SoulHub Management – Sign In</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Inter', sans-serif;
-      background: #FEFCF8;
+      background: linear-gradient(135deg, #FEFCF8 0%, #F9F4ED 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 2rem;
+      padding: 2rem 1rem;
+      position: relative;
+      overflow-x: hidden;
     }
-    .login-card {
-      max-width: 460px;
+
+    /* Animated background decoration */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(196,154,108,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      top: -150px;
+      right: -150px;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(196,154,108,0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      bottom: -200px;
+      left: -200px;
+      pointer-events: none;
+    }
+
+    .login-container {
+      max-width: 480px;
       width: 100%;
       background: white;
       border-radius: 36px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+      box-shadow: 0 25px 45px -12px rgba(0,0,0,0.15);
       border: 1px solid #F0EAE3;
       overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      z-index: 1;
     }
+
+    .login-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 30px 50px -15px rgba(0,0,0,0.2);
+    }
+
     .login-header {
-      background: #1E1B18;
+      background: linear-gradient(135deg, #1E1B18 0%, #2C241E 100%);
       padding: 2rem;
       text-align: center;
       color: white;
+      position: relative;
+      overflow: hidden;
     }
-    .login-header h2 {
+
+    .login-header::before {
+      content: '👟';
+      position: absolute;
+      font-size: 80px;
+      opacity: 0.05;
+      bottom: -20px;
+      right: -20px;
+      pointer-events: none;
+    }
+
+    .login-header h1 {
       font-family: 'Playfair Display', serif;
-      font-size: 1.8rem;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
     }
+
     .login-header p {
       opacity: 0.9;
-      margin-top: 8px;
       font-size: 0.9rem;
     }
-    .login-body {
+
+    .login-form {
       padding: 2rem;
     }
+
     .form-group {
-      margin-bottom: 1.3rem;
+      margin-bottom: 1.5rem;
     }
+
     label {
+      display: block;
       font-weight: 600;
       font-size: 0.85rem;
-      margin-bottom: 0.4rem;
-      display: block;
+      margin-bottom: 0.5rem;
       color: #2A241F;
     }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 16px;
+      color: #C49A6C;
+      font-size: 1rem;
+    }
+
     input {
       width: 100%;
-      padding: 12px 16px;
+      padding: 12px 16px 12px 44px;
       border: 1.5px solid #E9E2D8;
-      border-radius: 32px;
+      border-radius: 28px;
       font-family: 'Inter', sans-serif;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       transition: all 0.3s ease;
+      background: white;
     }
+
     input:focus {
       outline: none;
       border-color: #C49A6C;
       box-shadow: 0 0 0 3px rgba(196,154,108,0.1);
     }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #8F8278;
+      transition: color 0.2s ease;
+      z-index: 2;
+    }
+
+    .toggle-password:hover {
+      color: #C49A6C;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 1rem 0 1.5rem;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: #5E5348;
+    }
+
+    .checkbox-label input {
+      width: auto;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      margin: 0;
+      padding: 0;
+    }
+
+    .forgot-link {
+      color: #C49A6C;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .forgot-link:hover {
+      color: #1E1B18;
+      text-decoration: underline;
+    }
+
     .btn-login {
       width: 100%;
       background: #1E1B18;
@@ -77,24 +211,48 @@
       padding: 14px;
       border-radius: 40px;
       font-weight: 700;
-      font-size: 1rem;
       cursor: pointer;
-      margin-top: 0.5rem;
-      transition: all 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
+      transition: all 0.3s ease;
+      font-size: 1rem;
     }
+
     .btn-login:hover:not(:disabled) {
       background: #C49A6C;
       color: #1E1B18;
       transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(196,154,108,0.3);
     }
+
     .btn-login:disabled {
-      opacity: 0.6;
+      opacity: 0.7;
       cursor: not-allowed;
     }
+
+    .register-link {
+      text-align: center;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid #F0EAE3;
+      font-size: 0.85rem;
+      color: #5E5348;
+    }
+
+    .register-link a {
+      color: #C49A6C;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .register-link a:hover {
+      color: #1E1B18;
+      text-decoration: underline;
+    }
+
     .alert {
       padding: 12px 16px;
       border-radius: 28px;
@@ -105,6 +263,7 @@
       gap: 10px;
       animation: slideIn 0.3s ease;
     }
+
     @keyframes slideIn {
       from {
         opacity: 0;
@@ -115,332 +274,494 @@
         transform: translateY(0);
       }
     }
-    .alert-error {
-      background: #FEF2F0;
-      color: #C23D2E;
-      border-left: 4px solid #C23D2E;
-    }
+
     .alert-success {
       background: #E6F4EA;
       color: #2E7D32;
       border-left: 4px solid #2E7D32;
     }
+
+    .alert-error {
+      background: #FEF2F0;
+      color: #C23D2E;
+      border-left: 4px solid #C23D2E;
+    }
+
     .alert-info {
       background: #E8F0FE;
       color: #1A56DB;
       border-left: 4px solid #1A56DB;
     }
-    .register-link {
-      text-align: center;
-      margin-top: 1.5rem;
-      padding-top: 1rem;
-      border-top: 1px solid #F0EAE3;
-      font-size: 0.85rem;
+
+    .alert-warning {
+      background: #FFF4E5;
+      color: #B76E00;
+      border-left: 4px solid #B76E00;
     }
-    .register-link a {
-      color: #C49A6C;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .register-link a:hover {
-      text-decoration: underline;
-    }
+
     .spinner {
-      display: inline-block;
-      width: 18px;
-      height: 18px;
-      border: 2px solid #fff;
-      border-top-color: #C49A6C;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      animation: spin 1s linear infinite;
     }
-    .spinner-dark {
-      border: 2px solid #1E1B18;
-      border-top-color: #C49A6C;
-    }
+
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
-    .debug-info {
-      margin-top: 1rem;
-      padding: 8px;
+
+    .social-login {
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+
+    .social-login p {
+      font-size: 0.75rem;
+      color: #8F8278;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .social-login p::before,
+    .social-login p::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 30%;
+      height: 1px;
+      background: #E9E2D8;
+    }
+
+    .social-login p::before {
+      left: 0;
+    }
+
+    .social-login p::after {
+      right: 0;
+    }
+
+    .social-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .social-btn {
+      flex: 1;
+      padding: 10px;
+      border: 1.5px solid #E9E2D8;
+      border-radius: 40px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #2A241F;
+    }
+
+    .social-btn:hover {
+      border-color: #C49A6C;
+      background: #FEFCF8;
+      transform: translateY(-2px);
+    }
+
+    .social-btn i {
+      font-size: 1.1rem;
+    }
+
+    .footer-note {
       background: #F9F4ED;
-      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
       font-size: 0.7rem;
       color: #6B5E54;
-      text-align: center;
-      display: none;
+    }
+
+    @media (max-width: 480px) {
+      .login-form {
+        padding: 1.5rem;
+      }
+      .login-header h1 {
+        font-size: 1.6rem;
+      }
+      .login-header p {
+        font-size: 0.8rem;
+      }
+      .checkbox-label {
+        font-size: 0.75rem;
+      }
+      .social-buttons {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
-<div class="login-card">
+<div class="login-container">
   <div class="login-header">
-    <h2><i class="fas fa-chart-line"></i> SoulHub</h2>
-    <p>Sign in to your management console</p>
+    <h1><i class="fas fa-chart-line"></i> SoulHub</h1>
+    <p>Welcome back to your store management</p>
   </div>
-  <div class="login-body">
-    <div id="messageArea"></div>
-    
-    <div class="form-group">
-      <label>Email Address</label>
-      <input type="email" id="loginEmail" placeholder="hello@soulhub.com" autocomplete="email">
+  <div class="login-form">
+    <div id="message"></div>
+
+    <form id="loginForm" onsubmit="return false;">
+      <div class="form-group">
+        <label><i class="fas fa-envelope"></i> Email address</label>
+        <div class="input-wrapper">
+          <i class="fas fa-envelope"></i>
+          <input type="email" id="email" placeholder="hello@soulhub.com" required autocomplete="email">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-lock"></i> Password</label>
+        <div class="input-wrapper password-wrapper">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
+          <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+        </div>
+      </div>
+
+      <div class="checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" id="rememberMe"> 
+          <span>Remember me</span>
+        </label>
+        <a href="#" id="forgotPassword" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="btn-login" id="submitBtn">
+        <i class="fas fa-sign-in-alt"></i> Sign In
+      </button>
+    </form>
+
+    <div class="social-login">
+      <p>Or continue with</p>
+      <div class="social-buttons">
+        <button class="social-btn" id="googleLogin">
+          <i class="fab fa-google"></i> Google
+        </button>
+        <button class="social-btn" id="githubLogin">
+          <i class="fab fa-github"></i> GitHub
+        </button>
+      </div>
     </div>
-    
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
-    </div>
-    
-    <button class="btn-login" id="loginBtn">
-      <i class="fas fa-arrow-right-to-bracket"></i> Login
-    </button>
-    
+
     <div class="register-link">
-      Don't have an account? <a href="registration.html">Register now →</a>
+      Don't have an account? <a href="registration.html">Create your store account →</a>
     </div>
-    
-    <div class="debug-info" id="debugInfo">
-      <i class="fas fa-terminal"></i> Debug console ready
-    </div>
+  </div>
+  <div class="footer-note">
+    <i class="fas fa-shield-alt"></i> Secure login powered by Supabase Auth
   </div>
 </div>
 
 <script>
   (function() {
-    // ==================== CONFIGURATION ====================
+    // Supabase configuration
     const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
-    // ========================================================
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY2N5ZmFqcGFpdXZxb3Z2cXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNjIwMzAsImV4cCI6MjA5NTYzODAzMH0.mLGYFgTZ3ToIJD8KAiqbxr0h42H8PYN5xh1fyvTNvqo";
     
     let supabase = null;
-    let initializationError = null;
-    
-    // Debug function
-    function debugLog(message, type = 'info') {
-      console.log(`[${type.toUpperCase()}] ${message}`);
-      const debugDiv = document.getElementById('debugInfo');
-      if (debugDiv) {
-        debugDiv.style.display = 'block';
-        debugDiv.innerHTML = `<i class="fas fa-terminal"></i> ${message}`;
-        setTimeout(() => {
-          if (debugDiv.innerHTML.includes(message)) {
-            // Keep last message
-          }
-        }, 3000);
-      }
-    }
-    
+    let currentTimeout = null;
+
     // Initialize Supabase
-    try {
+    function initSupabase() {
       if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        debugLog('✅ Supabase client initialized successfully', 'success');
-      } else {
-        initializationError = 'Supabase library not loaded';
-        debugLog('❌ Supabase library not found', 'error');
+        console.log("✅ Supabase library loaded");
+        return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       }
-    } catch (err) {
-      initializationError = err.message;
-      debugLog(`❌ Supabase init error: ${err.message}`, 'error');
+      return null;
     }
-    
+
     // DOM elements
-    const emailInput = document.getElementById('loginEmail');
-    const passwordInput = document.getElementById('loginPassword');
-    const loginBtn = document.getElementById('loginBtn');
-    const messageArea = document.getElementById('messageArea');
-    
-    // Show message function
+    const messageDiv = document.getElementById('message');
+    const submitBtn = document.getElementById('submitBtn');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const rememberCheckbox = document.getElementById('rememberMe');
+    const togglePassword = document.getElementById('togglePassword');
+    const forgotLink = document.getElementById('forgotPassword');
+    const googleBtn = document.getElementById('googleLogin');
+    const githubBtn = document.getElementById('githubLogin');
+
     function showMessage(text, type) {
+      // Clear any existing timeout
+      if (currentTimeout) clearTimeout(currentTimeout);
+      
       const icon = {
         'error': 'fa-exclamation-circle',
         'success': 'fa-check-circle',
-        'info': 'fa-info-circle'
+        'info': 'fa-info-circle',
+        'warning': 'fa-exclamation-triangle'
       };
-      messageArea.innerHTML = `<div class="alert alert-${type}"><i class="fas ${icon[type]}"></i> ${text}</div>`;
-      setTimeout(() => {
-        if (messageArea.firstChild) {
-          messageArea.firstChild.remove();
-        }
-      }, 5000);
+      messageDiv.innerHTML = `<div class="alert alert-${type}"><i class="fas ${icon[type]}"></i> ${text}</div>`;
+      
+      // Auto-hide after 5 seconds for non-error messages
+      if (type !== 'error') {
+        currentTimeout = setTimeout(() => {
+          if (messageDiv.firstChild) messageDiv.firstChild.remove();
+        }, 5000);
+      }
     }
-    
-    // Check existing session
-    async function checkExistingSession() {
+
+    // Toggle password visibility
+    if (togglePassword) {
+      togglePassword.addEventListener('click', () => {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        togglePassword.classList.toggle('fa-eye');
+        togglePassword.classList.toggle('fa-eye-slash');
+      });
+    }
+
+    // Check for registration success message
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('registered') === 'true') {
+      const email = urlParams.get('email');
+      showMessage('✨ Registration successful! Please check your email to verify your account, then log in.', 'success');
+      if (email) emailInput.value = email;
+    }
+
+    // Check for email verification message
+    if (urlParams.get('verified') === 'true') {
+      showMessage('✅ Email verified! You can now log in.', 'success');
+    }
+
+    // Load saved email if "Remember me" was checked
+    const savedEmail = localStorage.getItem('soulhub_remembered_email');
+    if (savedEmail) {
+      emailInput.value = savedEmail;
+      rememberCheckbox.checked = true;
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      
+      // Clear previous message
+      messageDiv.innerHTML = '';
+      
+      // Initialize Supabase if not already
       if (!supabase) {
-        debugLog('Cannot check session: Supabase not ready', 'error');
-        return false;
+        supabase = initSupabase();
+        if (!supabase) {
+          showMessage("Failed to initialize connection. Please refresh the page.", "error");
+          return;
+        }
       }
       
-      try {
-        debugLog('Checking for existing session...', 'info');
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          debugLog(`Session check error: ${error.message}`, 'error');
-          return false;
-        }
-        
-        if (session) {
-          debugLog(`Existing session found for: ${session.user.email}`, 'success');
-          showMessage('You are already logged in! Redirecting...', 'success');
-          setTimeout(() => {
-            window.location.href = "dashboard.html";
-          }, 1000);
-          return true;
-        }
-        
-        debugLog('No existing session found', 'info');
-        return false;
-      } catch (err) {
-        debugLog(`Session check exception: ${err.message}`, 'error');
-        return false;
-      }
-    }
-    
-    // Login function
-    async function handleLogin() {
-      // Clear previous messages
-      messageArea.innerHTML = '';
-      
-      // Get values
-      const email = emailInput ? emailInput.value.trim() : '';
-      const password = passwordInput ? passwordInput.value : '';
-      
-      debugLog(`Login attempt for: ${email}`, 'info');
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
       
       // Validation
       if (!email) {
-        showMessage('Please enter your email address', 'error');
-        debugLog('Validation failed: No email provided', 'error');
+        showMessage("Please enter your email address", "error");
+        emailInput.focus();
         return;
       }
       
       if (!password) {
-        showMessage('Please enter your password', 'error');
-        debugLog('Validation failed: No password provided', 'error');
+        showMessage("Please enter your password", "error");
+        passwordInput.focus();
         return;
       }
       
-      if (!supabase) {
-        showMessage('System not initialized. Please refresh the page.', 'error');
-        debugLog(`Login failed: Supabase not initialized - ${initializationError}`, 'error');
+      // Email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showMessage("Please enter a valid email address", "error");
+        emailInput.focus();
         return;
       }
       
-      // Disable button and show loading
-      loginBtn.disabled = true;
-      loginBtn.innerHTML = '<span class="spinner"></span> Logging in...';
+      // Handle "Remember me"
+      if (rememberCheckbox.checked) {
+        localStorage.setItem('soulhub_remembered_email', email);
+      } else {
+        localStorage.removeItem('soulhub_remembered_email');
+      }
+      
+      // Disable button and show loading state
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Signing in...';
       
       try {
-        debugLog('Calling supabase.auth.signInWithPassword...', 'info');
+        console.log("🔐 Attempting login for:", email);
         
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: email,
-          password: password
+          email,
+          password
         });
         
-        if (error) {
-          debugLog(`Login error: ${error.message}`, 'error');
-          showMessage(error.message, 'error');
-          loginBtn.disabled = false;
-          loginBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Login';
-          return;
-        }
+        if (error) throw error;
         
-        if (data && data.user) {
-          debugLog(`Login successful for: ${data.user.email}`, 'success');
-          showMessage('Login successful! Redirecting to dashboard...', 'success');
+        if (data?.user) {
+          console.log("✅ Login successful:", data.user.email);
           
+          // Check if email is verified
+          if (!data.user.email_confirmed_at) {
+            showMessage("⚠️ Please verify your email address before logging in. Check your inbox for the verification link.", "warning");
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+            return;
+          }
+          
+          // Fetch user profile
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('full_name, role, store_name')
+            .eq('id', data.user.id)
+            .single();
+          
+          if (!profileError && profile) {
+            console.log("👤 User profile:", profile);
+            // Store user info in sessionStorage for dashboard
+            sessionStorage.setItem('soulhub_user', JSON.stringify({
+              id: data.user.id,
+              email: data.user.email,
+              full_name: profile.full_name,
+              role: profile.role,
+              store_name: profile.store_name
+            }));
+          }
+          
+          showMessage(`🎉 Welcome back${profile?.full_name ? ' ' + profile.full_name : ''}! Redirecting to dashboard...`, "success");
+          
+          // Redirect to dashboard
           setTimeout(() => {
             window.location.href = "dashboard.html";
           }, 1500);
-        } else {
-          debugLog('Login returned success but no user data', 'error');
-          showMessage('Login failed. Please try again.', 'error');
-          loginBtn.disabled = false;
-          loginBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Login';
         }
         
       } catch (err) {
-        debugLog(`Login exception: ${err.message}`, 'error');
-        showMessage(`Login error: ${err.message}`, 'error');
-        loginBtn.disabled = false;
-        loginBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Login';
+        console.error("❌ Login error:", err);
+        
+        let errorMessage = "Login failed. Please check your credentials.";
+        if (err.message.includes("Invalid login credentials")) {
+          errorMessage = "Invalid email or password. Please try again.";
+        } else if (err.message.includes("Email not confirmed")) {
+          errorMessage = "Please verify your email address before logging in. Check your inbox for the verification link.";
+        } else if (err.message.includes("rate limit")) {
+          errorMessage = "Too many attempts. Please try again later.";
+        }
+        
+        showMessage(errorMessage, "error");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
       }
     }
     
-    // Attach event listeners
-    if (loginBtn) {
-      loginBtn.addEventListener('click', handleLogin);
-      debugLog('Login button event listener attached', 'info');
-    } else {
-      debugLog('ERROR: Login button not found in DOM', 'error');
-    }
-    
-    // Enter key support
-    if (emailInput) {
-      emailInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          debugLog('Enter key pressed on email field', 'info');
-          handleLogin();
-        }
-      });
-    }
-    
-    if (passwordInput) {
-      passwordInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          debugLog('Enter key pressed on password field', 'info');
-          handleLogin();
-        }
-      });
-    }
-    
-    // Check for registration success message
-    if (window.location.search.includes('registered=true')) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const email = urlParams.get('email');
-      if (email) {
-        showMessage(`✅ Account created successfully for ${email}! Please log in.`, 'success');
-        debugLog(`Registration success detected for: ${email}`, 'success');
-      } else {
-        showMessage('✅ Account created successfully! Please log in.', 'success');
-        debugLog('Registration success detected', 'success');
-      }
-    }
-    
-    // Test Supabase connection
-    async function testConnection() {
-      if (!supabase) {
-        debugLog('Cannot test connection: Supabase not ready', 'error');
+    // Forgot password handler
+    async function handleForgotPassword() {
+      const email = emailInput.value.trim();
+      
+      if (!email) {
+        showMessage("Please enter your email address to reset your password.", "info");
+        emailInput.focus();
         return;
       }
       
-      try {
-        debugLog('Testing Supabase connection...', 'info');
-        const { error } = await supabase.from('profiles').select('count', { count: 'exact', head: true });
-        
-        if (error) {
-          debugLog(`Connection test warning: ${error.message}`, 'warning');
-          showMessage(`Note: ${error.message}. You may need to setup your database.`, 'info');
-        } else {
-          debugLog('✅ Supabase connection test passed!', 'success');
+      if (!supabase) {
+        supabase = initSupabase();
+        if (!supabase) {
+          showMessage("Failed to initialize connection.", "error");
+          return;
         }
-      } catch (err) {
-        debugLog(`Connection test failed: ${err.message}`, 'error');
+      }
+      
+      showMessage("Sending password reset email...", "info");
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + "/reset-password.html",
+      });
+      
+      if (error) {
+        showMessage(`Error: ${error.message}`, "error");
+      } else {
+        showMessage("📧 Password reset email sent! Check your inbox.", "success");
       }
     }
     
-    // Initialize on page load
-    window.addEventListener('DOMContentLoaded', async () => {
-      debugLog('Page loaded, initializing...', 'info');
-      await testConnection();
-      await checkExistingSession();
-      debugLog('Ready for login', 'success');
+    // Social login handlers
+    async function handleSocialLogin(provider) {
+      if (!supabase) {
+        supabase = initSupabase();
+        if (!supabase) return;
+      }
+      
+      showMessage(`Redirecting to ${provider} for authentication...`, "info");
+      
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: provider,
+        options: {
+          redirectTo: window.location.origin + "/dashboard.html"
+        }
+      });
+      
+      if (error) {
+        showMessage(`Error: ${error.message}`, "error");
+      }
+    }
+    
+    // Event listeners
+    document.getElementById('loginForm').addEventListener('submit', handleLogin);
+    
+    if (forgotLink) {
+      forgotLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        handleForgotPassword();
+      });
+    }
+    
+    if (googleBtn) {
+      googleBtn.addEventListener('click', () => handleSocialLogin('google'));
+    }
+    
+    if (githubBtn) {
+      githubBtn.addEventListener('click', () => handleSocialLogin('github'));
+    }
+    
+    // Enter key support
+    passwordInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleLogin(e);
+      }
+    });
+    
+    emailInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        passwordInput.focus();
+      }
+    });
+    
+    // Test connection on load
+    async function testConnection() {
+      supabase = initSupabase();
+      if (!supabase) {
+        setTimeout(testConnection, 500);
+        return;
+      }
+      
+      console.log("🔌 Testing Supabase connection...");
+      try {
+        const { error } = await supabase.from('profiles').select('count', { count: 'exact', head: true });
+        if (error) {
+          console.warn("⚠️ Connection test:", error.message);
+        } else {
+          console.log("✅ Supabase connection successful!");
+        }
+      } catch (err) {
+        console.error("❌ Connection error:", err);
+      }
+    }
+    
+    window.addEventListener('load', () => {
+      console.log("📄 Login page loaded");
+      testConnection();
     });
     
   })();
