@@ -25,10 +25,6 @@
       border-radius: 36px;
       box-shadow: 0 25px 45px -12px rgba(0,0,0,0.15);
       border: 1px solid #F0EAE3;
-      transition: transform 0.3s ease;
-    }
-    .register-container:hover {
-      transform: translateY(-5px);
     }
     .register-header {
       background: linear-gradient(135deg, #1E1B18 0%, #2C241E 100%);
@@ -233,34 +229,6 @@
       .register-header h1 {
         font-size: 1.5rem;
       }
-      .register-header p {
-        font-size: 0.8rem;
-      }
-      .form-group {
-        margin-bottom: 1rem;
-      }
-      .role-hint {
-        font-size: 0.6rem;
-        line-height: 1.3;
-      }
-    }
-    @media (max-width: 480px) {
-      body {
-        padding: 1rem;
-      }
-      .register-header {
-        padding: 1.5rem;
-      }
-      .register-form {
-        padding: 1.2rem;
-      }
-      .btn-register {
-        padding: 12px;
-        font-size: 0.9rem;
-      }
-      .checkbox-group label {
-        font-size: 0.7rem;
-      }
     }
   </style>
 </head>
@@ -385,12 +353,10 @@
     // Initialize Supabase
     function initSupabase() {
       if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-        console.log("✅ Supabase library loaded, creating client...");
+        console.log("✅ Supabase library loaded");
         return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      } else {
-        console.error("❌ Supabase library not loaded yet");
-        return null;
       }
+      return null;
     }
     
     // DOM elements
@@ -418,7 +384,6 @@
       }
     }
     
-    // Password strength checker
     function checkPasswordStrength(password) {
       let strength = 0;
       if (password.length >= 6) strength++;
@@ -462,9 +427,6 @@
       if (!fullNameInput.value.trim()) {
         document.getElementById('fullNameError').textContent = 'Full name is required';
         isValid = false;
-      } else if (fullNameInput.value.trim().length < 2) {
-        document.getElementById('fullNameError').textContent = 'Name must be at least 2 characters';
-        isValid = false;
       } else {
         document.getElementById('fullNameError').textContent = '';
       }
@@ -506,7 +468,7 @@
       return isValid;
     }
     
-    // Add real-time validation listeners
+    // Real-time validation
     fullNameInput.addEventListener('input', validateForm);
     emailInput.addEventListener('input', validateForm);
     passwordInput.addEventListener('input', () => {
@@ -516,12 +478,9 @@
     confirmInput.addEventListener('input', validateForm);
     roleSelect.addEventListener('change', validateForm);
     
-    // Registration handler
     async function handleRegister() {
-      // Clear previous messages
       statusDiv.innerHTML = '';
       
-      // Initialize Supabase if not already
       if (!supabase) {
         supabase = initSupabase();
         if (!supabase) {
@@ -530,7 +489,6 @@
         }
       }
       
-      // Validate form
       if (!validateForm()) {
         showMessage("Please fix the errors above before submitting", "error");
         return;
@@ -551,22 +509,20 @@
       const establishedYear = document.getElementById('establishedYear').value;
       const subscribeNewsletter = document.getElementById('newsletterCheckbox').checked;
       
-      console.log("📝 Attempting to register:", { email, fullName, role });
+      console.log("📝 Registering:", { email, fullName, role });
       
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Creating account...';
       
       try {
-        // 1. Sign up with Supabase Auth
+        // Sign up with Supabase Auth
         const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: { 
             data: { 
               full_name: fullName, 
-              role: role,
-              store_name: storeName,
-              phone: phone
+              role: role
             } 
           }
         });
@@ -578,13 +534,13 @@
         }
         
         const userId = authData.user.id;
-        console.log("✅ User created with ID:", userId);
+        console.log("✅ User created:", userId);
         
-        // 2. Insert profile into 'profiles' table
+        // Insert profile with CORRECT field mapping
         const profileData = {
           id: userId,
-          full_name: fullName,
-          role: role,
+          full_name: fullName,        // Maps to 'full_name' column
+          role: role,                  // Maps to 'role' column
           store_name: storeName || null,
           phone: phone || null,
           store_address: storeAddress || null,
@@ -592,59 +548,50 @@
           newsletter_subscribed: subscribeNewsletter
         };
         
+        console.log("📊 Inserting profile:", profileData);
+        
         const { error: profileError } = await supabase
           .from('profiles')
           .insert([profileData]);
         
         if (profileError) {
-          console.error("❌ Profile insert error:", profileError);
-          // If profile insert fails, the user is still created in auth
-          showMessage(`Account created but profile setup had an issue. Please contact support.`, "warning");
+          console.error("❌ Profile error:", profileError);
+          showMessage(`Account created but profile setup failed: ${profileError.message}`, "warning");
         } else {
-          console.log("✅ Profile created successfully!");
+          console.log("✅ Profile created!");
+          showMessage(`✨ Welcome ${fullName}! Your ${role} account has been created. Please check your email to verify your account.`, "success");
+          
+          setTimeout(() => {
+            window.location.href = "login.html?registered=true&email=" + encodeURIComponent(email);
+          }, 3000);
         }
         
-        showMessage(`✨ Welcome ${fullName}! Your ${role} account has been created successfully. Please check your email to verify your account, then log in.`, "success");
-        
-        setTimeout(() => {
-          window.location.href = "login.html?registered=true&email=" + encodeURIComponent(email);
-        }, 3000);
-        
       } catch (err) {
-        console.error("❌ Registration error:", err);
-        
+        console.error("❌ Error:", err);
         let msg = err.message;
         if (msg.includes("User already registered")) {
           msg = "This email is already registered. Please log in instead.";
         } else if (msg.includes("duplicate key")) {
           msg = "Email already exists. Try logging in.";
-        } else if (msg.includes("password")) {
-          msg = "Password error. Please ensure it's at least 6 characters.";
-        } else {
-          msg = `Registration failed: ${msg}`;
         }
         showMessage(msg, "error");
-      } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Register store account';
       }
     }
     
-    // Attach event listener
     submitBtn.addEventListener('click', handleRegister);
     
-    // Terms and Privacy links
     document.getElementById('termsLink').addEventListener('click', (e) => {
       e.preventDefault();
-      showMessage("Terms: By using SoulHub, you agree to our data processing and security practices.", "info");
+      showMessage("Terms: By using SoulHub, you agree to our data processing practices.", "info");
     });
     
     document.getElementById('privacyLink').addEventListener('click', (e) => {
       e.preventDefault();
-      showMessage("Privacy: We protect your data and never share with third parties without consent.", "info");
+      showMessage("Privacy: We protect your data and never share without consent.", "info");
     });
     
-    // Test connection on load
     async function testConnection() {
       supabase = initSupabase();
       if (!supabase) {
@@ -652,31 +599,28 @@
         return;
       }
       
-      console.log("🔌 Testing Supabase connection...");
+      console.log("🔌 Testing connection...");
       try {
         const { error } = await supabase.from('profiles').select('count', { count: 'exact', head: true });
         if (error) {
-          console.warn("⚠️ Connection test warning:", error.message);
-          if (error.message.includes("relation") && error.message.includes("does not exist")) {
-            showMessage("ℹ️ Database setup in progress. Please run the SQL setup script in Supabase first.", "info");
-          } else {
-            showMessage(`ℹ️ ${error.message}`, "info");
+          console.warn("⚠️", error.message);
+          if (error.message.includes("does not exist")) {
+            showMessage("ℹ️ Please run the SQL setup script in Supabase first.", "info");
           }
         } else {
-          console.log("✅ Supabase connection successful!");
-          showMessage("✅ Ready to register! Fill out the form below.", "success");
+          console.log("✅ Connected to Supabase!");
+          showMessage("✅ Ready to register!", "success");
           setTimeout(() => {
             if (statusDiv.firstChild) statusDiv.firstChild.remove();
           }, 3000);
         }
       } catch (err) {
-        console.error("❌ Connection test error:", err);
+        console.error("❌ Connection error:", err);
       }
     }
     
-    // Start after page loads
     window.addEventListener('load', () => {
-      console.log("📄 Page loaded, initializing...");
+      console.log("📄 Page loaded");
       testConnection();
     });
     
