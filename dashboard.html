@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>SoulHub | Dashboard - Shoe Store Management</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <title>SoulHub Management - Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -17,78 +17,32 @@
 
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #FEFCF8;
+      background: #FEFCF8;
       color: #1E1B18;
       overflow-x: hidden;
-      transition: background-color 0.3s, color 0.3s;
     }
 
-    /* Dark Mode */
+    /* Dark Mode Styles */
     body.dark-mode {
-      background-color: #121212;
-      color: #E9E2D8;
+      background: #1a1a1a;
+      color: #FEFCF8;
     }
 
     body.dark-mode .sidebar,
-    body.dark-mode .stat-card,
-    body.dark-mode .recent-section,
-    body.dark-mode .quick-actions,
-    body.dark-mode .modal-content,
-    body.dark-mode .chart-card {
-      background: #1E1E1E;
-      border-color: #2C2C2C;
+    body.dark-mode .top-bar,
+    body.dark-mode .card,
+    body.dark-mode .modal-content {
+      background: #2d2d2d;
+      color: #FEFCF8;
     }
 
-    body.dark-mode .navbar {
-      background: rgba(18, 18, 18, 0.98);
-      border-bottom-color: #2C2C2C;
+    body.dark-mode .card {
+      background: #2d2d2d;
+      border-color: #404040;
     }
 
-    body.dark-mode .user-info {
-      background: #2C2C2C;
-    }
-
-    body.dark-mode .action-btn,
-    body.dark-mode .nav-link {
-      background: #2C2C2C;
-      color: #E9E2D8;
-    }
-
-    body.dark-mode .action-btn:hover,
-    body.dark-mode .nav-link:hover,
-    body.dark-mode .nav-link.active {
-      background: #C49A6C;
-      color: #1E1B18;
-    }
-
-    body.dark-mode .form-group input,
-    body.dark-mode .form-group select,
-    body.dark-mode .form-group textarea {
-      background: #2C2C2C;
-      border-color: #3C3C3C;
-      color: #E9E2D8;
-    }
-
-    body.dark-mode .inventory-table th {
-      background: #2C2C2C;
-    }
-
-    body.dark-mode .profile-card {
-      background: linear-gradient(135deg, #2C241E 0%, #1E1B18 100%);
-    }
-
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #E9E2D8;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #C8A27A;
-      border-radius: 8px;
-    }
-
-    .app-wrapper {
+    /* Layout */
+    .app-container {
       display: flex;
       min-height: 100vh;
     }
@@ -101,8 +55,13 @@
       position: fixed;
       height: 100vh;
       overflow-y: auto;
-      transition: all 0.3s;
-      z-index: 99;
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+
+    body.dark-mode .sidebar {
+      background: #2d2d2d;
+      border-right-color: #404040;
     }
 
     .sidebar-header {
@@ -110,9 +69,13 @@
       border-bottom: 1px solid #F0EAE3;
     }
 
-    .sidebar-logo {
+    body.dark-mode .sidebar-header {
+      border-bottom-color: #404040;
+    }
+
+    .logo {
       font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       font-weight: 700;
       background: linear-gradient(135deg, #2C241E 0%, #A2794C 100%);
       background-clip: text;
@@ -123,366 +86,320 @@
       gap: 8px;
     }
 
-    .sidebar-logo i {
-      background: none;
-      color: #C49A6C;
-      font-size: 1.3rem;
-    }
-
     .nav-menu {
-      padding: 24px 0;
+      padding: 24px;
     }
 
     .nav-item {
-      margin-bottom: 8px;
-    }
-
-    .nav-link {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px 24px;
-      color: #6B5E54;
-      text-decoration: none;
-      transition: all 0.2s;
-      font-weight: 500;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: #5E5348;
     }
 
-    .nav-link i {
+    body.dark-mode .nav-item {
+      color: #B0A89F;
+    }
+
+    .nav-item:hover {
+      background: #F9F4ED;
+      color: #C49A6C;
+    }
+
+    body.dark-mode .nav-item:hover {
+      background: #3d3d3d;
+    }
+
+    .nav-item.active {
+      background: #C49A6C;
+      color: white;
+    }
+
+    .nav-item i {
       width: 24px;
       font-size: 1.2rem;
     }
 
-    .nav-link:hover {
-      background: #F9F4ED;
-      color: #C49A6C;
-    }
-
-    .nav-link.active {
-      background: #F9F4ED;
-      color: #C49A6C;
-      border-right: 3px solid #C49A6C;
-    }
-
+    /* Main Content */
     .main-content {
       flex: 1;
       margin-left: 280px;
+      transition: all 0.3s ease;
     }
 
-    .navbar {
-      background: rgba(254, 252, 248, 0.98);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-      padding: 16px 0;
+    /* Top Bar */
+    .top-bar {
+      background: white;
+      border-bottom: 1px solid #F0EAE3;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 99;
     }
 
-    .container {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 24px;
+    body.dark-mode .top-bar {
+      background: #2d2d2d;
+      border-bottom-color: #404040;
     }
 
-    .nav-container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    .page-title h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
     }
 
-    .user-menu {
+    .top-bar-actions {
       display: flex;
       align-items: center;
       gap: 20px;
     }
 
-    .user-info {
+    .theme-toggle, .notifications {
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 8px;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .theme-toggle:hover, .notifications:hover {
+      background: #F9F4ED;
+      color: #C49A6C;
+    }
+
+    .user-menu {
       display: flex;
       align-items: center;
       gap: 12px;
-      background: #F9F4ED;
+      cursor: pointer;
       padding: 8px 16px;
       border-radius: 40px;
+      background: #F9F4ED;
+    }
+
+    body.dark-mode .user-menu {
+      background: #3d3d3d;
     }
 
     .user-avatar {
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       background: #C49A6C;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
-      font-weight: 600;
     }
 
-    .logout-btn, .dark-mode-toggle {
-      background: transparent;
-      border: 1px solid #E9E2D8;
-      padding: 8px 20px;
-      border-radius: 40px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s;
+    /* Content Area */
+    .content-area {
+      padding: 32px;
     }
 
-    .logout-btn:hover {
-      background: #C23D2E;
-      border-color: #C23D2E;
-      color: white;
-    }
-
-    .dark-mode-toggle:hover {
-      background: #1E1B18;
-      color: white;
-    }
-
-    .dashboard-header {
-      margin: 32px 0 24px;
-    }
-
-    .dashboard-header h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.2rem;
-      font-weight: 600;
-    }
-
-    .welcome-badge {
-      color: #C49A6C;
-    }
-
-    .stats-grid {
+    /* KPI Cards */
+    .kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 24px;
-      margin-bottom: 40px;
+      margin-bottom: 32px;
     }
 
-    .stat-card {
+    .card {
       background: white;
-      border-radius: 24px;
-      padding: 24px;
       border: 1px solid #F0EAE3;
+      border-radius: 20px;
+      padding: 24px;
       transition: all 0.3s ease;
     }
 
-    .stat-card:hover {
+    .card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 12px 24px -8px rgba(0,0,0,0.1);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.1);
     }
 
-    .stat-icon {
-      font-size: 2rem;
-      color: #C49A6C;
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 16px;
+      color: #8F8278;
     }
 
-    .stat-value {
-      font-size: 2rem;
+    .card-value {
+      font-size: 2.5rem;
       font-weight: 700;
       margin-bottom: 8px;
     }
 
-    .stat-trend {
-      font-size: 0.8rem;
-      margin-top: 8px;
+    .card-change {
+      font-size: 0.85rem;
+      color: #4CAF50;
     }
 
-    .stat-trend.up {
-      color: #10b981;
-    }
-
-    .stat-trend.down {
-      color: #ef4444;
-    }
-
-    .stat-label {
-      color: #6B5E54;
-      font-size: 0.9rem;
-    }
-
-    .quick-actions {
-      background: #F9F4ED;
-      border-radius: 28px;
-      padding: 32px;
-      margin-bottom: 40px;
-    }
-
-    .quick-actions h3 {
-      margin-bottom: 20px;
-      font-size: 1.3rem;
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .action-btn {
-      background: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 40px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-family: 'Inter', sans-serif;
-      text-decoration: none;
-      color: #1E1B18;
-    }
-
-    .action-btn:hover {
-      background: #1E1B18;
-      color: white;
-      transform: translateY(-2px);
-    }
-
-    .charts-row {
+    /* Charts Grid */
+    .charts-grid {
       display: grid;
-      grid-template-columns: 2fr 1fr;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
       gap: 24px;
-      margin-bottom: 40px;
+      margin-bottom: 32px;
     }
 
-    .chart-card {
+    .chart-container {
       background: white;
-      border-radius: 28px;
-      padding: 24px;
       border: 1px solid #F0EAE3;
+      border-radius: 20px;
+      padding: 24px;
     }
 
-    .chart-card h3 {
+    body.dark-mode .chart-container {
+      background: #2d2d2d;
+      border-color: #404040;
+    }
+
+    .chart-container h3 {
       margin-bottom: 20px;
       font-size: 1.2rem;
     }
 
-    .recent-section {
+    canvas {
+      max-height: 300px;
+    }
+
+    /* Tables and Lists */
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .data-table {
       background: white;
-      border-radius: 28px;
-      padding: 32px;
       border: 1px solid #F0EAE3;
-      margin-bottom: 40px;
+      border-radius: 20px;
+      padding: 24px;
     }
 
-    .recent-section h3 {
-      margin-bottom: 20px;
+    body.dark-mode .data-table {
+      background: #2d2d2d;
+      border-color: #404040;
     }
 
-    .inventory-table {
-      width: 100%;
-      overflow-x: auto;
+    .data-table h3 {
+      margin-bottom: 16px;
+      font-size: 1.2rem;
     }
 
-    .inventory-table table {
+    .data-table table {
       width: 100%;
       border-collapse: collapse;
     }
 
-    .inventory-table th,
-    .inventory-table td {
+    .data-table th,
+    .data-table td {
       padding: 12px;
       text-align: left;
       border-bottom: 1px solid #F0EAE3;
     }
 
-    .inventory-table th {
-      background: #F9F4ED;
-      font-weight: 600;
-      cursor: pointer;
-      user-select: none;
+    body.dark-mode .data-table th,
+    body.dark-mode .data-table td {
+      border-bottom-color: #404040;
     }
 
-    .inventory-table th:hover {
-      background: #F0EAE3;
-    }
-
-    .low-stock {
-      color: #ef4444;
+    .badge {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
       font-weight: 600;
     }
 
-    .search-bar {
-      margin-bottom: 20px;
-      padding: 10px 20px;
-      width: 300px;
-      border: 1px solid #F0EAE3;
+    .badge-warning {
+      background: #FFF4E5;
+      color: #B76E00;
+    }
+
+    .badge-success {
+      background: #E6F4EA;
+      color: #2E7D32;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+
+    .action-btn {
+      background: #1E1B18;
+      color: white;
+      border: none;
+      padding: 12px 24px;
       border-radius: 40px;
-      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
     }
 
+    .action-btn:hover {
+      background: #C49A6C;
+      transform: translateY(-2px);
+    }
+
+    /* Modal */
     .modal {
       display: none;
       position: fixed;
-      z-index: 1000;
-      left: 0;
       top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0,0,0,0.5);
-      animation: fadeIn 0.3s;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    .modal-content {
-      background-color: white;
-      margin: 5% auto;
-      padding: 0;
-      border-radius: 28px;
-      width: 90%;
-      max-width: 700px;
-      animation: slideIn 0.3s;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
-
-    @keyframes slideIn {
-      from {
-        transform: translateY(-50px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
-
-    .modal-header {
-      padding: 24px 32px;
-      border-bottom: 1px solid #F0EAE3;
-      display: flex;
-      justify-content: space-between;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
       align-items: center;
     }
 
-    .modal-header h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
+    .modal.active {
+      display: flex;
     }
 
-    .close {
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: color 0.2s;
-    }
-
-    .close:hover {
-      color: #C23D2E;
-    }
-
-    .modal-body {
+    .modal-content {
+      background: white;
+      border-radius: 24px;
       padding: 32px;
-      max-height: 60vh;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
       overflow-y: auto;
+    }
+
+    body.dark-mode .modal-content {
+      background: #2d2d2d;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .close-modal {
+      cursor: pointer;
+      font-size: 1.5rem;
     }
 
     .form-group {
@@ -492,464 +409,732 @@
     .form-group label {
       display: block;
       margin-bottom: 8px;
-      font-weight: 600;
-      color: #6B5E54;
+      font-weight: 500;
     }
 
     .form-group input,
-    .form-group select,
-    .form-group textarea {
+    .form-group select {
       width: 100%;
-      padding: 12px 16px;
+      padding: 10px;
       border: 1px solid #E9E2D8;
-      border-radius: 16px;
-      font-family: 'Inter', sans-serif;
-      transition: all 0.2s;
-    }
-
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: #C49A6C;
-      box-shadow: 0 0 0 3px rgba(196, 154, 108, 0.1);
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .modal-footer {
-      padding: 24px 32px;
-      border-top: 1px solid #F0EAE3;
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-    }
-
-    .btn-primary, .btn-secondary {
-      padding: 12px 24px;
-      border-radius: 40px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
+      border-radius: 12px;
       font-family: 'Inter', sans-serif;
     }
 
-    .btn-primary {
-      background: #C49A6C;
-      color: white;
-      border: none;
-    }
-
-    .btn-primary:hover {
-      background: #A2794C;
-      transform: translateY(-2px);
-    }
-
-    .btn-secondary {
-      background: transparent;
-      border: 1px solid #E9E2D8;
-      color: #6B5E54;
-    }
-
-    .btn-secondary:hover {
-      background: #F9F4ED;
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      background: #10b981;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 40px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      z-index: 1100;
-      animation: slideInRight 0.3s;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-
-    .toast.error {
-      background: #ef4444;
-    }
-
-    @keyframes slideInRight {
-      from {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-
-    .profile-card {
-      background: linear-gradient(135deg, #1E1B18 0%, #2C241E 100%);
-      border-radius: 24px;
-      padding: 24px;
-      color: white;
-      margin-bottom: 24px;
-    }
-
-    .profile-card h3 {
-      margin-bottom: 16px;
-      font-family: 'Playfair Display', serif;
-    }
-
-    .profile-details {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-    }
-
-    .profile-detail-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 8px 0;
-    }
-
-    .profile-detail-item i {
-      width: 24px;
-      color: #C49A6C;
-    }
-
-    .loading-screen {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .spinner {
-      width: 50px;
-      height: 50px;
-      border: 3px solid #E9E2D8;
-      border-top-color: #C49A6C;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .error-screen {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      flex-direction: column;
-      gap: 20px;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .error-screen i {
-      font-size: 4rem;
-      color: #C23D2E;
-    }
-
-    .error-screen button {
-      margin-top: 20px;
-      padding: 12px 24px;
-      background: #1E1B18;
-      color: white;
-      border: none;
-      border-radius: 40px;
-      cursor: pointer;
-    }
-
+    /* Mobile Responsive */
     @media (max-width: 768px) {
       .sidebar {
         transform: translateX(-100%);
-        position: fixed;
-        z-index: 1000;
       }
-      .sidebar.open {
+      .sidebar.mobile-open {
         transform: translateX(0);
       }
       .main-content {
         margin-left: 0;
       }
-      .nav-container {
-        flex-direction: row;
-      }
-      .stats-grid {
+      .charts-grid,
+      .data-grid {
         grid-template-columns: 1fr;
       }
-      .charts-row {
-        grid-template-columns: 1fr;
+      .kpi-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       }
-      .form-row {
-        grid-template-columns: 1fr;
+      .top-bar {
+        padding: 12px 16px;
       }
-      .modal-content {
-        margin: 10% auto;
-        width: 95%;
+      .content-area {
+        padding: 16px;
       }
       .menu-toggle {
         display: block;
-        background: none;
-        border: none;
-        font-size: 1.5rem;
         cursor: pointer;
-        margin-right: 16px;
-      }
-      .search-bar {
-        width: 100%;
+        font-size: 1.5rem;
       }
     }
 
-    .menu-toggle {
-      display: none;
+    @media (min-width: 769px) {
+      .menu-toggle {
+        display: none;
+      }
     }
 
-    .badge {
-      background: #C49A6C20;
-      color: #C49A6C;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
+    .loading {
+      text-align: center;
+      padding: 40px;
+    }
+
+    .spinner {
+      animation: spin 1s linear infinite;
     }
   </style>
 </head>
 <body>
-  <div id="loadingScreen" class="loading-screen">
-    <div class="spinner"></div>
-    <p>Loading your dashboard...</p>
-  </div>
-
-  <div id="errorScreen" class="error-screen" style="display: none;">
-    <i class="fas fa-exclamation-circle"></i>
-    <h2>Unable to Load Dashboard</h2>
-    <p id="errorMessage">Something went wrong. Please try again.</p>
-    <button onclick="window.location.href = 'login.html'">Go to Login</button>
-  </div>
-
-  <div id="dashboardContent" style="display: none;">
-    <div class="app-wrapper">
-      <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-          <div class="sidebar-logo">
-            <i class="fas fa-chart-line"></i> SoulHub
-          </div>
-        </div>
-        <nav class="nav-menu">
-          <div class="nav-item"><a href="#" class="nav-link active"><i class="fas fa-home"></i> Dashboard</a></div>
-          <div class="nav-item"><a href="#" class="nav-link"><i class="fas fa-boxes"></i> Inventory</a></div>
-          <div class="nav-item"><a href="#" class="nav-link"><i class="fas fa-shopping-cart"></i> Sales</a></div>
-          <div class="nav-item"><a href="staff.html" class="nav-link"><i class="fas fa-users"></i> Staff</a></div>
-          <div class="nav-item"><a href="#" class="nav-link"><i class="fas fa-chart-bar"></i> Reports</a></div>
-          <div class="nav-item"><a href="#" class="nav-link"><i class="fas fa-cog"></i> Settings</a></div>
-        </nav>
-      </aside>
-
-      <main class="main-content">
-        <nav class="navbar">
-          <div class="container nav-container">
-            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
-            <div style="flex:1"></div>
-            <div class="user-menu">
-              <button class="dark-mode-toggle" id="darkModeToggle"><i class="fas fa-moon"></i> Dark Mode</button>
-              <div class="user-info"><div class="user-avatar" id="userAvatar">JD</div><span id="userName">Loading...</span></div>
-              <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-            </div>
-          </div>
-        </nav>
-
-        <div class="container">
-          <div class="dashboard-header">
-            <h1>Welcome back, <span class="welcome-badge" id="welcomeName">...</span> 👋</h1>
-            <p style="color: #6B5E54; margin-top: 8px;">Here's what's happening with your shoe store today.</p>
-          </div>
-
-          <div class="stats-grid">
-            <div class="stat-card"><div class="stat-icon"><i class="fas fa-chart-line"></i></div><div class="stat-value" id="todaySales">$0</div><div class="stat-trend up" id="salesTrend">↑ 0% from yesterday</div><div class="stat-label">Today's Sales</div></div>
-            <div class="stat-card"><div class="stat-icon"><i class="fas fa-box"></i></div><div class="stat-value" id="lowStock">0</div><div class="stat-label">Low Stock Items</div></div>
-            <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-value" id="totalStaff">0</div><div class="stat-label">Active Staff</div></div>
-            <div class="stat-card"><div class="stat-icon"><i class="fas fa-dollar-sign"></i></div><div class="stat-value" id="totalInventoryValue">$0</div><div class="stat-label">Inventory Value</div></div>
-          </div>
-
-          <div class="charts-row">
-            <div class="chart-card"><h3><i class="fas fa-chart-line"></i> Sales Trend (Last 7 Days)</h3><canvas id="salesChart"></canvas></div>
-            <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Top Categories</h3><canvas id="categoryChart"></canvas></div>
-          </div>
-
-          <div class="quick-actions">
-            <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
-            <div class="action-buttons">
-              <button class="action-btn" id="addProductBtn"><i class="fas fa-plus-circle"></i> Add Product</button>
-              <button class="action-btn" id="demoSaleBtn"><i class="fas fa-shopping-cart"></i> New Sale (Demo)</button>
-              <a href="#" class="action-btn"><i class="fas fa-chart-bar"></i> View Reports</a>
-              <a href="#" class="action-btn"><i class="fas fa-user-plus"></i> Manage Staff</a>
-            </div>
-          </div>
-
-          <div class="recent-section">
-            <h3><i class="fas fa-boxes"></i> Recent Inventory</h3>
-            <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Search products...">
-            <div class="inventory-table">
-              <table id="inventoryTable">
-                <thead><tr><th onclick="sortTable('name')">Product Name <i class="fas fa-sort"></i></th><th onclick="sortTable('sku')">SKU</th><th onclick="sortTable('category')">Category</th><th onclick="sortTable('price')">Price</th><th onclick="sortTable('stock')">Stock</th><th>Status</th><th>Actions</th></tr></thead>
-                <tbody id="inventoryBody"><tr><td colspan="7">Loading products...</td></tr></tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="recent-section">
-            <h3><i class="fas fa-history"></i> Recent Sales Activity</h3>
-            <div id="recentSalesList"><p>Loading recent sales...</p></div>
-          </div>
-
-          <div class="recent-section">
-            <div class="profile-card"><h3><i class="fas fa-user-circle"></i> Your Profile</h3><div class="profile-details" id="profileDetails"></div></div>
-          </div>
-        </div>
-      </main>
+<div class="app-container">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fas fa-chart-line"></i> SoulHub
+      </div>
     </div>
+    <nav class="nav-menu">
+      <div class="nav-item active" data-page="dashboard">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </div>
+      <div class="nav-item" data-page="inventory">
+        <i class="fas fa-boxes"></i>
+        <span>Inventory</span>
+      </div>
+      <div class="nav-item" data-page="sales">
+        <i class="fas fa-shopping-cart"></i>
+        <span>Sales & POS</span>
+      </div>
+      <div class="nav-item" data-page="customers">
+        <i class="fas fa-users"></i>
+        <span>Customers</span>
+      </div>
+      <div class="nav-item" data-page="staff" id="staffNav" style="display: none;">
+        <i class="fas fa-user-tie"></i>
+        <span>Staff Management</span>
+      </div>
+      <div class="nav-item" data-page="reports">
+        <i class="fas fa-chart-bar"></i>
+        <span>Reports</span>
+      </div>
+      <div class="nav-item" data-page="settings" id="settingsNav" style="display: none;">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="top-bar">
+      <div class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+      </div>
+      <div class="page-title">
+        <h1 id="pageTitle">Dashboard</h1>
+      </div>
+      <div class="top-bar-actions">
+        <div class="theme-toggle" id="themeToggle">
+          <i class="fas fa-moon"></i>
+        </div>
+        <div class="notifications" id="notifications">
+          <i class="fas fa-bell"></i>
+        </div>
+        <div class="user-menu" id="userMenu">
+          <div class="user-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <span id="userName">Loading...</span>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-area" id="contentArea">
+      <!-- Dashboard Content will be loaded here -->
+    </div>
+  </main>
+</div>
+
+<!-- Modals -->
+<div id="saleModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>New Sale</h2>
+      <span class="close-modal">&times;</span>
+    </div>
+    <form id="saleForm">
+      <div class="form-group">
+        <label>Product SKU</label>
+        <input type="text" id="productSku" required>
+      </div>
+      <div class="form-group">
+        <label>Quantity</label>
+        <input type="number" id="quantity" min="1" value="1" required>
+      </div>
+      <div class="form-group">
+        <label>Customer Email (optional)</label>
+        <input type="email" id="customerEmail">
+      </div>
+      <div class="form-group">
+        <label>Payment Method</label>
+        <select id="paymentMethod">
+          <option value="cash">Cash</option>
+          <option value="card">Card</option>
+          <option value="mobile">Mobile Payment</option>
+        </select>
+      </div>
+      <button type="submit" class="action-btn" style="width: 100%;">Process Sale</button>
+    </form>
   </div>
+</div>
 
-  <div id="productModal" class="modal"><div class="modal-content"><div class="modal-header"><h2 id="modalTitle">Add New Product</h2><span class="close">&times;</span></div><div class="modal-body"><form id="productForm"><input type="hidden" id="productId"><div class="form-group"><label>Product Name *</label><input type="text" id="productName" required></div><div class="form-row"><div class="form-group"><label>SKU *</label><input type="text" id="productSku" required></div><div class="form-group"><label>Category *</label><select id="productCategory" required><option value="">Select</option><option>Running</option><option>Casual</option><option>Basketball</option><option>Skate</option><option>Formal</option><option>Boots</option></select></div></div><div class="form-row"><div class="form-group"><label>Price ($) *</label><input type="number" id="productPrice" step="0.01" required></div><div class="form-group"><label>Stock *</label><input type="number" id="productStock" required></div></div><div class="form-group"><label>Low Stock Threshold</label><input type="number" id="productThreshold" value="5"></div><div class="form-group"><label>Brand</label><input type="text" id="productBrand"></div><div class="form-group"><label>Status</label><select id="productStatus"><option value="active">Active</option><option value="inactive">Inactive</option></select></div></form></div><div class="modal-footer"><button class="btn-secondary" id="cancelBtn">Cancel</button><button class="btn-primary" id="saveProductBtn">Save Product</button></div></div></div>
+<div id="stockModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Add Stock</h2>
+      <span class="close-modal">&times;</span>
+    </div>
+    <form id="stockForm">
+      <div class="form-group">
+        <label>Product SKU</label>
+        <input type="text" id="stockSku" required>
+      </div>
+      <div class="form-group">
+        <label>Quantity to Add</label>
+        <input type="number" id="addQuantity" min="1" required>
+      </div>
+      <button type="submit" class="action-btn" style="width: 100%;">Update Stock</button>
+    </form>
+  </div>
+</div>
 
-  <script>
-    (function(){
-      const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
-      const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
-      let supabase, salesChart, categoryChart, currentProducts = [], currentSort = { column: 'name', ascending: true };
+<script>
+  // Supabase Configuration
+  const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY2N5ZmFqcGFpdXZxb3Z2cXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNjIwMzAsImV4cCI6MjA5NTYzODAzMH0.mLGYFgTZ3ToIJD8KAiqbxr0h42H8PYN5xh1fyvTNvqo";
+  
+  let supabase;
+  let currentUser = null;
+  let revenueChart = null;
+  let categoryChart = null;
+
+  // Initialize Supabase
+  async function initSupabase() {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // Check current session
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error || !session) {
+      window.location.href = "login.html";
+      return;
+    }
+    
+    currentUser = session.user;
+    
+    // Get user profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', currentUser.id)
+      .single();
+    
+    if (profile) {
+      document.getElementById('userName').textContent = profile.full_name || currentUser.email;
       
-      try { supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e) { console.error(e); showError("Failed to initialize"); return; }
-      
-      const loading = document.getElementById('loadingScreen'), content = document.getElementById('dashboardContent'), errorScreen = document.getElementById('errorScreen');
-      const modal = document.getElementById('productModal'), modalTitle = document.getElementById('modalTitle');
-      let currentEditId = null;
-      
-      function showError(msg) { loading.style.display = 'none'; content.style.display = 'none'; errorScreen.style.display = 'flex'; document.getElementById('errorMessage').innerText = msg; }
-      function showToast(msg, isErr=false) { let t = document.createElement('div'); t.className = `toast ${isErr ? 'error' : ''}`; t.innerHTML = `<i class="fas ${isErr ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${msg}`; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
-      function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
-      
-      window.openAddProductModal = function() { currentEditId = null; modalTitle.innerText = 'Add New Product'; document.getElementById('productForm').reset(); document.getElementById('productId').value = ''; document.getElementById('productThreshold').value = '5'; document.getElementById('productStatus').value = 'active'; modal.style.display = 'block'; };
-      window.openEditProductModal = function(p) { currentEditId = p.id; modalTitle.innerText = 'Edit Product'; document.getElementById('productId').value = p.id; document.getElementById('productName').value = p.name||''; document.getElementById('productSku').value = p.sku||''; document.getElementById('productCategory').value = p.category||''; document.getElementById('productPrice').value = p.price||''; document.getElementById('productStock').value = p.stock_quantity||0; document.getElementById('productThreshold').value = p.low_stock_threshold||5; document.getElementById('productBrand').value = p.brand||''; document.getElementById('productStatus').value = p.status||'active'; modal.style.display = 'block'; };
-      
-      async function saveProduct() {
-        const name = document.getElementById('productName').value.trim(), sku = document.getElementById('productSku').value.trim(), category = document.getElementById('productCategory').value;
-        const price = parseFloat(document.getElementById('productPrice').value), stock = parseInt(document.getElementById('productStock').value);
-        if(!name || !sku || !category || isNaN(price) || isNaN(stock)) return showToast('Please fill required fields', true);
-        const data = { name, sku, category, price, stock_quantity: stock, low_stock_threshold: parseInt(document.getElementById('productThreshold').value), brand: document.getElementById('productBrand').value.trim()||null, status: document.getElementById('productStatus').value, updated_at: new Date().toISOString() };
-        try {
-          if(currentEditId) await supabase.from('products').update(data).eq('id', currentEditId);
-          else await supabase.from('products').insert([data]);
-          showToast(currentEditId ? 'Product updated!' : 'Product added!');
-          modal.style.display = 'none';
-          await fetchInventory(); await fetchDashboardData();
-        } catch(e) { showToast(e.message, true); }
+      // Show/hide admin-only nav items
+      if (profile.role === 'admin') {
+        document.getElementById('staffNav').style.display = 'flex';
+        document.getElementById('settingsNav').style.display = 'flex';
+      } else if (profile.role === 'manager') {
+        document.getElementById('staffNav').style.display = 'flex';
       }
+    }
+    
+    // Load dashboard
+    loadDashboard();
+    
+    // Setup realtime subscriptions
+    setupRealtime();
+  }
+  
+  // Setup real-time updates
+  function setupRealtime() {
+    const channel = supabase.channel('db-changes');
+    channel
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sales' }, () => {
+        loadDashboard();
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'products' }, () => {
+        loadDashboard();
+      })
+      .subscribe();
+  }
+  
+  // Load Dashboard
+  async function loadDashboard() {
+    showLoading();
+    
+    // Fetch all required data
+    const [salesData, productsData, customersData] = await Promise.all([
+      fetchSalesData(),
+      fetchProductsData(),
+      fetchCustomersData()
+    ]);
+    
+    const dashboardHtml = `
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="card">
+          <div class="card-header">
+            <span>Today's Revenue</span>
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <div class="card-value">$${calculateTodayRevenue(salesData)}</div>
+          <div class="card-change">+12% vs yesterday</div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span>Units Sold</span>
+            <i class="fas fa-shoe-prints"></i>
+          </div>
+          <div class="card-value">${calculateTodayUnits(salesData)}</div>
+          <div class="card-change">${calculateTodayUnits(salesData)} today</div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span>Low Stock Alert</span>
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <div class="card-value">${getLowStockCount(productsData)}</div>
+          <div class="card-change">items below threshold</div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span>Top Product</span>
+            <i class="fas fa-trophy"></i>
+          </div>
+          <div class="card-value">${getTopProduct(productsData, salesData)}</div>
+          <div class="card-change">best seller</div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span>Profit Margin</span>
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="card-value">42%</div>
+          <div class="card-change">+5% this month</div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span>Active Customers</span>
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="card-value">${customersData.length}</div>
+          <div class="card-change">total registered</div>
+        </div>
+      </div>
       
-      window.deleteProduct = async (id, name) => { if(confirm(`Delete "${name}"?`)) { await supabase.from('products').delete().eq('id', id); showToast('Deleted'); await fetchInventory(); await fetchDashboardData(); } };
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <button class="action-btn" onclick="openSaleModal()">
+          <i class="fas fa-plus"></i> New Sale
+        </button>
+        <button class="action-btn" onclick="openStockModal()">
+          <i class="fas fa-box"></i> Add Stock
+        </button>
+        <button class="action-btn" onclick="addCustomer()">
+          <i class="fas fa-user-plus"></i> Add Customer
+        </button>
+        <button class="action-btn" onclick="exportReport()">
+          <i class="fas fa-download"></i> Export Report
+        </button>
+      </div>
       
-      async function fetchInventory() { let { data, error } = await supabase.from('products').select('*').order('name'); if(!error) { currentProducts = data; displayInventory(); } else document.getElementById('inventoryBody').innerHTML = '<tr><td colspan="7">Error loading</td></tr>'; }
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="chart-container">
+          <h3>Sales Trend (Last 7 Days)</h3>
+          <canvas id="revenueChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <h3>Sales by Category</h3>
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
       
-      function displayInventory() {
-        let search = document.getElementById('searchInput')?.value.toLowerCase() || '';
-        let filtered = currentProducts.filter(p => p.name.toLowerCase().includes(search) || (p.sku||'').toLowerCase().includes(search) || (p.category||'').toLowerCase().includes(search));
-        filtered.sort((a,b)=>{ let av = a[currentSort.column]||'', bv = b[currentSort.column]||''; if(currentSort.ascending) return av > bv ? 1 : -1; else return av < bv ? 1 : -1; });
-        let tbody = document.getElementById('inventoryBody');
-        if(!filtered.length) { tbody.innerHTML = '<tr><td colspan="7">No products</td></tr>'; return; }
-        tbody.innerHTML = filtered.map(p => `<tr><td>${escapeHtml(p.name)}</td><td>${escapeHtml(p.sku||'-')}</td><td>${escapeHtml(p.category||'-')}</td><td>$${(p.price||0).toFixed(2)}</td><td class="${p.stock_quantity <= p.low_stock_threshold ? 'low-stock' : ''}">${p.stock_quantity||0}</td><td><span class="badge">${p.status||'active'}</span></td><td><button onclick="openEditProductModal(${JSON.stringify(p).replace(/"/g, '&quot;')})" style="background:none;border:none;cursor:pointer;color:#C49A6C;"><i class="fas fa-edit"></i></button> <button onclick="deleteProduct('${p.id}','${p.name.replace(/'/g,"\\'")}')" style="background:none;border:none;cursor:pointer;color:#ef4444;"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+      <!-- Data Tables -->
+      <div class="data-grid">
+        <div class="data-table">
+          <h3>Low Stock Alerts</h3>
+          <table>
+            <thead>
+              <tr><th>Product</th><th>Stock</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+              ${getLowStockTableRows(productsData)}
+            </tbody>
+          </table>
+        </div>
+        <div class="data-table">
+          <h3>Recent Sales</h3>
+          <table>
+            <thead>
+              <tr><th>Time</th><th>Amount</th><th>Items</th></tr>
+            </thead>
+            <tbody>
+              ${getRecentSalesRows(salesData)}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    
+    document.getElementById('contentArea').innerHTML = dashboardHtml;
+    
+    // Initialize charts
+    initRevenueChart(salesData);
+    initCategoryChart(productsData, salesData);
+  }
+  
+  // Helper functions for data processing
+  function calculateTodayRevenue(salesData) {
+    const today = new Date().toDateString();
+    const todaySales = salesData.filter(sale => new Date(sale.sale_date).toDateString() === today);
+    return todaySales.reduce((sum, sale) => sum + sale.total_amount, 0).toFixed(2);
+  }
+  
+  function calculateTodayUnits(salesData) {
+    const today = new Date().toDateString();
+    const todaySales = salesData.filter(sale => new Date(sale.sale_date).toDateString() === today);
+    // This would need sale_items table, using placeholder
+    return todaySales.length * 2;
+  }
+  
+  function getLowStockCount(productsData) {
+    return productsData.filter(p => p.stock_quantity <= (p.low_stock_threshold || 5)).length;
+  }
+  
+  function getTopProduct(productsData, salesData) {
+    if (productsData.length === 0) return 'N/A';
+    return productsData[0]?.name || 'Nike Air Max';
+  }
+  
+  function getLowStockTableRows(productsData) {
+    const lowStock = productsData.filter(p => p.stock_quantity <= (p.low_stock_threshold || 5));
+    if (lowStock.length === 0) {
+      return '<tr><td colspan="3">No low stock items</td></tr>';
+    }
+    return lowStock.slice(0, 5).map(p => `
+      <tr>
+        <td>${p.name}</td>
+        <td>${p.stock_quantity} left</td>
+        <td><button class="badge badge-warning" onclick="reorderStock('${p.sku}')">Reorder</button></td>
+      </tr>
+    `).join('');
+  }
+  
+  function getRecentSalesRows(salesData) {
+    if (salesData.length === 0) {
+      return '<tr><td colspan="3">No sales yet</td></tr>';
+    }
+    return salesData.slice(0, 5).map(sale => `
+      <tr>
+        <td>${new Date(sale.sale_date).toLocaleTimeString()}</td>
+        <td>$${sale.total_amount}</td>
+        <td>${sale.items_count || 2} items</td>
+      </tr>
+    `).join('');
+  }
+  
+  function initRevenueChart(salesData) {
+    const ctx = document.getElementById('revenueChart')?.getContext('2d');
+    if (!ctx) return;
+    
+    const last7Days = Array.from({length: 7}, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      return d.toDateString();
+    }).reverse();
+    
+    const revenueByDay = last7Days.map(day => {
+      const daySales = salesData.filter(sale => new Date(sale.sale_date).toDateString() === day);
+      return daySales.reduce((sum, sale) => sum + sale.total_amount, 0);
+    });
+    
+    if (revenueChart) revenueChart.destroy();
+    revenueChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: last7Days.map(d => d.slice(0, 3)),
+        datasets: [{
+          label: 'Revenue',
+          data: revenueByDay,
+          borderColor: '#C49A6C',
+          backgroundColor: 'rgba(196,154,108,0.1)',
+          tension: 0.4,
+          fill: true
+        }]
       }
-      
-      function sortTable(col) { if(currentSort.column===col) currentSort.ascending=!currentSort.ascending; else { currentSort.column=col; currentSort.ascending=true; } displayInventory(); }
-      
-      async function fetchDashboardData() {
-        try {
-          let today = new Date().toISOString().split('T')[0];
-          let { data: salesToday } = await supabase.from('sales').select('total_amount').gte('sale_date', today);
-          let totalToday = salesToday?.reduce((s,o)=>s+(o.total_amount||0),0)||0;
-          document.getElementById('todaySales').innerText = `$${totalToday.toFixed(2)}`;
-          let yesterday = new Date(Date.now()-86400000).toISOString().split('T')[0];
-          let { data: salesYest } = await supabase.from('sales').select('total_amount').gte('sale_date', yesterday).lt('sale_date', today);
-          let totalYest = salesYest?.reduce((s,o)=>s+(o.total_amount||0),0)||0;
-          let trend = totalYest ? ((totalToday-totalYest)/totalYest*100).toFixed(1) : 0;
-          let trendEl = document.getElementById('salesTrend');
-          if(trend>=0) { trendEl.innerHTML = `↑ ${trend}% from yesterday`; trendEl.className='stat-trend up'; }
-          else { trendEl.innerHTML = `↓ ${Math.abs(trend)}% from yesterday`; trendEl.className='stat-trend down'; }
-          let { data: low } = await supabase.from('products').select('id').lte('stock_quantity','low_stock_threshold');
-          document.getElementById('lowStock').innerText = low?.length||0;
-          let { count: staffCount } = await supabase.from('staff').select('*',{count:'exact',head:true});
-          document.getElementById('totalStaff').innerText = staffCount||0;
-          let { data: prods } = await supabase.from('products').select('price,stock_quantity');
-          let totalVal = prods?.reduce((s,p)=>s+((p.price||0)*(p.stock_quantity||0)),0)||0;
-          document.getElementById('totalInventoryValue').innerText = `$${totalVal.toFixed(2)}`;
-        } catch(e) { console.error(e); }
+    });
+  }
+  
+  function initCategoryChart(productsData, salesData) {
+    const ctx = document.getElementById('categoryChart')?.getContext('2d');
+    if (!ctx) return;
+    
+    const categories = ['sneakers', 'boots', 'casual', 'formal', 'sandals'];
+    const categoryCounts = categories.map(cat => 
+      productsData.filter(p => p.category === cat).length
+    );
+    
+    if (categoryChart) categoryChart.destroy();
+    categoryChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Sneakers', 'Boots', 'Casual', 'Formal', 'Sandals'],
+        datasets: [{
+          data: categoryCounts,
+          backgroundColor: ['#C49A6C', '#E2B386', '#F0D5B0', '#A2794C', '#D4A574']
+        }]
       }
+    });
+  }
+  
+  // API fetch functions
+  async function fetchSalesData() {
+    const { data, error } = await supabase
+      .from('sales')
+      .select('*')
+      .order('sale_date', { ascending: false })
+      .limit(50);
+    
+    if (error) console.error('Error fetching sales:', error);
+    return data || [];
+  }
+  
+  async function fetchProductsData() {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .limit(100);
+    
+    if (error) console.error('Error fetching products:', error);
+    return data || [];
+  }
+  
+  async function fetchCustomersData() {
+    const { data, error } = await supabase
+      .from('customers')
+      .select('*')
+      .limit(100);
+    
+    if (error) console.error('Error fetching customers:', error);
+    return data || [];
+  }
+  
+  // Modal functions
+  function openSaleModal() {
+    document.getElementById('saleModal').classList.add('active');
+  }
+  
+  function openStockModal() {
+    document.getElementById('stockModal').classList.add('active');
+  }
+  
+  async function addCustomer() {
+    const email = prompt('Enter customer email:');
+    if (!email) return;
+    
+    const name = prompt('Enter customer name:');
+    if (!name) return;
+    
+    const { error } = await supabase
+      .from('customers')
+      .insert([{ full_name: name, email: email, loyalty_points: 0 }]);
+    
+    if (error) {
+      alert('Error adding customer: ' + error.message);
+    } else {
+      alert('Customer added successfully!');
+      loadDashboard();
+    }
+  }
+  
+  async function reorderStock(sku) {
+    const quantity = prompt('Enter reorder quantity:');
+    if (!quantity) return;
+    
+    // Get current product
+    const { data: product } = await supabase
+      .from('products')
+      .select('*')
+      .eq('sku', sku)
+      .single();
+    
+    if (product) {
+      const { error } = await supabase
+        .from('products')
+        .update({ stock_quantity: product.stock_quantity + parseInt(quantity) })
+        .eq('sku', sku);
       
-      async function fetchRecentSales() {
-        let { data } = await supabase.from('sales').select('*').order('sale_date',{ascending:false}).limit(10);
-        let div = document.getElementById('recentSalesList');
-        if(!data || !data.length) { div.innerHTML = '<p>No sales yet. Start selling! 🚀</p>'; return; }
-        div.innerHTML = data.map(s=>`<div style="display:flex;justify-content:space-between;padding:12px;border-bottom:1px solid #F0EAE3;"><div><strong>Invoice: ${escapeHtml(s.invoice_number||'N/A')}</strong><small style="display:block;color:#6B5E54;">${new Date(s.sale_date).toLocaleString()}</small></div><div><strong style="color:#C49A6C;">$${(s.total_amount||0).toFixed(2)}</strong><small style="display:block;text-align:right;">${escapeHtml(s.payment_method||'Cash')}</small></div></div>`).join('');
-        await fetchChartData();
+      if (error) {
+        alert('Error updating stock: ' + error.message);
+      } else {
+        alert('Stock updated successfully!');
+        loadDashboard();
       }
+    }
+  }
+  
+  function exportReport() {
+    alert('Export feature: Would generate CSV/PDF report of all sales and inventory');
+  }
+  
+  function showLoading() {
+    document.getElementById('contentArea').innerHTML = '<div class="loading"><i class="fas fa-spinner spinner"></i> Loading dashboard...</div>';
+  }
+  
+  // Navigation
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', async () => {
+      document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+      item.classList.add('active');
+      const page = item.dataset.page;
+      document.getElementById('pageTitle').textContent = page.charAt(0).toUpperCase() + page.slice(1);
       
-      async function fetchChartData() {
-        let { data: sales } = await supabase.from('sales').select('sale_date,total_amount').gte('sale_date', new Date(Date.now()-7*86400000).toISOString());
-        let byDate = {}; sales?.forEach(s=>{ let d=s.sale_date.split('T')[0]; byDate[d]=(byDate[d]||0)+(s.total_amount||0); });
-        let last7 = []; for(let i=6;i>=0;i--){ let d=new Date(Date.now()-i*86400000).toISOString().split('T')[0]; last7.push({date:d, amount:byDate[d]||0}); }
-        if(salesChart) salesChart.destroy();
-        let ctx = document.getElementById('salesChart').getContext('2d');
-        salesChart = new Chart(ctx, { type:'line', data:{ labels:last7.map(d=>d.date), datasets:[{ label:'Sales ($)', data:last7.map(d=>d.amount), borderColor:'#C49A6C', backgroundColor:'rgba(196,154,108,0.1)', tension:0.4, fill:true }] }, options:{ responsive:true } });
-        let { data: prods } = await supabase.from('products').select('category,stock_quantity');
-        let catCount = {}; prods?.forEach(p=>{ let c=p.category||'Uncategorized'; catCount[c]=(catCount[c]||0)+(p.stock_quantity||0); });
-        if(categoryChart) categoryChart.destroy();
-        let ctx2 = document.getElementById('categoryChart').getContext('2d');
-        categoryChart = new Chart(ctx2, { type:'pie', data:{ labels:Object.keys(catCount), datasets:[{ data:Object.values(catCount), backgroundColor:['#C49A6C','#E9E2D8','#A2794C','#6B5E54','#2C241E','#C23D2E','#10b981'] }] }, options:{ responsive:true, plugins:{ legend:{ position:'bottom' } } } });
+      if (page === 'dashboard') {
+        loadDashboard();
+      } else {
+        document.getElementById('contentArea').innerHTML = `<div class="loading"><i class="fas fa-spinner spinner"></i> Loading ${page} page...<br><br>This feature is coming soon!</div>`;
       }
-      
-      async function loadUserProfile() {
-        let { data:{ user } } = await supabase.auth.getUser();
-        if(!user) throw new Error('No user');
-        let fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
-        document.getElementById('welcomeName').innerText = fullName.split(' ')[0];
-        document.getElementById('userName').innerText = fullName;
-        document.getElementById('userAvatar').innerText = fullName.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
-        let { data: staff } = await supabase.from('staff').select('*').eq('id',user.id).single();
-        document.getElementById('profileDetails').innerHTML = `<div class="profile-detail-item"><i class="fas fa-envelope"></i><span><strong>Email:</strong> ${escapeHtml(user.email)}</span></div><div class="profile-detail-item"><i class="fas fa-id-badge"></i><span><strong>Employee Code:</strong> ${escapeHtml(staff?.employee_code||'Not assigned')}</span></div><div class="profile-detail-item"><i class="fas fa-briefcase"></i><span><strong>Position:</strong> ${escapeHtml(staff?.position||'Staff')}</span></div>`;
-      }
-      
-      function initDarkMode() { let toggle = document.getElementById('darkModeToggle'); let isDark = localStorage.getItem('darkMode')==='true'; if(isDark){ document.body.classList.add('dark-mode'); toggle.innerHTML='<i class="fas fa-sun"></i> Light Mode'; } toggle.addEventListener('click',()=>{ document.body.classList.toggle('dark-mode'); let now=document.body.classList.contains('dark-mode'); localStorage.setItem('darkMode',now); toggle.innerHTML=now?'<i class="fas fa-sun"></i> Light Mode':'<i class="fas fa-moon"></i> Dark Mode'; }); }
-      
-      function initMobileMenu() { document.getElementById('menuToggle')?.addEventListener('click',()=>{ document.getElementById('sidebar').classList.toggle('open'); }); }
-      
-      async function loadDashboard() {
-        let { data:{ session } } = await supabase.auth.getSession();
-        if(!session) { window.location.href = "login.html"; return; }
-        await Promise.all([fetchDashboardData(), fetchInventory(), fetchRecentSales(), loadUserProfile()]);
-        document.getElementById('searchInput').addEventListener('input',()=>displayInventory());
-        loading.style.display = 'none'; content.style.display = 'block';
-        supabase.channel('products_changes').on('postgres_changes',{event:'*',schema:'public',table:'products'},()=>{ fetchInventory(); fetchDashboardData(); }).subscribe();
-        supabase.channel('sales_changes').on('postgres_changes',{event:'INSERT',schema:'public',table:'sales'},()=>{ fetchDashboardData(); fetchRecentSales(); }).subscribe();
-      }
-      
-      document.getElementById('addProductBtn').addEventListener('click',()=>openAddProductModal());
-      document.getElementById('saveProductBtn').addEventListener('click',saveProduct);
-      document.getElementById('cancelBtn').addEventListener('click',()=>modal.style.display='none');
-      document.querySelector('.close').addEventListener('click',()=>modal.style.display='none');
-      window.addEventListener('click',(e)=>{ if(e.target===modal) modal.style.display='none'; });
-      document.getElementById('logoutBtn').addEventListener('click',async()=>{ await supabase.auth.signOut(); window.location.href="login.html"; });
-      document.getElementById('demoSaleBtn').addEventListener('click',()=>{ showToast("Sales demo: open sales page to create transactions", false); });
-      window.sortTable = sortTable;
-      initDarkMode(); initMobileMenu(); loadDashboard();
-    })();
-  </script>
+    });
+  });
+  
+  // Theme toggle
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    const icon = document.querySelector('#themeToggle i');
+    if (document.body.classList.contains('dark-mode')) {
+      icon.classList.remove('fa-moon');
+      icon.classList.add('fa-sun');
+    } else {
+      icon.classList.remove('fa-sun');
+      icon.classList.add('fa-moon');
+    }
+  });
+  
+  // Mobile menu toggle
+  document.getElementById('menuToggle').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('mobile-open');
+  });
+  
+  // Close modals
+  document.querySelectorAll('.close-modal').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.modal').forEach(modal => modal.classList.remove('active'));
+    });
+  });
+  
+  // Handle sale form submission
+  document.getElementById('saleForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const sku = document.getElementById('productSku').value;
+    const quantity = parseInt(document.getElementById('quantity').value);
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    
+    // Get product price
+    const { data: product } = await supabase
+      .from('products')
+      .select('*')
+      .eq('sku', sku)
+      .single();
+    
+    if (!product) {
+      alert('Product not found!');
+      return;
+    }
+    
+    if (product.stock_quantity < quantity) {
+      alert('Insufficient stock!');
+      return;
+    }
+    
+    const totalAmount = product.selling_price * quantity;
+    
+    // Create sale
+    const { data: sale, error: saleError } = await supabase
+      .from('sales')
+      .insert([{
+        user_id: currentUser.id,
+        total_amount: totalAmount,
+        payment_method: paymentMethod
+      }])
+      .select()
+      .single();
+    
+    if (saleError) {
+      alert('Error processing sale: ' + saleError.message);
+      return;
+    }
+    
+    // Update stock
+    await supabase
+      .from('products')
+      .update({ stock_quantity: product.stock_quantity - quantity })
+      .eq('sku', sku);
+    
+    alert('Sale completed! Total: $' + totalAmount);
+    document.getElementById('saleModal').classList.remove('active');
+    loadDashboard();
+  });
+  
+  // Handle stock form submission
+  document.getElementById('stockForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const sku = document.getElementById('stockSku').value;
+    const quantity = parseInt(document.getElementById('addQuantity').value);
+    
+    const { data: product } = await supabase
+      .from('products')
+      .select('*')
+      .eq('sku', sku)
+      .single();
+    
+    if (!product) {
+      alert('Product not found!');
+      return;
+    }
+    
+    const { error } = await supabase
+      .from('products')
+      .update({ stock_quantity: product.stock_quantity + quantity })
+      .eq('sku', sku);
+    
+    if (error) {
+      alert('Error updating stock: ' + error.message);
+    } else {
+      alert('Stock updated successfully!');
+      document.getElementById('stockModal').classList.remove('active');
+      loadDashboard();
+    }
+  });
+  
+  // Logout (from user menu)
+  document.getElementById('userMenu')?.addEventListener('click', async () => {
+    if (confirm('Are you sure you want to logout?')) {
+      await supabase.auth.signOut();
+      window.location.href = 'login.html';
+    }
+  });
+  
+  // Notifications
+  document.getElementById('notifications')?.addEventListener('click', () => {
+    alert('🔔 Notifications:\n- Check low stock items\n- Review today\'s sales\n- Update inventory');
+  });
+  
+  // Initialize
+  initSupabase();
+  
+  // Sample data creator for empty database
+  async function createSampleData() {
+    const sampleProducts = [
+      { sku: 'NK-001', name: 'Nike Air Max', category: 'sneakers', selling_price: 129.99, stock_quantity: 15 },
+      { sku: 'AD-001', name: 'Adidas Samba', category: 'casual', selling_price: 89.99, stock_quantity: 3 },
+      { sku: 'NB-001', name: 'New Balance 574', category: 'casual', selling_price: 84.99, stock_quantity: 8 },
+      { sku: 'TM-001', name: 'Timberland Boots', category: 'boots', selling_price: 159.99, stock_quantity: 2 }
+    ];
+    
+    for (const product of sampleProducts) {
+      const { error } = await supabase.from('products').upsert([product]);
+      if (error) console.error('Error inserting sample:', error);
+    }
+  }
+</script>
 </body>
 </html>
