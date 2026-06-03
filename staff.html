@@ -446,7 +446,6 @@
     .edit-btn { color: #C49A6C; }
     .delete-btn { color: #ef4444; }
 
-    /* Modal Styles */
     .modal {
       display: none;
       position: fixed;
@@ -697,8 +696,8 @@
           <div class="stats-grid">
             <div class="stats-card"><div class="stats-icon"><i class="fas fa-users"></i></div><div class="stats-value" id="totalStaff">0</div><div class="stats-label">Total Staff</div></div>
             <div class="stats-card"><div class="stats-icon"><i class="fas fa-user-check"></i></div><div class="stats-value" id="activeStaff">0</div><div class="stats-label">Active</div></div>
-            <div class="stats-card"><div class="stats-icon"><i class="fas fa-chart-line"></i></div><div class="stats-value" id="adminCount">0</div><div class="stats-label">Admins</div></div>
-            <div class="stats-card"><div class="stats-icon"><i class="fas fa-store"></i></div><div class="stats-value" id="managerCount">0</div><div class="stats-label">Managers</div></div>
+            <div class="stats-card"><div class="stats-icon"><i class="fas fa-user-shield"></i></div><div class="stats-value" id="adminCount">0</div><div class="stats-label">Admins</div></div>
+            <div class="stats-card"><div class="stats-icon"><i class="fas fa-chart-line"></i></div><div class="stats-value" id="managerCount">0</div><div class="stats-label">Managers</div></div>
           </div>
 
           <div class="action-bar">
@@ -823,10 +822,16 @@
       let allStaff = [];
       let currentSort = { column: 'full_name', ascending: true };
       let currentUserRole = null;
+      let currentUserId = null;
       
       try {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      } catch(e) { console.error(e); alert("Failed to initialize"); return; }
+        console.log("Supabase client created");
+      } catch(e) { 
+        console.error(e); 
+        alert("Failed to initialize"); 
+        return;
+      }
       
       const loadingScreen = document.getElementById('loadingScreen');
       const dashboardContent = document.getElementById('dashboardContent');
@@ -855,6 +860,7 @@
       async function loadCurrentUser() {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
+          currentUserId = user.id;
           const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
           currentUserRole = profile?.role || 'staff';
           document.getElementById('userName').innerText = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
@@ -864,15 +870,30 @@
       }
       
       async function fetchStaff() {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        allStaff = data || [];
-        updateStats();
-        renderStaffTable();
+        try {
+          console.log("Fetching all staff members...");
+          
+          // IMPORTANT: Fetch ALL profiles without any filter
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .order('created_at', { ascending: false });
+          
+          if (error) {
+            console.error("Error fetching staff:", error);
+            throw error;
+          }
+          
+          console.log(`Fetched ${data?.length || 0} staff members`);
+          allStaff = data || [];
+          updateStats();
+          renderStaffTable();
+          
+        } catch (err) {
+          console.error("Fetch staff error:", err);
+          showToast("Failed to load staff members: " + err.message, true);
+          document.getElementById('staffTableBody').innerHTML = '<tr><td colspan="7" style="text-align: center; color: #ef4444;">Error loading staff. Please check your RLS policies.</td></tr>';
+        }
       }
       
       function updateStats() {
@@ -888,9 +909,10 @@
         const statusFilter = document.getElementById('statusFilter')?.value || 'all';
         
         let filtered = allStaff.filter(s => {
-          const matchesSearch = s.full_name?.toLowerCase().includes(searchTerm) || 
-                                s.email?.toLowerCase().includes(searchTerm) ||
-                                s.role?.toLowerCase().includes(searchTerm);
+          const matchesSearch = (s.full_name?.toLowerCase() || '').includes(searchTerm) || 
+                                (s.email?.toLowerCase() || '').includes(searchTerm) ||
+                                (s.role?.toLowerCase() || '').includes(searchTerm) ||
+                                (s.position?.toLowerCase() || '').includes(searchTerm);
           const matchesRole = roleFilter === 'all' || s.role === roleFilter;
           const matchesStatus = statusFilter === 'all' || s.status === statusFilter;
           return matchesSearch && matchesRole && matchesStatus;
@@ -899,30 +921,36 @@
         filtered.sort((a, b) => {
           let aVal = a[currentSort.column] || '';
           let bVal = b[currentSort.column] || '';
+          if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+          if (typeof bVal === 'string') bVal = bVal.toLowerCase();
           if (currentSort.ascending) return aVal > bVal ? 1 : -1;
           return aVal < bVal ? 1 : -1;
         });
         
         const tbody = document.getElementById('staffTableBody');
         if (filtered.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No staff members found</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">No staff members found</td></tr>';
           return;
         }
         
-        tbody.innerHTML = filtered.map(staff => `
-          <tr>
-            <td><strong>${escapeHtml(staff.full_name || '—')}</strong></td>
-            <td>${escapeHtml(staff.email || '—')}</td>
-            <td><span class="role-badge">${escapeHtml(staff.role || 'staff')}</span></td>
-            <td>${escapeHtml(staff.position || '—')}</td>
-            <td>${escapeHtml(staff.employee_code || '—')}</td>
-            <td><span class="status-badge ${staff.status === 'active' ? 'active' : 'inactive'}">${staff.status || 'active'}</span></td>
-            <td class="action-icons">
-              <button class="edit-btn" onclick="openEditStaffModal('${staff.id}')"><i class="fas fa-edit"></i></button>
-              <button class="delete-btn" onclick="deleteStaff('${staff.id}', '${escapeHtml(staff.full_name).replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i></button>
-            </td>
-          </tr>
-        `).join('');
+        tbody.innerHTML = filtered.map(staff => {
+          // Don't allow deleting yourself
+          const isSelf = staff.id === currentUserId;
+          return `
+            <tr>
+              <td><strong>${escapeHtml(staff.full_name || '—')}</strong></td>
+              <td>${escapeHtml(staff.email || '—')}</td>
+              <td><span class="role-badge">${escapeHtml(staff.role || 'staff')}</span></td>
+              <td>${escapeHtml(staff.position || '—')}</td>
+              <td>${escapeHtml(staff.employee_code || '—')}</td>
+              <td><span class="status-badge ${staff.status === 'active' ? 'active' : 'inactive'}">${staff.status || 'active'}</span></td>
+              <td class="action-icons">
+                <button class="edit-btn" onclick="openEditStaffModal('${staff.id}')" ${isSelf ? 'title="You can edit yourself"' : ''}><i class="fas fa-edit"></i></button>
+                ${!isSelf ? `<button class="delete-btn" onclick="deleteStaff('${staff.id}', '${escapeHtml(staff.full_name).replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i></button>` : '<span style="color:#6B5E54; font-size:0.7rem;">(You)</span>'}
+              </td>
+            </tr>
+          `;
+        }).join('');
       }
       
       window.sortTable = function(column) {
@@ -1003,13 +1031,10 @@
             
             if (error) throw error;
             
-            // Update password if provided
-            if (password && password.length >= 6) {
-              const { error: pwdError } = await supabase.auth.admin.updateUserById(currentEditId, { password });
-              if (pwdError) console.warn("Password update failed (admin rights may be needed):", pwdError);
-            }
-            
             showToast('Staff member updated successfully!');
+            modal.style.display = 'none';
+            await fetchStaff();
+            
           } else {
             // Create new user
             if (!password || password.length < 6) {
@@ -1045,10 +1070,9 @@
             
             if (profileError) throw profileError;
             showToast('Staff member added successfully!');
+            modal.style.display = 'none';
+            await fetchStaff();
           }
-          
-          modal.style.display = 'none';
-          await fetchStaff();
           
         } catch (err) {
           console.error(err);
@@ -1057,7 +1081,7 @@
       }
       
       window.deleteStaff = async function(staffId, staffName) {
-        if (confirm(`Are you sure you want to remove ${staffName} from staff?`)) {
+        if (confirm(`Are you sure you want to remove ${staffName} from staff? This will deactivate their account.`)) {
           try {
             // Update profile status to inactive instead of deleting
             const { error } = await supabase
