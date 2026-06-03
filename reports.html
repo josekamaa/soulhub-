@@ -1,3 +1,199 @@
 <!DOCTYPE html>
-<html><head><title>Inventory</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"><style>body{font-family:'Inter',sans-serif;background:#F5F0EA;display:flex;justify-content:center;align-items:center;height:100vh;}</style></head>
-<body><div style="text-align:center"><i class="fas fa-boxes fa-4x" style="color:#C49A6C"></i><h1>Inventory Module</h1><p>Coming soon - Manage your products and stock</p><a href="dashboard.html" style="color:#C49A6C">← Back to Dashboard</a></div></body></html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>SoulHub - Reports</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #FEFCF8; color: #1E1B18; }
+    body.dark-mode { background: #1a1a1a; color: #FEFCF8; }
+    body.dark-mode .sidebar, body.dark-mode .top-bar, body.dark-mode .card { background: #2d2d2d; border-color: #404040; }
+    .app-container { display: flex; min-height: 100vh; }
+    .sidebar { width: 280px; background: white; border-right: 1px solid #F0EAE3; position: fixed; height: 100vh; overflow-y: auto; transition: all 0.3s ease; z-index: 100; }
+    .sidebar-header { padding: 24px; border-bottom: 1px solid #F0EAE3; }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #2C241E 0%, #A2794C 100%); background-clip: text; -webkit-background-clip: text; color: transparent; display: flex; align-items: center; gap: 8px; }
+    .nav-menu { padding: 24px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin-bottom: 8px; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; color: #5E5348; text-decoration: none; }
+    .nav-item:hover { background: #F9F4ED; color: #C49A6C; }
+    .nav-item.active { background: #C49A6C; color: white; }
+    .nav-item i { width: 24px; }
+    .main-content { flex: 1; margin-left: 280px; }
+    .top-bar { background: white; border-bottom: 1px solid #F0EAE3; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 99; }
+    .page-title h1 { font-size: 1.8rem; font-weight: 600; }
+    .top-bar-actions { display: flex; align-items: center; gap: 20px; }
+    .theme-toggle, .notifications { cursor: pointer; font-size: 1.2rem; padding: 8px; border-radius: 50%; }
+    .user-menu { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 8px 16px; border-radius: 40px; background: #F9F4ED; }
+    .user-avatar { width: 32px; height: 32px; background: #C49A6C; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; }
+    .content-area { padding: 32px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 32px; }
+    .card { background: white; border: 1px solid #F0EAE3; border-radius: 20px; padding: 24px; }
+    .card-header { display: flex; justify-content: space-between; margin-bottom: 16px; color: #8F8278; }
+    .card-value { font-size: 2rem; font-weight: 700; }
+    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-bottom: 32px; }
+    .chart-container { background: white; border: 1px solid #F0EAE3; border-radius: 20px; padding: 24px; }
+    body.dark-mode .chart-container { background: #2d2d2d; }
+    .report-filters { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; align-items: flex-end; }
+    .filter-group { display: flex; flex-direction: column; gap: 8px; }
+    .filter-group label { font-weight: 500; font-size: 0.85rem; }
+    .filter-group input, .filter-group select { padding: 8px 12px; border: 1px solid #E9E2D8; border-radius: 12px; }
+    .btn-primary { background: #1E1B18; color: white; border: none; padding: 8px 20px; border-radius: 40px; cursor: pointer; }
+    .btn-primary:hover { background: #C49A6C; }
+    table { width: 100%; background: white; border-radius: 20px; overflow: hidden; border-collapse: collapse; margin-top: 20px; }
+    body.dark-mode table { background: #2d2d2d; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #F0EAE3; }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .menu-toggle { display: block; cursor: pointer; font-size: 1.5rem; }
+      .charts-grid { grid-template-columns: 1fr; }
+    }
+    @media (min-width: 769px) { .menu-toggle { display: none; } }
+    .loading { text-align: center; padding: 60px; }
+    .spinner { animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header"><div class="logo"><i class="fas fa-chart-line"></i> SoulHub</div></div>
+    <nav class="nav-menu">
+      <a href="dashboard.html" class="nav-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+      <a href="inventory.html" class="nav-item"><i class="fas fa-boxes"></i><span>Inventory</span></a>
+      <a href="sales.html" class="nav-item"><i class="fas fa-shopping-cart"></i><span>Sales & POS</span></a>
+      <a href="customers.html" class="nav-item"><i class="fas fa-users"></i><span>Customers</span></a>
+      <a href="reports.html" class="nav-item active"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="top-bar">
+      <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
+      <div class="page-title"><h1>Analytics & Reports</h1></div>
+      <div class="top-bar-actions">
+        <div class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></div>
+        <div class="user-menu" id="userMenu"><div class="user-avatar"><i class="fas fa-user"></i></div><span id="userName">Loading...</span><i class="fas fa-chevron-down"></i></div>
+      </div>
+    </div>
+
+    <div class="content-area" id="contentArea">
+      <div class="loading"><i class="fas fa-spinner spinner" style="font-size: 2rem;"></i><p>Loading reports...</p></div>
+    </div>
+  </main>
+</div>
+
+<script>
+  (function() {
+    const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY2N5ZmFqcGFpdXZxb3Z2cXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNjIwMzAsImV4cCI6MjA5NTYzODAzMH0.mLGYFgTZ3ToIJD8KAiqbxr0h42H8PYN5xh1fyvTNvqo";
+    
+    let supabaseClient = null;
+    let currentUser = null;
+    let revenueChart = null;
+
+    async function initSupabase() {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) { window.location.href = "login.html"; return; }
+      currentUser = session.user;
+      const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
+      document.getElementById('userName').textContent = profile?.full_name || currentUser.email;
+      loadReports();
+    }
+
+    async function loadReports() {
+      const [salesData, productsData, customersData] = await Promise.all([
+        supabaseClient.from('sales').select('*'),
+        supabaseClient.from('products').select('*'),
+        supabaseClient.from('customers').select('*')
+      ]);
+      
+      const sales = salesData.data || [];
+      const products = productsData.data || [];
+      const customers = customersData.data || [];
+      
+      const totalRevenue = sales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
+      const totalSales = sales.length;
+      const avgOrderValue = totalSales > 0 ? totalRevenue / totalSales : 0;
+      const totalProducts = products.length;
+      
+      const html = `
+        <div class="kpi-grid">
+          <div class="card"><div class="card-header"><span>Total Revenue</span><i class="fas fa-dollar-sign"></i></div><div class="card-value">$${totalRevenue.toFixed(2)}</div></div>
+          <div class="card"><div class="card-header"><span>Total Sales</span><i class="fas fa-shopping-cart"></i></div><div class="card-value">${totalSales}</div></div>
+          <div class="card"><div class="card-header"><span>Avg Order Value</span><i class="fas fa-chart-line"></i></div><div class="card-value">$${avgOrderValue.toFixed(2)}</div></div>
+          <div class="card"><div class="card-header"><span>Total Customers</span><i class="fas fa-users"></i></div><div class="card-value">${customers.length}</div></div>
+          <div class="card"><div class="card-header"><span>Products Catalog</span><i class="fas fa-box"></i></div><div class="card-value">${totalProducts}</div></div>
+          <div class="card"><div class="card-header"><span>Low Stock Items</span><i class="fas fa-exclamation-triangle"></i></div><div class="card-value">${products.filter(p => p.stock_quantity <= (p.low_stock_threshold || 5)).length}</div></div>
+        </div>
+        
+        <div class="report-filters">
+          <div class="filter-group"><label>Date Range</label><select id="dateRange"><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="all">All time</option></select></div>
+          <button class="btn-primary" onclick="window.updateReports()"><i class="fas fa-chart-line"></i> Update</button>
+          <button class="btn-primary" onclick="window.exportCSV()"><i class="fas fa-download"></i> Export CSV</button>
+        </div>
+        
+        <div class="charts-grid">
+          <div class="chart-container"><h3>Sales Trend</h3><canvas id="salesTrendChart"></canvas></div>
+          <div class="chart-container"><h3>Top Products</h3><canvas id="topProductsChart"></canvas></div>
+        </div>
+        
+        <div class="chart-container"><h3>Recent Sales</h3>
+          <table><thead><tr><th>Date</th><th>Amount</th><th>Payment</th></tr></thead>
+          <tbody>${sales.slice(0, 10).map(s => `<tr><td>${new Date(s.sale_date).toLocaleDateString()}</td><td>$${s.total_amount}</td><td>${s.payment_method}</td></tr>`).join('')}</tbody>
+        </table></div>
+      `;
+      
+      document.getElementById('contentArea').innerHTML = html;
+      initSalesChart(sales);
+      initTopProductsChart(products, sales);
+    }
+
+    function initSalesChart(sales) {
+      const ctx = document.getElementById('salesTrendChart')?.getContext('2d');
+      if (!ctx) return;
+      const last7Days = Array.from({length: 7}, (_, i) => { const d = new Date(); d.setDate(d.getDate() - (6 - i)); return d; });
+      const revenueByDay = last7Days.map(day => sales.filter(s => new Date(s.sale_date).toDateString() === day.toDateString()).reduce((sum, s) => sum + s.total_amount, 0));
+      if (revenueChart) revenueChart.destroy();
+      revenueChart = new Chart(ctx, { type: 'line', data: { labels: last7Days.map(d => d.toLocaleDateString()), datasets: [{ label: 'Revenue', data: revenueByDay, borderColor: '#C49A6C', tension: 0.4, fill: true }] } });
+    }
+
+    function initTopProductsChart(products, sales) {
+      const ctx = document.getElementById('topProductsChart')?.getContext('2d');
+      if (!ctx) return;
+      const topProducts = products.slice(0, 5);
+      new Chart(ctx, { type: 'bar', data: { labels: topProducts.map(p => p.name), datasets: [{ label: 'Stock Quantity', data: topProducts.map(p => p.stock_quantity), backgroundColor: '#C49A6C' }] } });
+    }
+
+    function updateReports() { loadReports(); }
+    function exportCSV() { alert('CSV export feature - would download all sales data as CSV'); }
+
+    document.getElementById('themeToggle')?.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      const icon = document.querySelector('#themeToggle i');
+      icon.classList.toggle('fa-moon');
+      icon.classList.toggle('fa-sun');
+    });
+
+    document.getElementById('menuToggle')?.addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('mobile-open');
+    });
+
+    document.getElementById('userMenu')?.addEventListener('click', async () => {
+      if (confirm('Logout?')) { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
+    });
+
+    window.updateReports = updateReports;
+    window.exportCSV = exportCSV;
+
+    initSupabase();
+  })();
+</script>
+</body>
+</html>
