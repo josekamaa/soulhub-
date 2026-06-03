@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>SoulHub | Staff Management - Shoe Store</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <title>SoulHub | Staff Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -23,7 +23,7 @@
     }
 
     body.dark-mode {
-      background-color: #1a1a1a;
+      background-color: #121212;
       color: #E9E2D8;
     }
 
@@ -31,34 +31,64 @@
     body.dark-mode .staff-card,
     body.dark-mode .modal-content,
     body.dark-mode .stats-card {
-      background: #2C2C2C;
-      border-color: #3C3C3C;
+      background: #1E1E1E;
+      border-color: #2C2C2C;
     }
 
     body.dark-mode .navbar {
-      background: rgba(28, 28, 28, 0.98);
-      border-bottom-color: #3C3C3C;
+      background: rgba(18, 18, 18, 0.98);
+      border-bottom-color: #2C2C2C;
     }
 
     body.dark-mode .user-info {
-      background: #3C3C3C;
+      background: #2C2C2C;
     }
 
+    body.dark-mode .action-btn,
     body.dark-mode .nav-link {
+      background: #2C2C2C;
       color: #E9E2D8;
     }
 
+    body.dark-mode .action-btn:hover,
     body.dark-mode .nav-link:hover,
     body.dark-mode .nav-link.active {
       background: #C49A6C;
       color: #1E1B18;
     }
 
-    body.dark-mode .search-box input,
-    body.dark-mode .filter-select {
-      background: #3C3C3C;
+    body.dark-mode .form-group input,
+    body.dark-mode .form-group select,
+    body.dark-mode .form-group textarea,
+    body.dark-mode .search-bar {
+      background: #2C2C2C;
+      border-color: #3C3C3C;
       color: #E9E2D8;
-      border-color: #4C4C4C;
+    }
+
+    body.dark-mode .staff-table th {
+      background: #2C2C2C;
+    }
+
+    body.dark-mode .status-badge.active {
+      background: #10b98120;
+      color: #34d399;
+    }
+
+    body.dark-mode .status-badge.inactive {
+      background: #ef444420;
+      color: #f87171;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #E9E2D8;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #C8A27A;
+      border-radius: 8px;
     }
 
     .app-wrapper {
@@ -152,7 +182,7 @@
     }
 
     .container {
-      max-width: 1400px;
+      max-width: 1280px;
       margin: 0 auto;
       padding: 0 24px;
     }
@@ -223,25 +253,7 @@
     .page-header h1 {
       font-family: 'Playfair Display', serif;
       font-size: 2rem;
-    }
-
-    .add-staff-btn {
-      background: #C49A6C;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 40px;
       font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .add-staff-btn:hover {
-      background: #A2794C;
-      transform: translateY(-2px);
     }
 
     .stats-grid {
@@ -253,7 +265,7 @@
 
     .stats-card {
       background: white;
-      border-radius: 20px;
+      border-radius: 24px;
       padding: 20px;
       border: 1px solid #F0EAE3;
       transition: all 0.3s ease;
@@ -261,189 +273,180 @@
 
     .stats-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
     }
 
     .stats-icon {
-      font-size: 2rem;
+      font-size: 1.8rem;
       color: #C49A6C;
       margin-bottom: 12px;
     }
 
     .stats-value {
-      font-size: 1.8rem;
+      font-size: 2rem;
       font-weight: 700;
-      margin-bottom: 4px;
     }
 
     .stats-label {
       color: #6B5E54;
       font-size: 0.85rem;
+      margin-top: 4px;
     }
 
-    .filters-bar {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-
-    .search-box {
-      flex: 1;
-      max-width: 300px;
-    }
-
-    .search-box input {
-      width: 100%;
-      padding: 10px 16px;
-      border: 1px solid #E9E2D8;
-      border-radius: 40px;
-      font-family: 'Inter', sans-serif;
-    }
-
-    .filter-select {
-      padding: 10px 16px;
-      border: 1px solid #E9E2D8;
-      border-radius: 40px;
-      font-family: 'Inter', sans-serif;
-      background: white;
-      cursor: pointer;
-    }
-
-    .staff-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 24px;
-      margin-bottom: 40px;
-    }
-
-    .staff-card {
-      background: white;
-      border-radius: 24px;
-      border: 1px solid #F0EAE3;
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
-
-    .staff-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 24px rgba(0,0,0,0.1);
-    }
-
-    .staff-card-header {
-      background: linear-gradient(135deg, #C49A6C 0%, #A2794C 100%);
-      padding: 20px;
-      color: white;
+    .action-bar {
       display: flex;
       justify-content: space-between;
-      align-items: start;
-    }
-
-    .staff-avatar {
-      width: 60px;
-      height: 60px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 50%;
-      display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      font-weight: 600;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
     }
 
-    .staff-role-badge {
-      background: rgba(255,255,255,0.2);
+    .search-bar {
+      padding: 12px 20px;
+      width: 280px;
+      border: 1px solid #E9E2D8;
+      border-radius: 40px;
+      font-family: 'Inter', sans-serif;
+      background: white;
+    }
+
+    .btn-primary {
+      background: #C49A6C;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: #A2794C;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid #E9E2D8;
+      padding: 8px 16px;
+      border-radius: 40px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: #F9F4ED;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .staff-table-container {
+      background: white;
+      border-radius: 28px;
+      border: 1px solid #F0EAE3;
+      overflow-x: auto;
+      margin-bottom: 32px;
+    }
+
+    .staff-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .staff-table th,
+    .staff-table td {
+      padding: 16px;
+      text-align: left;
+      border-bottom: 1px solid #F0EAE3;
+    }
+
+    .staff-table th {
+      background: #F9F4ED;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .staff-table th:hover {
+      background: #F0EAE3;
+    }
+
+    .staff-table tr:hover {
+      background: #FEFCF8;
+    }
+
+    body.dark-mode .staff-table tr:hover {
+      background: #252525;
+    }
+
+    .status-badge {
+      display: inline-block;
       padding: 4px 12px;
       border-radius: 20px;
       font-size: 0.75rem;
       font-weight: 600;
     }
 
-    .staff-card-body {
-      padding: 20px;
+    .status-badge.active {
+      background: #10b98120;
+      color: #10b981;
     }
 
-    .staff-name {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
-    .staff-detail {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
-      font-size: 0.9rem;
-      color: #6B5E54;
-    }
-
-    .staff-detail i {
-      width: 20px;
-      color: #C49A6C;
-    }
-
-    .staff-card-footer {
-      padding: 16px 20px;
-      border-top: 1px solid #F0EAE3;
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-    }
-
-    .edit-btn, .delete-btn {
-      padding: 8px 16px;
-      border-radius: 40px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s;
-      border: none;
-    }
-
-    .edit-btn {
-      background: #F9F4ED;
-      color: #C49A6C;
-    }
-
-    .edit-btn:hover {
-      background: #C49A6C;
-      color: white;
-    }
-
-    .delete-btn {
-      background: #FEF2F2;
+    .status-badge.inactive {
+      background: #ef444420;
       color: #ef4444;
     }
 
-    .delete-btn:hover {
-      background: #ef4444;
-      color: white;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      background: white;
-      border-radius: 24px;
-      border: 1px solid #F0EAE3;
-    }
-
-    .empty-state i {
-      font-size: 4rem;
+    .role-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #C49A6C20;
       color: #C49A6C;
-      margin-bottom: 20px;
     }
 
-    .empty-state h3 {
-      font-size: 1.5rem;
-      margin-bottom: 10px;
+    .action-icons {
+      display: flex;
+      gap: 12px;
     }
 
-    .empty-state p {
-      color: #6B5E54;
-      margin-bottom: 20px;
+    .action-icons button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: transform 0.2s;
     }
 
+    .action-icons button:hover {
+      transform: scale(1.1);
+    }
+
+    .edit-btn { color: #C49A6C; }
+    .delete-btn { color: #ef4444; }
+
+    /* Modal Styles */
     .modal {
       display: none;
       position: fixed;
@@ -453,6 +456,12 @@
       width: 100%;
       height: 100%;
       background-color: rgba(0,0,0,0.5);
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     .modal-content {
@@ -463,6 +472,7 @@
       width: 90%;
       max-width: 600px;
       animation: slideIn 0.3s;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     }
 
     @keyframes slideIn {
@@ -493,20 +503,17 @@
       font-size: 28px;
       font-weight: bold;
       cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .close:hover {
+      color: #C23D2E;
     }
 
     .modal-body {
       padding: 32px;
       max-height: 60vh;
       overflow-y: auto;
-    }
-
-    .modal-footer {
-      padding: 24px 32px;
-      border-top: 1px solid #F0EAE3;
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
     }
 
     .form-group {
@@ -517,14 +524,25 @@
       display: block;
       margin-bottom: 8px;
       font-weight: 600;
+      color: #6B5E54;
     }
 
-    .form-group input, .form-group select {
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
       width: 100%;
-      padding: 12px;
+      padding: 12px 16px;
       border: 1px solid #E9E2D8;
       border-radius: 16px;
       font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #C49A6C;
+      box-shadow: 0 0 0 3px rgba(196, 154, 108, 0.1);
     }
 
     .form-row {
@@ -533,26 +551,12 @@
       gap: 16px;
     }
 
-    .btn-primary, .btn-secondary {
-      padding: 12px 24px;
-      border-radius: 40px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-    }
-
-    .btn-primary {
-      background: #C49A6C;
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: #A2794C;
-    }
-
-    .btn-secondary {
-      background: transparent;
-      border: 1px solid #E9E2D8;
+    .modal-footer {
+      padding: 24px 32px;
+      border-top: 1px solid #F0EAE3;
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
     }
 
     .toast {
@@ -563,8 +567,12 @@
       color: white;
       padding: 12px 24px;
       border-radius: 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
       z-index: 1100;
       animation: slideInRight 0.3s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
     .toast.error {
@@ -582,6 +590,15 @@
       }
     }
 
+    .loading-screen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      gap: 20px;
+    }
+
     .spinner {
       width: 50px;
       height: 50px;
@@ -589,31 +606,16 @@
       border-top-color: #C49A6C;
       border-radius: 50%;
       animation: spin 1s linear infinite;
-      margin: 20px auto;
     }
 
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
 
-    .loading-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .error-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      flex-direction: column;
-      gap: 20px;
+    .empty-state {
       text-align: center;
-      padding: 20px;
+      padding: 60px;
+      color: #6B5E54;
     }
 
     .menu-toggle {
@@ -623,6 +625,8 @@
     @media (max-width: 768px) {
       .sidebar {
         transform: translateX(-100%);
+        position: fixed;
+        z-index: 1000;
       }
       .sidebar.open {
         transform: translateX(0);
@@ -630,33 +634,27 @@
       .main-content {
         margin-left: 0;
       }
-      .staff-grid {
-        grid-template-columns: 1fr;
-      }
       .menu-toggle {
         display: block;
         background: none;
         border: none;
         font-size: 1.5rem;
         cursor: pointer;
+        margin-right: 16px;
       }
       .form-row {
         grid-template-columns: 1fr;
+      }
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
       }
     }
   </style>
 </head>
 <body>
-  <div id="loadingScreen" class="loading-container">
+  <div id="loadingScreen" class="loading-screen">
     <div class="spinner"></div>
-    <p>Loading Staff Management...</p>
-  </div>
-
-  <div id="errorScreen" class="error-container" style="display: none;">
-    <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: #C23D2E;"></i>
-    <h2>Unable to Load Staff Management</h2>
-    <p id="errorMessage">Something went wrong. Please try again.</p>
-    <button onclick="window.location.href = 'login.html'" style="padding: 12px 24px; background: #C49A6C; color: white; border: none; border-radius: 40px; cursor: pointer;">Go to Login</button>
+    <p>Loading staff management...</p>
   </div>
 
   <div id="dashboardContent" style="display: none;">
@@ -684,10 +682,7 @@
             <div style="flex:1"></div>
             <div class="user-menu">
               <button class="dark-mode-toggle" id="darkModeToggle"><i class="fas fa-moon"></i> Dark Mode</button>
-              <div class="user-info">
-                <div class="user-avatar" id="userAvatar">JD</div>
-                <span id="userName">Loading...</span>
-              </div>
+              <div class="user-info"><div class="user-avatar" id="userAvatar">JD</div><span id="userName">Loading...</span></div>
               <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>
           </div>
@@ -696,521 +691,445 @@
         <div class="container">
           <div class="page-header">
             <h1><i class="fas fa-users"></i> Staff Management</h1>
-            <button class="add-staff-btn" id="addStaffBtn">
-              <i class="fas fa-plus-circle"></i> Add New Staff
-            </button>
+            <button class="btn-primary" id="addStaffBtn"><i class="fas fa-user-plus"></i> Add Staff Member</button>
           </div>
 
           <div class="stats-grid">
-            <div class="stats-card">
-              <div class="stats-icon"><i class="fas fa-users"></i></div>
-              <div class="stats-value" id="totalStaff">0</div>
-              <div class="stats-label">Total Staff</div>
-            </div>
-            <div class="stats-card">
-              <div class="stats-icon"><i class="fas fa-user-tie"></i></div>
-              <div class="stats-value" id="adminCount">0</div>
-              <div class="stats-label">Administrators</div>
-            </div>
-            <div class="stats-card">
-              <div class="stats-icon"><i class="fas fa-user"></i></div>
-              <div class="stats-value" id="managerCount">0</div>
-              <div class="stats-label">Managers</div>
-            </div>
-            <div class="stats-card">
-              <div class="stats-icon"><i class="fas fa-calendar-alt"></i></div>
-              <div class="stats-value" id="newThisMonth">0</div>
-              <div class="stats-label">New This Month</div>
+            <div class="stats-card"><div class="stats-icon"><i class="fas fa-users"></i></div><div class="stats-value" id="totalStaff">0</div><div class="stats-label">Total Staff</div></div>
+            <div class="stats-card"><div class="stats-icon"><i class="fas fa-user-check"></i></div><div class="stats-value" id="activeStaff">0</div><div class="stats-label">Active</div></div>
+            <div class="stats-card"><div class="stats-icon"><i class="fas fa-chart-line"></i></div><div class="stats-value" id="adminCount">0</div><div class="stats-label">Admins</div></div>
+            <div class="stats-card"><div class="stats-icon"><i class="fas fa-store"></i></div><div class="stats-value" id="managerCount">0</div><div class="stats-label">Managers</div></div>
+          </div>
+
+          <div class="action-bar">
+            <input type="text" id="searchStaff" class="search-bar" placeholder="🔍 Search by name, email, or role...">
+            <div>
+              <select id="roleFilter" class="btn-secondary" style="padding: 10px 20px;">
+                <option value="all">All Roles</option>
+                <option value="admin">Admin</option>
+                <option value="manager">Manager</option>
+                <option value="staff">Staff</option>
+              </select>
+              <select id="statusFilter" class="btn-secondary" style="padding: 10px 20px; margin-left: 8px;">
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
             </div>
           </div>
 
-          <div class="filters-bar">
-            <div class="search-box">
-              <input type="text" id="searchInput" placeholder="🔍 Search by name, email, or role...">
-            </div>
-            <select id="roleFilter" class="filter-select">
-              <option value="all">All Roles</option>
-              <option value="admin">Admin</option>
-              <option value="manager">Manager</option>
-              <option value="staff">Staff</option>
-            </select>
-          </div>
-
-          <div class="staff-grid" id="staffGrid">
-            <!-- Staff cards will be inserted here -->
+          <div class="staff-table-container">
+            <table class="staff-table" id="staffTable">
+              <thead>
+                <tr>
+                  <th onclick="sortTable('full_name')">Name <i class="fas fa-sort"></i></th>
+                  <th onclick="sortTable('email')">Email <i class="fas fa-sort"></i></th>
+                  <th onclick="sortTable('role')">Role <i class="fas fa-sort"></i></th>
+                  <th onclick="sortTable('position')">Position <i class="fas fa-sort"></i></th>
+                  <th onclick="sortTable('employee_code')">Employee Code <i class="fas fa-sort"></i></th>
+                  <th onclick="sortTable('status')">Status <i class="fas fa-sort"></i></th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="staffTableBody">
+                <tr><td colspan="7" style="text-align: center;">Loading staff members...</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </main>
     </div>
   </div>
 
+  <!-- Add/Edit Staff Modal -->
   <div id="staffModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 id="modalTitle">Add New Staff</h2>
+        <h2 id="modalTitle">Add Staff Member</h2>
         <span class="close">&times;</span>
       </div>
       <div class="modal-body">
         <form id="staffForm">
           <input type="hidden" id="staffId">
-          
           <div class="form-group">
             <label>Full Name *</label>
-            <input type="text" id="fullName" required placeholder="e.g., John Doe">
+            <input type="text" id="fullName" required placeholder="John Doe">
           </div>
-          
           <div class="form-group">
             <label>Email *</label>
-            <input type="email" id="email" required placeholder="staff@example.com">
+            <input type="email" id="email" required placeholder="john@example.com">
           </div>
-          
-          <div class="form-group">
-            <label>Role *</label>
-            <select id="role" required>
-              <option value="staff">Staff</option>
-              <option value="manager">Manager</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label>Phone</label>
-            <input type="tel" id="phone" placeholder="e.g., +1 234 567 8900">
-          </div>
-          
           <div class="form-row">
             <div class="form-group">
-              <label>Store Name</label>
-              <input type="text" id="storeName" placeholder="Store name">
+              <label>Role *</label>
+              <select id="role" required>
+                <option value="staff">Staff</option>
+                <option value="manager">Manager</option>
+                <option value="admin">Admin</option>
+              </select>
             </div>
             <div class="form-group">
-              <label>Store Address</label>
-              <input type="text" id="storeAddress" placeholder="Store address">
+              <label>Position</label>
+              <input type="text" id="position" placeholder="Sales Associate">
             </div>
           </div>
-          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Employee Code</label>
+              <input type="text" id="employeeCode" placeholder="EMP001">
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" id="phone" placeholder="+1 555 123 4567">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Hire Date</label>
+              <input type="date" id="hireDate">
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select id="status">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
           <div class="form-group">
-            <label>Password (required for new staff)</label>
-            <input type="password" id="password" placeholder="Enter password">
-            <small style="color: #6B5E54;">Minimum 6 characters</small>
+            <label>Store Name</label>
+            <input type="text" id="storeName" placeholder="Main Store">
+          </div>
+          <div class="form-group" id="passwordGroup">
+            <label>Password (for new staff)</label>
+            <input type="password" id="password" placeholder="Min 6 characters">
+            <small style="color: #6B5E54;">Leave blank to keep existing password when editing</small>
           </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
-        <button type="button" class="btn-primary" id="saveStaffBtn">Save Staff</button>
+        <button class="btn-secondary" id="cancelBtn">Cancel</button>
+        <button class="btn-primary" id="saveStaffBtn">Save Staff</button>
       </div>
     </div>
   </div>
 
   <script>
-    const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
-    let staffList = [];
-    let currentUser = null;
-
-    function showErrorScreen(message) {
-      document.getElementById('loadingScreen').style.display = 'none';
-      document.getElementById('errorScreen').style.display = 'flex';
-      document.getElementById('errorMessage').textContent = message;
-    }
-
-    function showToast(message, isError = false) {
-      const toast = document.createElement('div');
-      toast.className = `toast ${isError ? 'error' : ''}`;
-      toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
-
-    function getInitials(name) {
-      if (!name) return 'U';
-      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-    }
-
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str).replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-      });
-    }
-
-    async function loadStaff() {
+    (function() {
+      const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
+      const SUPABASE_ANON_KEY = "sb_publishable_4kKDA0psp8AFpoTJlB-k8A_VS9IaWI9";
+      
+      let supabase;
+      let allStaff = [];
+      let currentSort = { column: 'full_name', ascending: true };
+      let currentUserRole = null;
+      
       try {
-        console.log("Loading staff data from profiles table...");
-        
-        // Get all profiles (users)
-        const { data: profiles, error: profilesError } = await supabase
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      } catch(e) { console.error(e); alert("Failed to initialize"); return; }
+      
+      const loadingScreen = document.getElementById('loadingScreen');
+      const dashboardContent = document.getElementById('dashboardContent');
+      const modal = document.getElementById('staffModal');
+      const modalTitle = document.getElementById('modalTitle');
+      let currentEditId = null;
+      
+      function showToast(message, isError = false) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${isError ? 'error' : ''}`;
+        toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      }
+      
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+          if (m === '&') return '&amp;';
+          if (m === '<') return '&lt;';
+          if (m === '>') return '&gt;';
+          return m;
+        });
+      }
+      
+      async function loadCurrentUser() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+          currentUserRole = profile?.role || 'staff';
+          document.getElementById('userName').innerText = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+          let name = user.user_metadata?.full_name || user.email || 'User';
+          document.getElementById('userAvatar').innerText = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+        }
+      }
+      
+      async function fetchStaff() {
+        const { data, error } = await supabase
           .from('profiles')
           .select('*')
           .order('created_at', { ascending: false });
         
-        if (profilesError) {
-          console.error("Profiles error:", profilesError);
-          throw profilesError;
+        if (error) throw error;
+        allStaff = data || [];
+        updateStats();
+        renderStaffTable();
+      }
+      
+      function updateStats() {
+        document.getElementById('totalStaff').innerText = allStaff.length;
+        document.getElementById('activeStaff').innerText = allStaff.filter(s => s.status === 'active').length;
+        document.getElementById('adminCount').innerText = allStaff.filter(s => s.role === 'admin').length;
+        document.getElementById('managerCount').innerText = allStaff.filter(s => s.role === 'manager').length;
+      }
+      
+      function renderStaffTable() {
+        const searchTerm = document.getElementById('searchStaff')?.value.toLowerCase() || '';
+        const roleFilter = document.getElementById('roleFilter')?.value || 'all';
+        const statusFilter = document.getElementById('statusFilter')?.value || 'all';
+        
+        let filtered = allStaff.filter(s => {
+          const matchesSearch = s.full_name?.toLowerCase().includes(searchTerm) || 
+                                s.email?.toLowerCase().includes(searchTerm) ||
+                                s.role?.toLowerCase().includes(searchTerm);
+          const matchesRole = roleFilter === 'all' || s.role === roleFilter;
+          const matchesStatus = statusFilter === 'all' || s.status === statusFilter;
+          return matchesSearch && matchesRole && matchesStatus;
+        });
+        
+        filtered.sort((a, b) => {
+          let aVal = a[currentSort.column] || '';
+          let bVal = b[currentSort.column] || '';
+          if (currentSort.ascending) return aVal > bVal ? 1 : -1;
+          return aVal < bVal ? 1 : -1;
+        });
+        
+        const tbody = document.getElementById('staffTableBody');
+        if (filtered.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No staff members found</td></tr>';
+          return;
         }
         
-        console.log("Profiles loaded:", profiles?.length || 0);
-        
-        // Store the staff list
-        staffList = profiles || [];
-        
-        updateStats();
-        displayStaff();
-        
-      } catch (err) {
-        console.error("Error loading staff:", err);
-        showToast('Failed to load staff: ' + err.message, true);
-      }
-    }
-
-    function updateStats() {
-      const total = staffList.length;
-      const admins = staffList.filter(s => s.role === 'admin').length;
-      const managers = staffList.filter(s => s.role === 'manager').length;
-      
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      const newThisMonth = staffList.filter(s => {
-        if (!s.created_at) return false;
-        const createdDate = new Date(s.created_at);
-        return createdDate.getMonth() === currentMonth && createdDate.getFullYear() === currentYear;
-      }).length;
-      
-      document.getElementById('totalStaff').textContent = total;
-      document.getElementById('adminCount').textContent = admins;
-      document.getElementById('managerCount').textContent = managers;
-      document.getElementById('newThisMonth').textContent = newThisMonth;
-    }
-
-    function displayStaff() {
-      const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
-      const roleFilter = document.getElementById('roleFilter')?.value || 'all';
-      
-      let filtered = staffList.filter(staff => {
-        const matchesSearch = !searchTerm || 
-          staff.full_name?.toLowerCase().includes(searchTerm) ||
-          staff.email?.toLowerCase().includes(searchTerm) ||
-          staff.role?.toLowerCase().includes(searchTerm);
-        
-        const matchesRole = roleFilter === 'all' || staff.role === roleFilter;
-        
-        return matchesSearch && matchesRole;
-      });
-      
-      const grid = document.getElementById('staffGrid');
-      if (filtered.length === 0) {
-        grid.innerHTML = `
-          <div class="empty-state" style="grid-column: 1/-1;">
-            <i class="fas fa-users-slash"></i>
-            <h3>No Staff Members Found</h3>
-            <p>Click the "Add New Staff" button to add your first team member.</p>
-            <button class="add-staff-btn" onclick="document.getElementById('addStaffBtn').click()" style="margin-top: 10px;">
-              <i class="fas fa-plus-circle"></i> Add Your First Staff
-            </button>
-          </div>
-        `;
-        return;
+        tbody.innerHTML = filtered.map(staff => `
+          <tr>
+            <td><strong>${escapeHtml(staff.full_name || '—')}</strong></td>
+            <td>${escapeHtml(staff.email || '—')}</td>
+            <td><span class="role-badge">${escapeHtml(staff.role || 'staff')}</span></td>
+            <td>${escapeHtml(staff.position || '—')}</td>
+            <td>${escapeHtml(staff.employee_code || '—')}</td>
+            <td><span class="status-badge ${staff.status === 'active' ? 'active' : 'inactive'}">${staff.status || 'active'}</span></td>
+            <td class="action-icons">
+              <button class="edit-btn" onclick="openEditStaffModal('${staff.id}')"><i class="fas fa-edit"></i></button>
+              <button class="delete-btn" onclick="deleteStaff('${staff.id}', '${escapeHtml(staff.full_name).replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+        `).join('');
       }
       
-      grid.innerHTML = filtered.map(staff => {
-        const roleColor = staff.role === 'admin' ? '#ef4444' : staff.role === 'manager' ? '#f59e0b' : '#10b981';
-        const roleDisplay = staff.role?.toUpperCase() || 'STAFF';
-        
-        return `
-          <div class="staff-card">
-            <div class="staff-card-header">
-              <div class="staff-avatar">${getInitials(staff.full_name)}</div>
-              <div class="staff-role-badge" style="background: ${roleColor}20; color: ${roleColor}">
-                ${roleDisplay}
-              </div>
-            </div>
-            <div class="staff-card-body">
-              <div class="staff-name">${escapeHtml(staff.full_name || 'N/A')}</div>
-              <div class="staff-detail">
-                <i class="fas fa-envelope"></i>
-                <span>${escapeHtml(staff.email || 'N/A')}</span>
-              </div>
-              <div class="staff-detail">
-                <i class="fas fa-briefcase"></i>
-                <span>${escapeHtml(staff.role || 'No role')}</span>
-              </div>
-              <div class="staff-detail">
-                <i class="fas fa-phone"></i>
-                <span>${escapeHtml(staff.phone || 'No phone')}</span>
-              </div>
-              <div class="staff-detail">
-                <i class="fas fa-store"></i>
-                <span>${escapeHtml(staff.store_name || 'N/A')}</span>
-              </div>
-              <div class="staff-detail">
-                <i class="fas fa-calendar"></i>
-                <span>Joined: ${staff.created_at ? new Date(staff.created_at).toLocaleDateString() : 'N/A'}</span>
-              </div>
-            </div>
-            <div class="staff-card-footer">
-              <button class="edit-btn" onclick="openEditModal('${staff.id}')">
-                <i class="fas fa-edit"></i> Edit
-              </button>
-              <button class="delete-btn" onclick="deleteStaff('${staff.id}', '${staff.full_name}')">
-                <i class="fas fa-trash"></i> Delete
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    window.openEditModal = async function(staffId) {
-      const staff = staffList.find(s => s.id === staffId);
-      if (!staff) return;
-      
-      document.getElementById('modalTitle').textContent = 'Edit Staff';
-      document.getElementById('staffId').value = staff.id;
-      document.getElementById('fullName').value = staff.full_name || '';
-      document.getElementById('email').value = staff.email || '';
-      document.getElementById('role').value = staff.role || 'staff';
-      document.getElementById('phone').value = staff.phone || '';
-      document.getElementById('storeName').value = staff.store_name || '';
-      document.getElementById('storeAddress').value = staff.store_address || '';
-      document.getElementById('password').value = '';
-      document.getElementById('password').placeholder = 'Leave blank to keep current password';
-      document.getElementById('password').required = false;
-      
-      document.getElementById('staffModal').style.display = 'block';
-    };
-
-    window.openAddModal = function() {
-      document.getElementById('modalTitle').textContent = 'Add New Staff';
-      document.getElementById('staffForm').reset();
-      document.getElementById('staffId').value = '';
-      document.getElementById('password').placeholder = 'Enter password for new staff';
-      document.getElementById('password').required = true;
-      document.getElementById('staffModal').style.display = 'block';
-    };
-
-    window.saveStaff = async function() {
-      const staffId = document.getElementById('staffId').value;
-      const fullName = document.getElementById('fullName').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const role = document.getElementById('role').value;
-      const phone = document.getElementById('phone').value.trim();
-      const storeName = document.getElementById('storeName').value.trim();
-      const storeAddress = document.getElementById('storeAddress').value.trim();
-      const password = document.getElementById('password').value;
-      
-      if (!fullName || !email) {
-        showToast('Please fill in all required fields', true);
-        return;
-      }
-      
-      if (!staffId && (!password || password.length < 6)) {
-        showToast('Password is required for new staff (minimum 6 characters)', true);
-        return;
-      }
-      
-      try {
-        if (staffId) {
-          // Update existing staff profile
-          const updateData = {
-            full_name: fullName,
-            role: role,
-            phone: phone || null,
-            store_name: storeName || null,
-            store_address: storeAddress || null,
-            updated_at: new Date().toISOString()
-          };
-          
-          // Remove email from update since it might not exist in profiles table
-          delete updateData.email;
-          
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .update(updateData)
-            .eq('id', staffId);
-          
-          if (profileError) throw profileError;
-          
-          showToast('Staff updated successfully!');
+      window.sortTable = function(column) {
+        if (currentSort.column === column) {
+          currentSort.ascending = !currentSort.ascending;
         } else {
-          // Create new user
-          const { data: userData, error: signUpError } = await supabase.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-              data: {
+          currentSort.column = column;
+          currentSort.ascending = true;
+        }
+        renderStaffTable();
+      };
+      
+      window.openEditStaffModal = async function(staffId) {
+        const staff = allStaff.find(s => s.id === staffId);
+        if (!staff) return;
+        currentEditId = staffId;
+        modalTitle.innerText = 'Edit Staff Member';
+        document.getElementById('staffId').value = staff.id;
+        document.getElementById('fullName').value = staff.full_name || '';
+        document.getElementById('email').value = staff.email || '';
+        document.getElementById('role').value = staff.role || 'staff';
+        document.getElementById('position').value = staff.position || '';
+        document.getElementById('employeeCode').value = staff.employee_code || '';
+        document.getElementById('phone').value = staff.phone || '';
+        document.getElementById('hireDate').value = staff.hire_date || '';
+        document.getElementById('status').value = staff.status || 'active';
+        document.getElementById('storeName').value = staff.store_name || '';
+        document.getElementById('password').value = '';
+        document.getElementById('passwordGroup').style.display = 'block';
+        modal.style.display = 'block';
+      };
+      
+      function openAddStaffModal() {
+        currentEditId = null;
+        modalTitle.innerText = 'Add Staff Member';
+        document.getElementById('staffForm').reset();
+        document.getElementById('staffId').value = '';
+        document.getElementById('role').value = 'staff';
+        document.getElementById('status').value = 'active';
+        document.getElementById('passwordGroup').style.display = 'block';
+        modal.style.display = 'block';
+      }
+      
+      async function saveStaff() {
+        const fullName = document.getElementById('fullName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const role = document.getElementById('role').value;
+        const position = document.getElementById('position').value.trim();
+        const employeeCode = document.getElementById('employeeCode').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const hireDate = document.getElementById('hireDate').value;
+        const status = document.getElementById('status').value;
+        const storeName = document.getElementById('storeName').value.trim();
+        const password = document.getElementById('password').value;
+        
+        if (!fullName || !email) {
+          showToast('Please fill in name and email', true);
+          return;
+        }
+        
+        try {
+          if (currentEditId) {
+            // Update existing profile
+            const { error } = await supabase
+              .from('profiles')
+              .update({
                 full_name: fullName,
-                role: role
-              }
-            }
-          });
-          
-          if (signUpError) throw signUpError;
-          
-          if (userData.user) {
-            // Create profile - note: email might not be in profiles table based on your schema
-            const profileData = {
-              id: userData.user.id,
-              full_name: fullName,
-              role: role,
-              phone: phone || null,
-              store_name: storeName || null,
-              store_address: storeAddress || null,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            };
+                role: role,
+                position: position,
+                employee_code: employeeCode,
+                phone: phone,
+                hire_date: hireDate || null,
+                status: status,
+                store_name: storeName,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', currentEditId);
             
-            // Only add email if the column exists (check from your earlier output - it doesn't)
-            // Based on your profiles table structure, email is NOT a column
+            if (error) throw error;
+            
+            // Update password if provided
+            if (password && password.length >= 6) {
+              const { error: pwdError } = await supabase.auth.admin.updateUserById(currentEditId, { password });
+              if (pwdError) console.warn("Password update failed (admin rights may be needed):", pwdError);
+            }
+            
+            showToast('Staff member updated successfully!');
+          } else {
+            // Create new user
+            if (!password || password.length < 6) {
+              showToast('Password is required and must be at least 6 characters for new staff', true);
+              return;
+            }
+            
+            const { data: authData, error: signUpError } = await supabase.auth.signUp({
+              email: email,
+              password: password,
+              options: {
+                data: { full_name: fullName, role: role }
+              }
+            });
+            
+            if (signUpError) throw signUpError;
+            if (!authData.user) throw new Error('Failed to create user');
             
             const { error: profileError } = await supabase
               .from('profiles')
-              .insert([profileData]);
+              .insert({
+                id: authData.user.id,
+                full_name: fullName,
+                email: email,
+                role: role,
+                position: position,
+                employee_code: employeeCode,
+                phone: phone,
+                hire_date: hireDate || null,
+                status: status,
+                store_name: storeName
+              });
             
             if (profileError) throw profileError;
-            
-            showToast('Staff added successfully!');
-          }
-        }
-        
-        document.getElementById('staffModal').style.display = 'none';
-        await loadStaff();
-        
-      } catch (err) {
-        console.error("Error saving staff:", err);
-        showToast('Failed to save staff: ' + err.message, true);
-      }
-    };
-
-    window.deleteStaff = async function(staffId, staffName) {
-      if (confirm(`Are you sure you want to delete ${staffName}? This action cannot be undone.`)) {
-        try {
-          // First check if the user is not deleting themselves
-          const { data: { user } } = await supabase.auth.getUser();
-          if (user && user.id === staffId) {
-            showToast('You cannot delete your own account', true);
-            return;
+            showToast('Staff member added successfully!');
           }
           
-          // Delete from profiles
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .delete()
-            .eq('id', staffId);
+          modal.style.display = 'none';
+          await fetchStaff();
           
-          if (profileError) throw profileError;
-          
-          showToast('Staff deleted successfully!');
-          await loadStaff();
         } catch (err) {
-          console.error("Error deleting staff:", err);
-          showToast('Failed to delete staff: ' + err.message, true);
+          console.error(err);
+          showToast(err.message || 'Failed to save staff member', true);
         }
       }
-    };
-
-    async function loadUserProfile() {
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error) throw error;
-        
-        if (!user) {
+      
+      window.deleteStaff = async function(staffId, staffName) {
+        if (confirm(`Are you sure you want to remove ${staffName} from staff?`)) {
+          try {
+            // Update profile status to inactive instead of deleting
+            const { error } = await supabase
+              .from('profiles')
+              .update({ status: 'inactive', updated_at: new Date().toISOString() })
+              .eq('id', staffId);
+            
+            if (error) throw error;
+            showToast('Staff member deactivated');
+            await fetchStaff();
+          } catch (err) {
+            showToast(err.message, true);
+          }
+        }
+      };
+      
+      async function checkAuth() {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
           window.location.href = "login.html";
           return false;
         }
-        
-        currentUser = user;
-        
-        // Get user profile from profiles table
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        
-        const fullName = profile?.full_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
-        document.getElementById('userName').textContent = fullName;
-        document.getElementById('userAvatar').textContent = getInitials(fullName);
-        
         return true;
-      } catch (err) {
-        console.error("Error loading profile:", err);
-        showErrorScreen("Failed to authenticate: " + err.message);
-        return false;
-      }
-    }
-
-    function initDarkMode() {
-      const toggle = document.getElementById('darkModeToggle');
-      const isDark = localStorage.getItem('darkMode') === 'true';
-      if (isDark) {
-        document.body.classList.add('dark-mode');
-        toggle.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
       }
       
-      toggle.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        const isNowDark = document.body.classList.contains('dark-mode');
-        localStorage.setItem('darkMode', isNowDark);
-        toggle.innerHTML = isNowDark ? '<i class="fas fa-sun"></i> Light Mode' : '<i class="fas fa-moon"></i> Dark Mode';
-      });
-    }
-
-    function initMobileMenu() {
-      const menuToggle = document.getElementById('menuToggle');
-      const sidebar = document.getElementById('sidebar');
-      if (menuToggle) {
-        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+      function initDarkMode() {
+        const toggle = document.getElementById('darkModeToggle');
+        const isDark = localStorage.getItem('darkMode') === 'true';
+        if (isDark) {
+          document.body.classList.add('dark-mode');
+          toggle.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+        }
+        toggle.addEventListener('click', () => {
+          document.body.classList.toggle('dark-mode');
+          const now = document.body.classList.contains('dark-mode');
+          localStorage.setItem('darkMode', now);
+          toggle.innerHTML = now ? '<i class="fas fa-sun"></i> Light Mode' : '<i class="fas fa-moon"></i> Dark Mode';
+        });
       }
-    }
-
-    // Event Listeners
-    document.getElementById('addStaffBtn').addEventListener('click', () => window.openAddModal());
-    document.getElementById('saveStaffBtn').addEventListener('click', () => window.saveStaff());
-    document.getElementById('cancelBtn').addEventListener('click', () => {
-      document.getElementById('staffModal').style.display = 'none';
-    });
-    document.querySelector('.close').addEventListener('click', () => {
-      document.getElementById('staffModal').style.display = 'none';
-    });
-    
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) searchInput.addEventListener('input', () => displayStaff());
-    
-    const roleFilter = document.getElementById('roleFilter');
-    if (roleFilter) roleFilter.addEventListener('change', () => displayStaff());
-    
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      window.location.href = "login.html";
-    });
-    
-    // Click outside modal to close
-    window.onclick = function(event) {
-      const modal = document.getElementById('staffModal');
-      if (event.target === modal) {
-        modal.style.display = 'none';
+      
+      function initMobileMenu() {
+        document.getElementById('menuToggle')?.addEventListener('click', () => {
+          document.getElementById('sidebar').classList.toggle('open');
+        });
       }
-    }
-    
-    async function init() {
-      console.log("Initializing Staff Management page...");
-      const authSuccess = await loadUserProfile();
-      if (authSuccess) {
-        await loadStaff();
-        document.getElementById('loadingScreen').style.display = 'none';
-        document.getElementById('dashboardContent').style.display = 'block';
+      
+      async function init() {
+        const authed = await checkAuth();
+        if (!authed) return;
+        
+        await loadCurrentUser();
+        await fetchStaff();
+        
+        loadingScreen.style.display = 'none';
+        dashboardContent.style.display = 'block';
+        
+        // Event listeners
+        document.getElementById('addStaffBtn').addEventListener('click', openAddStaffModal);
+        document.getElementById('saveStaffBtn').addEventListener('click', saveStaff);
+        document.getElementById('cancelBtn').addEventListener('click', () => modal.style.display = 'none');
+        document.querySelector('.close').addEventListener('click', () => modal.style.display = 'none');
+        window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+        document.getElementById('logoutBtn').addEventListener('click', async () => { await supabase.auth.signOut(); window.location.href = "login.html"; });
+        document.getElementById('searchStaff').addEventListener('input', () => renderStaffTable());
+        document.getElementById('roleFilter').addEventListener('change', () => renderStaffTable());
+        document.getElementById('statusFilter').addEventListener('change', () => renderStaffTable());
       }
+      
       initDarkMode();
       initMobileMenu();
-    }
-    
-    init();
+      init();
+    })();
   </script>
 </body>
 </html>
