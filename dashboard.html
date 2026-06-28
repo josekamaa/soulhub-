@@ -467,6 +467,49 @@
       font-family: 'Inter', sans-serif;
     }
 
+    /* Image upload styles */
+    .image-upload-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed #E9E2D8;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .image-upload-container:hover {
+      border-color: #C49A6C;
+    }
+
+    .image-upload-container i {
+      font-size: 2rem;
+      color: #8F8278;
+      margin-bottom: 8px;
+    }
+
+    .image-preview {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .product-img-thumb {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
     .loading {
       text-align: center;
       padding: 60px;
@@ -578,6 +621,7 @@
   </main>
 </div>
 
+<!-- New Sale Modal (existing) -->
 <div id="saleModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
@@ -602,6 +646,55 @@
         </select>
       </div>
       <button type="submit" class="action-btn" style="width: 100%;">Process Sale</button>
+    </form>
+  </div>
+</div>
+
+<!-- Add Product Modal with Image Upload (NEW) -->
+<div id="addProductModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Add New Product</h2>
+      <span class="close-modal" onclick="window.closeAddProductModal()">&times;</span>
+    </div>
+    <form id="addProductForm">
+      <div class="form-group">
+        <label>Product Name *</label>
+        <input type="text" id="productName" required placeholder="e.g., Nike Air Max">
+      </div>
+      <div class="form-group">
+        <label>SKU *</label>
+        <input type="text" id="productSkuNew" required placeholder="e.g., NK-002">
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select id="productCategory">
+          <option value="casual">Casual</option>
+          <option value="sneakers">Sneakers</option>
+          <option value="boots">Boots</option>
+          <option value="formal">Formal</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Selling Price *</label>
+        <input type="number" id="productPrice" step="0.01" required placeholder="99.99">
+      </div>
+      <div class="form-group">
+        <label>Stock Quantity</label>
+        <input type="number" id="productStock" value="10" min="0">
+      </div>
+      <div class="form-group">
+        <label>Product Image</label>
+        <div class="image-upload-container" id="imageUploadContainer" onclick="document.getElementById('productImageInput').click()">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>Click to upload image</p>
+          <p style="font-size:0.8rem; color:#8F8278;">(optional)</p>
+          <input type="file" id="productImageInput" accept="image/*" style="display:none" onchange="window.previewImage(event)">
+          <img id="imagePreview" class="image-preview" src="#" alt="Preview">
+        </div>
+      </div>
+      <button type="submit" class="action-btn" style="width: 100%;">Add Product</button>
     </form>
   </div>
 </div>
@@ -687,6 +780,32 @@
       }
     }
 
+    // Image preview function
+    window.previewImage = function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById('imagePreview');
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+          document.querySelector('#imageUploadContainer i').style.display = 'none';
+          document.querySelector('#imageUploadContainer p').style.display = 'none';
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    window.closeAddProductModal = function() {
+      document.getElementById('addProductModal').classList.remove('active');
+      // Reset form
+      document.getElementById('addProductForm').reset();
+      document.getElementById('imagePreview').style.display = 'none';
+      const container = document.getElementById('imageUploadContainer');
+      container.querySelector('i').style.display = 'block';
+      container.querySelectorAll('p').forEach(p => p.style.display = 'block');
+    }
+
     async function loadDashboard() {
       showLoading();
       
@@ -753,8 +872,8 @@
             <button class="action-btn" onclick="window.openSaleModal()">
               <i class="fas fa-plus"></i> New Sale
             </button>
-            <button class="action-btn" onclick="window.addSampleProduct()">
-              <i class="fas fa-box"></i> Add Sample Product
+            <button class="action-btn" onclick="window.openAddProductModal()">
+              <i class="fas fa-box"></i> Add Product
             </button>
             <button class="action-btn" onclick="window.exportReport()">
               <i class="fas fa-download"></i> Export Report
@@ -777,7 +896,7 @@
               <h3>Low Stock Alerts</h3>
               <table>
                 <thead>
-                  <tr><th>Product</th><th>Stock</th><th>Status</th></tr>
+                  <tr><th></th><th>Product</th><th>Stock</th><th>Status</th></tr>
                 </thead>
                 <tbody>
                   ${getLowStockTableRows(productsData)}
@@ -840,10 +959,11 @@
     function getLowStockTableRows(productsData) {
       const lowStock = productsData.filter(p => p.stock_quantity <= (p.low_stock_threshold || 5));
       if (lowStock.length === 0) {
-        return '<tr><td colspan="3">No low stock items</td></tr>';
+        return '<tr><td colspan="4">No low stock items</td></tr>';
       }
       return lowStock.slice(0, 5).map(p => `
         <tr>
+          <td>${p.image_url ? `<img src="${p.image_url}" class="product-img-thumb" alt="${p.name}">` : '<i class="fas fa-image" style="color:#ccc; font-size:1.5rem;"></i>'}</td>
           <td>${p.name}</td>
           <td>${p.stock_quantity} left</td>
           <td><span class="badge badge-warning">Low Stock</span></td>
@@ -961,30 +1081,90 @@
       document.getElementById('saleModal').classList.add('active');
     }
 
-    async function addSampleProduct() {
-      const name = prompt('Enter product name:', 'Sample Shoe');
-      if (!name) return;
+    // Open the new Add Product modal
+    window.openAddProductModal = function() {
+      document.getElementById('addProductModal').classList.add('active');
+    }
+
+    // Handle Add Product form submission with image upload
+    document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
       
-      const price = parseFloat(prompt('Enter selling price:', '99.99'));
-      if (!price) return;
+      const name = document.getElementById('productName').value.trim();
+      const sku = document.getElementById('productSkuNew').value.trim();
+      const category = document.getElementById('productCategory').value;
+      const price = parseFloat(document.getElementById('productPrice').value);
+      const stock = parseInt(document.getElementById('productStock').value);
+      const imageFile = document.getElementById('productImageInput').files[0];
       
-      const sku = name.substring(0, 3).toUpperCase() + '-' + Math.floor(Math.random() * 1000);
+      if (!name || !sku || !price) {
+        alert('Please fill in all required fields.');
+        return;
+      }
       
-      const { error } = await supabaseClient.from('products').insert([{
+      let image_url = null;
+      
+      // Upload image if selected
+      if (imageFile) {
+        try {
+          // Ensure bucket exists: run this SQL in Supabase dashboard
+          // INSERT INTO storage.buckets (id, name, public) VALUES ('product-images', 'product-images', true);
+          // And add policies to allow authenticated uploads and public reads.
+          const fileExt = imageFile.name.split('.').pop();
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+          
+          const { data: uploadData, error: uploadError } = await supabaseClient.storage
+            .from('product-images')
+            .upload(fileName, imageFile, {
+              cacheControl: '3600',
+              upsert: false
+            });
+            
+          if (uploadError) {
+            console.error('Upload error:', uploadError);
+            // Fallback: try to create the bucket if it doesn't exist? Not possible from client.
+            alert('Image upload failed. Please make sure the "product-images" bucket exists and you have permissions. Adding product without image.');
+          } else {
+            // Get public URL
+            const { data: publicUrlData } = supabaseClient.storage
+              .from('product-images')
+              .getPublicUrl(fileName);
+            image_url = publicUrlData.publicUrl;
+          }
+        } catch (err) {
+          console.error('Image upload exception:', err);
+          alert('Image upload error. Adding product without image.');
+        }
+      }
+      
+      // Insert product into database
+      const productData = {
         sku: sku,
         name: name,
-        category: 'casual',
+        category: category,
         selling_price: price,
-        stock_quantity: 10,
+        stock_quantity: stock,
         low_stock_threshold: 5
-      }]);
+      };
       
-      if (error) {
-        alert('Error: ' + error.message);
+      if (image_url) {
+        productData.image_url = image_url;
+      }
+      
+      const { error: insertError } = await supabaseClient.from('products').insert([productData]);
+      
+      if (insertError) {
+        alert('Error adding product: ' + insertError.message);
       } else {
         alert('Product added successfully!');
+        window.closeAddProductModal();
         loadDashboard();
       }
+    });
+
+    // Legacy addSampleProduct (removed prompts) - now just an alias for consistency
+    window.addSampleProduct = function() {
+      window.openAddProductModal();
     }
 
     function exportReport() {
@@ -1047,10 +1227,19 @@
       }
     });
 
-    // Close modals
+    // Close modals (generic)
     document.querySelectorAll('.close-modal').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.modal').forEach(modal => modal.classList.remove('active'));
+        const modal = btn.closest('.modal');
+        if (modal) modal.classList.remove('active');
+        // Also reset add product form if that modal
+        if (modal && modal.id === 'addProductModal') {
+          document.getElementById('addProductForm').reset();
+          document.getElementById('imagePreview').style.display = 'none';
+          const container = document.getElementById('imageUploadContainer');
+          container.querySelector('i').style.display = 'block';
+          container.querySelectorAll('p').forEach(p => p.style.display = 'block');
+        }
       });
     });
 
@@ -1108,7 +1297,7 @@
 
     // Make functions global
     window.openSaleModal = openSaleModal;
-    window.addSampleProduct = addSampleProduct;
+    window.addSampleProduct = window.addSampleProduct; // already defined
     window.exportReport = exportReport;
     window.loadDashboard = loadDashboard;
 
