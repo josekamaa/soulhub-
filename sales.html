@@ -11,7 +11,8 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: #FEFCF8; color: #1E1B18; }
     body.dark-mode { background: #1a1a1a; color: #FEFCF8; }
-    body.dark-mode .sidebar, body.dark-mode .top-bar, body.dark-mode .card, body.dark-mode .modal-content { background: #2d2d2d; border-color: #404040; }
+    body.dark-mode .sidebar, body.dark-mode .top-bar, body.dark-mode .card, body.dark-mode .modal-content,
+    body.dark-mode .product-card, body.dark-mode .cart { background: #2d2d2d; border-color: #404040; }
     .app-container { display: flex; min-height: 100vh; }
     .sidebar { width: 280px; background: white; border-right: 1px solid #F0EAE3; position: fixed; height: 100vh; overflow-y: auto; transition: all 0.3s ease; z-index: 100; }
     .sidebar-header { padding: 24px; border-bottom: 1px solid #F0EAE3; }
@@ -31,26 +32,73 @@
     .content-area { padding: 32px; }
     .pos-grid { display: grid; grid-template-columns: 1fr 380px; gap: 24px; }
     .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
-    .product-card { background: white; border: 1px solid #F0EAE3; border-radius: 16px; padding: 16px; cursor: pointer; transition: all 0.2s; }
-    body.dark-mode .product-card { background: #2d2d2d; }
+    .product-card {
+      background: white;
+      border: 1px solid #F0EAE3;
+      border-radius: 16px;
+      padding: 0 0 16px 0;
+      cursor: pointer;
+      transition: all 0.2s;
+      overflow: hidden;
+    }
+    body.dark-mode .product-card { background: #2d2d2d; border-color: #404040; }
     .product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); border-color: #C49A6C; }
-    .product-name { font-weight: 600; margin-bottom: 8px; }
+    .product-img-container {
+      width: 100%;
+      height: 140px;
+      background: #F5F0EB;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-bottom: 1px solid #F0EAE3;
+    }
+    body.dark-mode .product-img-container { background: #3d3d3d; }
+    .product-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+    .product-card:hover .product-img { transform: scale(1.05); }
+    .product-img-placeholder {
+      font-size: 2.5rem;
+      color: #ccc;
+    }
+    .product-info { padding: 12px 16px 0; }
+    .product-name { font-weight: 600; margin-bottom: 4px; }
+    .product-sku { font-size: 0.75rem; color: #8F8278; margin-bottom: 8px; }
     .product-price { color: #C49A6C; font-weight: 700; font-size: 1.2rem; }
+    .stock-info { font-size: 0.7rem; margin-top: 8px; color: #8F8278; }
+
     .cart { background: white; border: 1px solid #F0EAE3; border-radius: 20px; padding: 20px; position: sticky; top: 100px; }
     body.dark-mode .cart { background: #2d2d2d; }
     .cart-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #F0EAE3; }
     .cart-total { margin-top: 20px; padding-top: 20px; border-top: 2px solid #C49A6C; font-size: 1.2rem; font-weight: 700; }
-    .btn-primary { background: #1E1B18; color: white; border: none; padding: 12px 24px; border-radius: 40px; cursor: pointer; width: 100%; margin-top: 16px; }
+    .btn-primary { background: #1E1B18; color: white; border: none; padding: 12px 24px; border-radius: 40px; cursor: pointer; width: 100%; margin-top: 16px; font-family: 'Inter', sans-serif; font-weight: 500; }
     .btn-primary:hover { background: #C49A6C; }
     .remove-item { color: #C23D2E; cursor: pointer; margin-left: 12px; }
     .search-box { margin-bottom: 20px; }
-    .search-box input { width: 100%; padding: 12px; border: 1px solid #E9E2D8; border-radius: 40px; }
+    .search-box input { width: 100%; padding: 12px 16px; border: 1px solid #E9E2D8; border-radius: 40px; font-family: 'Inter', sans-serif; }
+    .lightbox-modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; flex-direction: column;
+    }
+    .lightbox-modal.active { display: flex; }
+    .lightbox-close { position: absolute; top: 20px; right: 30px; font-size: 2.5rem; color: white; cursor: pointer; z-index: 2001; }
+    .lightbox-close:hover { color: #C49A6C; }
+    .lightbox-image { max-width: 90%; max-height: 75vh; object-fit: contain; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+    .lightbox-info { color: white; text-align: center; margin-top: 20px; font-size: 1.1rem; }
+    .lightbox-name { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
+
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.mobile-open { transform: translateX(0); }
       .main-content { margin-left: 0; }
       .menu-toggle { display: block; cursor: pointer; font-size: 1.5rem; }
       .pos-grid { grid-template-columns: 1fr; }
+      .products-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+      .product-img-container { height: 120px; }
     }
     @media (min-width: 769px) { .menu-toggle { display: none; } }
     .loading { text-align: center; padding: 60px; }
@@ -85,6 +133,13 @@
       <div class="loading"><i class="fas fa-spinner spinner" style="font-size: 2rem;"></i><p>Loading POS...</p></div>
     </div>
   </main>
+</div>
+
+<!-- Lightbox for image preview -->
+<div id="lightboxModal" class="lightbox-modal">
+  <span class="lightbox-close" onclick="window.closeLightbox()">&times;</span>
+  <img id="lightboxImage" class="lightbox-image" src="" alt="Product Image">
+  <div class="lightbox-info"><div class="lightbox-name" id="lightboxName"></div><div id="lightboxMeta" style="color:#B0A89F;"></div></div>
 </div>
 
 <script>
@@ -122,14 +177,39 @@
       if (container) {
         container.innerHTML = filtered.map(p => `
           <div class="product-card" onclick="window.addToCart('${p.id}')">
-            <div class="product-name">${p.name}</div>
-            <div class="product-sku" style="font-size:0.75rem; color:#8F8278;">${p.sku}</div>
-            <div class="product-price">$${p.selling_price || 0}</div>
-            <div style="font-size:0.7rem; margin-top:8px;">Stock: ${p.stock_quantity || 0}</div>
+            <div class="product-img-container" onclick="event.stopPropagation(); ${p.image_url ? `window.openLightbox('${p.image_url}', '${p.name.replace(/'/g, "\\'")}', 'SKU: ${p.sku} | $${p.selling_price}')` : ''}">
+              ${p.image_url 
+                ? `<img src="${p.image_url}" class="product-img" alt="${p.name}" onerror="this.onerror=null;this.parentElement.innerHTML='<i class=\\'fas fa-image product-img-placeholder\\'></i>';">`
+                : '<i class="fas fa-image product-img-placeholder"></i>'
+              }
+            </div>
+            <div class="product-info">
+              <div class="product-name">${p.name}</div>
+              <div class="product-sku">${p.sku}</div>
+              <div class="product-price">$${p.selling_price || 0}</div>
+              <div class="stock-info">Stock: ${p.stock_quantity || 0}</div>
+            </div>
           </div>
         `).join('');
       }
     }
+
+    // Lightbox functions
+    window.openLightbox = function(imageUrl, productName, meta) {
+      document.getElementById('lightboxImage').src = imageUrl;
+      document.getElementById('lightboxName').textContent = productName || '';
+      document.getElementById('lightboxMeta').textContent = meta || '';
+      document.getElementById('lightboxModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    };
+    window.closeLightbox = function() {
+      document.getElementById('lightboxModal').classList.remove('active');
+      document.body.style.overflow = '';
+    };
+    document.getElementById('lightboxModal')?.addEventListener('click', function(e) {
+      if (e.target === this) window.closeLightbox();
+    });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') window.closeLightbox(); });
 
     function renderCart() {
       const container = document.getElementById('cartItems');
@@ -152,16 +232,10 @@
     function addToCart(productId) {
       const product = products.find(p => p.id === productId);
       if (!product) return;
-      if (product.stock_quantity <= 0) {
-        alert('Out of stock!');
-        return;
-      }
+      if (product.stock_quantity <= 0) { alert('Out of stock!'); return; }
       const existing = cart.find(item => item.id === productId);
       if (existing) {
-        if (product.stock_quantity <= existing.quantity) {
-          alert('Not enough stock!');
-          return;
-        }
+        if (product.stock_quantity <= existing.quantity) { alert('Not enough stock!'); return; }
         existing.quantity++;
       } else {
         cart.push({ id: productId, name: product.name, price: product.selling_price, quantity: 1 });
@@ -169,35 +243,25 @@
       renderCart();
     }
 
-    function removeFromCart(index) {
-      cart.splice(index, 1);
-      renderCart();
-    }
+    function removeFromCart(index) { cart.splice(index, 1); renderCart(); }
 
     async function checkout() {
       if (cart.length === 0) { alert('Cart is empty'); return; }
-      
       const paymentMethod = prompt('Payment Method (cash/card/mobile):', 'cash');
       if (!paymentMethod) return;
-      
       const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      
       const { error: saleError } = await supabaseClient.from('sales').insert([{
         user_id: currentUser.id,
         total_amount: total,
         payment_method: paymentMethod
       }]);
-      
       if (saleError) { alert('Error: ' + saleError.message); return; }
-      
-      // Update stock
       for (const item of cart) {
         const product = products.find(p => p.id === item.id);
         if (product) {
           await supabaseClient.from('products').update({ stock_quantity: product.stock_quantity - item.quantity }).eq('id', item.id);
         }
       }
-      
       alert(`Sale completed! Total: $${total.toFixed(2)}`);
       cart = [];
       renderCart();
