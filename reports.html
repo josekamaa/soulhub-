@@ -12,7 +12,9 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: #FEFCF8; color: #1E1B18; }
     body.dark-mode { background: #1a1a1a; color: #FEFCF8; }
-    body.dark-mode .sidebar, body.dark-mode .top-bar, body.dark-mode .card { background: #2d2d2d; border-color: #404040; }
+    body.dark-mode .sidebar, body.dark-mode .top-bar, body.dark-mode .card,
+    body.dark-mode .chart-container, body.dark-mode .product-showcase-card,
+    body.dark-mode table, body.dark-mode .data-table { background: #2d2d2d; border-color: #404040; }
     .app-container { display: flex; min-height: 100vh; }
     .sidebar { width: 280px; background: white; border-right: 1px solid #F0EAE3; position: fixed; height: 100vh; overflow-y: auto; transition: all 0.3s ease; z-index: 100; }
     .sidebar-header { padding: 24px; border-bottom: 1px solid #F0EAE3; }
@@ -36,22 +38,80 @@
     .card-value { font-size: 2rem; font-weight: 700; }
     .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-bottom: 32px; }
     .chart-container { background: white; border: 1px solid #F0EAE3; border-radius: 20px; padding: 24px; }
-    body.dark-mode .chart-container { background: #2d2d2d; }
     .report-filters { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; align-items: flex-end; }
     .filter-group { display: flex; flex-direction: column; gap: 8px; }
     .filter-group label { font-weight: 500; font-size: 0.85rem; }
     .filter-group input, .filter-group select { padding: 8px 12px; border: 1px solid #E9E2D8; border-radius: 12px; }
-    .btn-primary { background: #1E1B18; color: white; border: none; padding: 8px 20px; border-radius: 40px; cursor: pointer; }
+    .btn-primary { background: #1E1B18; color: white; border: none; padding: 8px 20px; border-radius: 40px; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 500; }
     .btn-primary:hover { background: #C49A6C; }
-    table { width: 100%; background: white; border-radius: 20px; overflow: hidden; border-collapse: collapse; margin-top: 20px; }
-    body.dark-mode table { background: #2d2d2d; }
+
+    .section-title {
+      font-size: 1.3rem; font-weight: 600; margin: 32px 0 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-title i { color: #C49A6C; }
+
+    /* Product Showcase Grid */
+    .product-showcase {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+    .product-showcase-card {
+      background: white; border: 1px solid #F0EAE3; border-radius: 20px;
+      overflow: hidden; transition: all 0.3s ease; cursor: pointer;
+    }
+    .product-showcase-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+    .product-showcase-img-wrapper {
+      width: 100%; height: 160px; background: #F5F0EB;
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    body.dark-mode .product-showcase-img-wrapper { background: #3d3d3d; }
+    .product-showcase-img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.3s;
+    }
+    .product-showcase-card:hover .product-showcase-img { transform: scale(1.05); }
+    .product-showcase-placeholder { font-size: 3rem; color: #ccc; }
+    .product-showcase-info { padding: 14px; }
+    .product-showcase-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-showcase-details { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #8F8278; }
+    .product-showcase-price { font-weight: 700; color: #C49A6C; font-size: 1rem; }
+
+    /* Table images */
+    .product-img-thumb {
+      width: 44px; height: 44px; object-fit: cover; border-radius: 10px;
+      cursor: pointer; transition: transform 0.2s; border: 2px solid transparent;
+    }
+    .product-img-thumb:hover { transform: scale(1.15); border-color: #C49A6C; }
+    .img-placeholder-icon { font-size: 1.5rem; color: #ccc; width: 44px; text-align: center; display: inline-block; }
+
+    /* Lightbox */
+    .lightbox-modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; flex-direction: column;
+    }
+    .lightbox-modal.active { display: flex; }
+    .lightbox-close { position: absolute; top: 20px; right: 30px; font-size: 2.5rem; color: white; cursor: pointer; z-index: 2001; }
+    .lightbox-close:hover { color: #C49A6C; }
+    .lightbox-image { max-width: 90%; max-height: 75vh; object-fit: contain; border-radius: 16px; }
+    .lightbox-info { color: white; text-align: center; margin-top: 20px; font-size: 1.1rem; }
+    .lightbox-name { font-size: 1.5rem; font-weight: 600; }
+
+    .data-table { background: white; border: 1px solid #F0EAE3; border-radius: 20px; padding: 24px; margin-bottom: 32px; }
+    table { width: 100%; border-collapse: collapse; }
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid #F0EAE3; }
+    body.dark-mode th, body.dark-mode td { border-bottom-color: #404040; }
+
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.mobile-open { transform: translateX(0); }
       .main-content { margin-left: 0; }
       .menu-toggle { display: block; cursor: pointer; font-size: 1.5rem; }
       .charts-grid { grid-template-columns: 1fr; }
+      .product-showcase { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+      .product-showcase-img-wrapper { height: 130px; }
     }
     @media (min-width: 769px) { .menu-toggle { display: none; } }
     .loading { text-align: center; padding: 60px; }
@@ -88,6 +148,16 @@
   </main>
 </div>
 
+<!-- Lightbox -->
+<div id="lightboxModal" class="lightbox-modal">
+  <span class="lightbox-close" onclick="window.closeLightbox()">&times;</span>
+  <img id="lightboxImage" class="lightbox-image" src="" alt="Product Image">
+  <div class="lightbox-info">
+    <div class="lightbox-name" id="lightboxName"></div>
+    <div id="lightboxMeta" style="color:#B0A89F;"></div>
+  </div>
+</div>
+
 <script>
   (function() {
     const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
@@ -108,51 +178,101 @@
     }
 
     async function loadReports() {
-      const [salesData, productsData, customersData] = await Promise.all([
-        supabaseClient.from('sales').select('*'),
-        supabaseClient.from('products').select('*'),
-        supabaseClient.from('customers').select('*')
-      ]);
-      
-      const sales = salesData.data || [];
-      const products = productsData.data || [];
-      const customers = customersData.data || [];
-      
-      const totalRevenue = sales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
-      const totalSales = sales.length;
-      const avgOrderValue = totalSales > 0 ? totalRevenue / totalSales : 0;
-      const totalProducts = products.length;
-      
-      const html = `
-        <div class="kpi-grid">
-          <div class="card"><div class="card-header"><span>Total Revenue</span><i class="fas fa-dollar-sign"></i></div><div class="card-value">$${totalRevenue.toFixed(2)}</div></div>
-          <div class="card"><div class="card-header"><span>Total Sales</span><i class="fas fa-shopping-cart"></i></div><div class="card-value">${totalSales}</div></div>
-          <div class="card"><div class="card-header"><span>Avg Order Value</span><i class="fas fa-chart-line"></i></div><div class="card-value">$${avgOrderValue.toFixed(2)}</div></div>
-          <div class="card"><div class="card-header"><span>Total Customers</span><i class="fas fa-users"></i></div><div class="card-value">${customers.length}</div></div>
-          <div class="card"><div class="card-header"><span>Products Catalog</span><i class="fas fa-box"></i></div><div class="card-value">${totalProducts}</div></div>
-          <div class="card"><div class="card-header"><span>Low Stock Items</span><i class="fas fa-exclamation-triangle"></i></div><div class="card-value">${products.filter(p => p.stock_quantity <= (p.low_stock_threshold || 5)).length}</div></div>
-        </div>
+      showLoading();
+      try {
+        const [salesRes, productsRes, customersRes] = await Promise.all([
+          supabaseClient.from('sales').select('*'),
+          supabaseClient.from('products').select('*'),
+          supabaseClient.from('customers').select('*')
+        ]);
         
-        <div class="report-filters">
-          <div class="filter-group"><label>Date Range</label><select id="dateRange"><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="all">All time</option></select></div>
-          <button class="btn-primary" onclick="window.updateReports()"><i class="fas fa-chart-line"></i> Update</button>
-          <button class="btn-primary" onclick="window.exportCSV()"><i class="fas fa-download"></i> Export CSV</button>
-        </div>
+        const sales = salesRes.data || [];
+        const products = productsRes.data || [];
+        const customers = customersRes.data || [];
         
-        <div class="charts-grid">
-          <div class="chart-container"><h3>Sales Trend</h3><canvas id="salesTrendChart"></canvas></div>
-          <div class="chart-container"><h3>Top Products</h3><canvas id="topProductsChart"></canvas></div>
-        </div>
+        const totalRevenue = sales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
+        const totalSales = sales.length;
+        const avgOrderValue = totalSales > 0 ? totalRevenue / totalSales : 0;
+        const totalProducts = products.length;
+        const lowStockCount = products.filter(p => p.stock_quantity <= (p.low_stock_threshold || 5)).length;
         
-        <div class="chart-container"><h3>Recent Sales</h3>
-          <table><thead><tr><th>Date</th><th>Amount</th><th>Payment</th></tr></thead>
-          <tbody>${sales.slice(0, 10).map(s => `<tr><td>${new Date(s.sale_date).toLocaleDateString()}</td><td>$${s.total_amount}</td><td>${s.payment_method}</td></tr>`).join('')}</tbody>
-        </table></div>
-      `;
-      
-      document.getElementById('contentArea').innerHTML = html;
-      initSalesChart(sales);
-      initTopProductsChart(products, sales);
+        const html = `
+          <div class="kpi-grid">
+            <div class="card"><div class="card-header"><span>Total Revenue</span><i class="fas fa-dollar-sign"></i></div><div class="card-value">$${totalRevenue.toFixed(2)}</div></div>
+            <div class="card"><div class="card-header"><span>Total Sales</span><i class="fas fa-shopping-cart"></i></div><div class="card-value">${totalSales}</div></div>
+            <div class="card"><div class="card-header"><span>Avg Order Value</span><i class="fas fa-chart-line"></i></div><div class="card-value">$${avgOrderValue.toFixed(2)}</div></div>
+            <div class="card"><div class="card-header"><span>Total Customers</span><i class="fas fa-users"></i></div><div class="card-value">${customers.length}</div></div>
+            <div class="card"><div class="card-header"><span>Products Catalog</span><i class="fas fa-box"></i></div><div class="card-value">${totalProducts}</div></div>
+            <div class="card"><div class="card-header"><span>Low Stock Items</span><i class="fas fa-exclamation-triangle"></i></div><div class="card-value">${lowStockCount}</div></div>
+          </div>
+          
+          <div class="report-filters">
+            <div class="filter-group"><label>Date Range</label><select id="dateRange"><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="all">All time</option></select></div>
+            <button class="btn-primary" onclick="window.updateReports()"><i class="fas fa-chart-line"></i> Update</button>
+            <button class="btn-primary" onclick="window.exportCSV()"><i class="fas fa-download"></i> Export CSV</button>
+          </div>
+          
+          <div class="charts-grid">
+            <div class="chart-container"><h3>Sales Trend</h3><canvas id="salesTrendChart"></canvas></div>
+            <div class="chart-container"><h3>Top Products by Stock</h3><canvas id="topProductsChart"></canvas></div>
+          </div>
+          
+          <div class="section-title"><i class="fas fa-images"></i> Product Catalog with Images</div>
+          <div class="product-showcase">
+            ${products.map(p => `
+              <div class="product-showcase-card" onclick="${p.image_url ? `window.openLightbox('${p.image_url}', '${p.name.replace(/'/g, "\\'")}', 'SKU: ${p.sku} | $${p.selling_price} | Stock: ${p.stock_quantity}')` : ''}" title="${p.name}">
+                <div class="product-showcase-img-wrapper">
+                  ${p.image_url 
+                    ? `<img src="${p.image_url}" class="product-showcase-img" alt="${p.name}" onerror="this.onerror=null;this.parentElement.innerHTML='<i class=\\'fas fa-image product-showcase-placeholder\\'></i>';">`
+                    : '<i class="fas fa-image product-showcase-placeholder"></i>'
+                  }
+                </div>
+                <div class="product-showcase-info">
+                  <div class="product-showcase-name">${p.name}</div>
+                  <div class="product-showcase-details">
+                    <span>Stock: ${p.stock_quantity}</span>
+                    <span class="product-showcase-price">$${p.selling_price}</span>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+            ${products.length === 0 ? '<div style="grid-column:1/-1; text-align:center; padding:40px; color:#8F8278;">No products yet.</div>' : ''}
+          </div>
+          
+          <div class="data-table">
+            <h3>All Products (Detailed)</h3>
+            <table>
+              <thead><tr><th>Image</th><th>SKU</th><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th></tr></thead>
+              <tbody>
+                ${products.map(p => `
+                  <tr>
+                    <td>
+                      ${p.image_url 
+                        ? `<img src="${p.image_url}" class="product-img-thumb" alt="${p.name}" onclick="event.stopPropagation();window.openLightbox('${p.image_url}', '${p.name.replace(/'/g, "\\'")}', 'SKU: ${p.sku} | $${p.selling_price}')" onerror="this.onerror=null;this.outerHTML='<i class=\\'fas fa-image img-placeholder-icon\\'></i>';">`
+                        : '<i class="fas fa-image img-placeholder-icon"></i>'
+                      }
+                    </td>
+                    <td>${p.sku}</td>
+                    <td><strong>${p.name}</strong></td>
+                    <td>${p.category || '-'}</td>
+                    <td>$${p.selling_price}</td>
+                    <td>${p.stock_quantity}</td>
+                    <td><span class="badge ${p.stock_quantity <= (p.low_stock_threshold || 5) ? 'badge-warning' : 'badge-success'}" style="padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; background: ${p.stock_quantity <= (p.low_stock_threshold || 5) ? '#FFF4E5' : '#E6F4EA'}; color: ${p.stock_quantity <= (p.low_stock_threshold || 5) ? '#B76E00' : '#2E7D32'};">${p.stock_quantity <= (p.low_stock_threshold || 5) ? 'Low Stock' : 'In Stock'}</span></td>
+                  </tr>
+                `).join('')}
+                ${products.length === 0 ? '<tr><td colspan="7" style="text-align:center;">No products found</td></tr>' : ''}
+              </tbody>
+            </table>
+          </div>
+        `;
+        
+        document.getElementById('contentArea').innerHTML = html;
+        initSalesChart(sales);
+        initTopProductsChart(products);
+      } catch (error) {
+        console.error('Error loading reports:', error);
+        document.getElementById('contentArea').innerHTML = `<div style="text-align:center;padding:60px;"><i class="fas fa-exclamation-triangle" style="font-size:3rem;color:#C49A6C;"></i><h3>Failed to load reports</h3></div>`;
+      }
     }
 
     function initSalesChart(sales) {
@@ -164,15 +284,36 @@
       revenueChart = new Chart(ctx, { type: 'line', data: { labels: last7Days.map(d => d.toLocaleDateString()), datasets: [{ label: 'Revenue', data: revenueByDay, borderColor: '#C49A6C', tension: 0.4, fill: true }] } });
     }
 
-    function initTopProductsChart(products, sales) {
+    function initTopProductsChart(products) {
       const ctx = document.getElementById('topProductsChart')?.getContext('2d');
       if (!ctx) return;
-      const topProducts = products.slice(0, 5);
+      const topProducts = products.sort((a,b) => b.stock_quantity - a.stock_quantity).slice(0, 5);
       new Chart(ctx, { type: 'bar', data: { labels: topProducts.map(p => p.name), datasets: [{ label: 'Stock Quantity', data: topProducts.map(p => p.stock_quantity), backgroundColor: '#C49A6C' }] } });
     }
 
-    function updateReports() { loadReports(); }
-    function exportCSV() { alert('CSV export feature - would download all sales data as CSV'); }
+    // Lightbox functions
+    window.openLightbox = function(imageUrl, productName, meta) {
+      document.getElementById('lightboxImage').src = imageUrl;
+      document.getElementById('lightboxName').textContent = productName || '';
+      document.getElementById('lightboxMeta').textContent = meta || '';
+      document.getElementById('lightboxModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    };
+    window.closeLightbox = function() {
+      document.getElementById('lightboxModal').classList.remove('active');
+      document.body.style.overflow = '';
+    };
+    document.getElementById('lightboxModal')?.addEventListener('click', function(e) {
+      if (e.target === this) window.closeLightbox();
+    });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') window.closeLightbox(); });
+
+    function showLoading() {
+      document.getElementById('contentArea').innerHTML = '<div class="loading"><i class="fas fa-spinner spinner" style="font-size: 2rem;"></i><p>Loading reports...</p></div>';
+    }
+
+    window.updateReports = function() { loadReports(); };
+    window.exportCSV = function() { alert('CSV export feature - would download all sales data as CSV'); };
 
     document.getElementById('themeToggle')?.addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
@@ -188,9 +329,6 @@
     document.getElementById('userMenu')?.addEventListener('click', async () => {
       if (confirm('Logout?')) { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
     });
-
-    window.updateReports = updateReports;
-    window.exportCSV = exportCSV;
 
     initSupabase();
   })();
