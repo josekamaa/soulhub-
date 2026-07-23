@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>SoulHub · Sales & POS</title>
+  <title>SoulHub - Sales & POS</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -52,7 +52,6 @@
       justify-content: center;
       overflow: hidden;
       border-bottom: 1px solid #F0EAE3;
-      position: relative;
     }
     body.dark-mode .product-img-container { background: #3d3d3d; }
     .product-img {
@@ -72,21 +71,15 @@
     .product-price { color: #C49A6C; font-weight: 700; font-size: 1.2rem; }
     .stock-info { font-size: 0.7rem; margin-top: 8px; color: #8F8278; }
 
-    .cart { background: white; border: 1px solid #F0EAE3; border-radius: 20px; padding: 20px; position: sticky; top: 100px; max-height: 80vh; display: flex; flex-direction: column; }
+    .cart { background: white; border: 1px solid #F0EAE3; border-radius: 20px; padding: 20px; position: sticky; top: 100px; }
     body.dark-mode .cart { background: #2d2d2d; }
-    .cart-scroll { flex: 1; overflow-y: auto; margin-bottom: 12px; }
-    .cart-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #F0EAE3; align-items: center; }
-    .cart-item-info { flex: 1; }
-    .cart-item-actions { display: flex; align-items: center; gap: 8px; }
-    .cart-total { margin-top: 12px; padding-top: 16px; border-top: 2px solid #C49A6C; font-size: 1.2rem; font-weight: 700; display: flex; justify-content: space-between; }
-    .btn-primary { background: #1E1B18; color: white; border: none; padding: 14px 24px; border-radius: 40px; cursor: pointer; width: 100%; margin-top: 16px; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 1rem; transition: background 0.2s; }
+    .cart-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #F0EAE3; }
+    .cart-total { margin-top: 20px; padding-top: 20px; border-top: 2px solid #C49A6C; font-size: 1.2rem; font-weight: 700; }
+    .btn-primary { background: #1E1B18; color: white; border: none; padding: 12px 24px; border-radius: 40px; cursor: pointer; width: 100%; margin-top: 16px; font-family: 'Inter', sans-serif; font-weight: 500; }
     .btn-primary:hover { background: #C49A6C; }
-    .btn-outline { background: transparent; color: #1E1B18; border: 1px solid #E0D6CC; padding: 8px 16px; border-radius: 40px; cursor: pointer; font-size: 0.9rem; }
-    .remove-item { color: #C23D2E; cursor: pointer; margin-left: 4px; padding: 4px 6px; border-radius: 20px; transition: background 0.2s; }
-    .remove-item:hover { background: #fbe9e7; }
+    .remove-item { color: #C23D2E; cursor: pointer; margin-left: 12px; }
     .search-box { margin-bottom: 20px; }
-    .search-box input { width: 100%; padding: 12px 16px; border: 1px solid #E9E2D8; border-radius: 40px; font-family: 'Inter', sans-serif; background: white; }
-    body.dark-mode .search-box input { background: #3d3d3d; border-color: #555; color: #eee; }
+    .search-box input { width: 100%; padding: 12px 16px; border: 1px solid #E9E2D8; border-radius: 40px; font-family: 'Inter', sans-serif; }
     .lightbox-modal {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; flex-direction: column;
@@ -106,14 +99,11 @@
       .pos-grid { grid-template-columns: 1fr; }
       .products-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
       .product-img-container { height: 120px; }
-      .cart { position: relative; top: 0; max-height: 60vh; }
     }
     @media (min-width: 769px) { .menu-toggle { display: none; } }
     .loading { text-align: center; padding: 60px; }
     .spinner { animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .empty-cart { text-align: center; color: #8F8278; padding: 24px 0; }
-    .badge { background: #C49A6C; color: white; border-radius: 40px; padding: 2px 10px; font-size: 0.7rem; font-weight: 600; margin-left: 6px; }
   </style>
 </head>
 <body>
@@ -182,14 +172,12 @@
 
     function renderProducts() {
       const searchTerm = document.getElementById('searchProducts')?.value.toLowerCase() || '';
-      const filtered = products.filter(p => p.name.toLowerCase().includes(searchTerm) || (p.sku && p.sku.toLowerCase().includes(searchTerm)));
+      const filtered = products.filter(p => p.name.toLowerCase().includes(searchTerm) || p.sku.toLowerCase().includes(searchTerm));
       const container = document.getElementById('productsContainer');
       if (container) {
-        container.innerHTML = filtered.map(p => {
-          const price = p.selling_price || 0;
-          return `
+        container.innerHTML = filtered.map(p => `
           <div class="product-card" onclick="window.addToCart('${p.id}')">
-            <div class="product-img-container" onclick="event.stopPropagation(); ${p.image_url ? `window.openLightbox('${p.image_url}', '${p.name.replace(/'/g, "\\'")}', 'SKU: ${p.sku || '—'} | KSh ${price}')` : ''}">
+            <div class="product-img-container" onclick="event.stopPropagation(); ${p.image_url ? `window.openLightbox('${p.image_url}', '${p.name.replace(/'/g, "\\'")}', 'SKU: ${p.sku} | $${p.selling_price}')` : ''}">
               ${p.image_url 
                 ? `<img src="${p.image_url}" class="product-img" alt="${p.name}" onerror="this.onerror=null;this.parentElement.innerHTML='<i class=\\'fas fa-image product-img-placeholder\\'></i>';">`
                 : '<i class="fas fa-image product-img-placeholder"></i>'
@@ -197,12 +185,12 @@
             </div>
             <div class="product-info">
               <div class="product-name">${p.name}</div>
-              <div class="product-sku">${p.sku || '—'}</div>
-              <div class="product-price">KSh ${price}</div>
-              <div class="stock-info">Stock: ${p.stock_quantity ?? 0}</div>
+              <div class="product-sku">${p.sku}</div>
+              <div class="product-price">$${p.selling_price || 0}</div>
+              <div class="stock-info">Stock: ${p.stock_quantity || 0}</div>
             </div>
           </div>
-        `}).join('');
+        `).join('');
       }
     }
 
@@ -225,30 +213,20 @@
 
     function renderCart() {
       const container = document.getElementById('cartItems');
-      const totalEl = document.getElementById('cartTotal');
-      const countEl = document.getElementById('cartCount');
       if (!container) return;
       if (cart.length === 0) {
-        container.innerHTML = '<div class="empty-cart"><i class="fas fa-shopping-bag" style="font-size: 2rem; opacity:0.3;"></i><p style="margin-top:8px;">Cart is empty</p></div>';
-        if (totalEl) totalEl.innerHTML = 'KSh 0.00';
-        if (countEl) countEl.textContent = '0';
+        container.innerHTML = '<p style="text-align:center; color:#8F8278;">Cart is empty</p>';
+        document.getElementById('cartTotal').innerHTML = '$0.00';
         return;
       }
       container.innerHTML = cart.map((item, idx) => `
         <div class="cart-item">
-          <div class="cart-item-info">
-            <div><strong>${item.name}</strong></div>
-            <div style="font-size:0.85rem; color:#8F8278;">KSh ${item.price} × ${item.quantity}</div>
-          </div>
-          <div class="cart-item-actions">
-            <span style="font-weight:600;">KSh ${(item.price * item.quantity).toFixed(2)}</span>
-            <span class="remove-item" onclick="window.removeFromCart(${idx})"><i class="fas fa-trash-alt"></i></span>
-          </div>
+          <div><strong>${item.name}</strong><br>$${item.price} x ${item.quantity}</div>
+          <div>$${(item.price * item.quantity).toFixed(2)} <span class="remove-item" onclick="window.removeFromCart(${idx})"><i class="fas fa-trash"></i></span></div>
         </div>
       `).join('');
       const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      if (totalEl) totalEl.innerHTML = `KSh ${total.toFixed(2)}`;
-      if (countEl) countEl.textContent = cart.reduce((s, i) => s + i.quantity, 0);
+      document.getElementById('cartTotal').innerHTML = `$${total.toFixed(2)}`;
     }
 
     function addToCart(productId) {
@@ -263,16 +241,13 @@
         cart.push({ id: productId, name: product.name, price: product.selling_price, quantity: 1 });
       }
       renderCart();
-      // subtle feedback
-      const btn = document.querySelector(`.product-card[onclick*="${productId}"]`);
-      if (btn) { btn.style.borderColor = '#C49A6C'; setTimeout(() => btn.style.borderColor = '', 300); }
     }
 
     function removeFromCart(index) { cart.splice(index, 1); renderCart(); }
 
     async function checkout() {
       if (cart.length === 0) { alert('Cart is empty'); return; }
-      const paymentMethod = prompt('Payment method (cash, card, mobile):', 'cash');
+      const paymentMethod = prompt('Payment Method (cash/card/mobile):', 'cash');
       if (!paymentMethod) return;
       const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       const { error: saleError } = await supabaseClient.from('sales').insert([{
@@ -287,7 +262,7 @@
           await supabaseClient.from('products').update({ stock_quantity: product.stock_quantity - item.quantity }).eq('id', item.id);
         }
       }
-      alert(`✅ Sale completed! Total: KSh ${total.toFixed(2)}`);
+      alert(`Sale completed! Total: $${total.toFixed(2)}`);
       cart = [];
       renderCart();
       await loadProducts();
@@ -298,21 +273,13 @@
       document.getElementById('contentArea').innerHTML = `
         <div class="pos-grid">
           <div>
-            <div class="search-box">
-              <input type="text" id="searchProducts" placeholder="🔍 Search products by name or SKU..." onkeyup="window.renderProducts()">
-            </div>
+            <div class="search-box"><input type="text" id="searchProducts" placeholder="Search products..." onkeyup="window.renderProducts()"></div>
             <div class="products-grid" id="productsContainer"></div>
           </div>
           <div class="cart">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-              <h3><i class="fas fa-shopping-bag"></i> Cart <span class="badge" id="cartCount">0</span></h3>
-              <button class="btn-outline" onclick="cart=[];renderCart();" style="padding:4px 14px;">Clear</button>
-            </div>
-            <div class="cart-scroll" id="cartItems"></div>
-            <div class="cart-total">
-              <span>Total</span>
-              <span id="cartTotal">KSh 0.00</span>
-            </div>
+            <h3>Shopping Cart</h3>
+            <div id="cartItems"></div>
+            <div class="cart-total">Total: <span id="cartTotal">$0.00</span></div>
             <button class="btn-primary" onclick="window.checkout()"><i class="fas fa-credit-card"></i> Checkout</button>
           </div>
         </div>
@@ -321,7 +288,6 @@
       renderCart();
     }
 
-    // Theme toggle
     document.getElementById('themeToggle')?.addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
       const icon = document.querySelector('#themeToggle i');
@@ -329,17 +295,14 @@
       icon.classList.toggle('fa-sun');
     });
 
-    // Mobile menu toggle
     document.getElementById('menuToggle')?.addEventListener('click', () => {
       document.getElementById('sidebar').classList.toggle('mobile-open');
     });
 
-    // Logout
     document.getElementById('userMenu')?.addEventListener('click', async () => {
       if (confirm('Logout?')) { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
     });
 
-    // Expose to window
     window.addToCart = addToCart;
     window.removeFromCart = removeFromCart;
     window.checkout = checkout;
