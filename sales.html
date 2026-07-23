@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>SoulHub - Sales & POS</title>
+  <title>SoulHub · Sales & POS</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -71,15 +71,25 @@
     .product-price { color: #C49A6C; font-weight: 700; font-size: 1.2rem; }
     .stock-info { font-size: 0.7rem; margin-top: 8px; color: #8F8278; }
 
-    .cart { background: white; border: 1px solid #F0EAE3; border-radius: 20px; padding: 20px; position: sticky; top: 100px; }
+    .cart { background: white; border: 1px solid #F0EAE3; border-radius: 20px; padding: 20px; position: sticky; top: 100px; max-height: calc(100vh - 180px); display: flex; flex-direction: column; }
     body.dark-mode .cart { background: #2d2d2d; }
-    .cart-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #F0EAE3; }
-    .cart-total { margin-top: 20px; padding-top: 20px; border-top: 2px solid #C49A6C; font-size: 1.2rem; font-weight: 700; }
-    .btn-primary { background: #1E1B18; color: white; border: none; padding: 12px 24px; border-radius: 40px; cursor: pointer; width: 100%; margin-top: 16px; font-family: 'Inter', sans-serif; font-weight: 500; }
+    .cart-items-wrapper { flex: 1; overflow-y: auto; margin: 12px 0; }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #F0EAE3; }
+    .cart-item-info { flex: 1; }
+    .cart-item-name { font-weight: 500; }
+    .cart-item-meta { font-size: 0.85rem; color: #8F8278; }
+    .cart-item-actions { display: flex; align-items: center; gap: 10px; }
+    .qty-btn { background: #F0EAE3; border: none; width: 24px; height: 24px; border-radius: 30px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+    .qty-btn:hover { background: #C49A6C; color: white; }
+    .remove-item { color: #C23D2E; cursor: pointer; font-size: 0.9rem; }
+    .cart-total { margin-top: 16px; padding-top: 16px; border-top: 2px solid #C49A6C; font-size: 1.2rem; font-weight: 700; display: flex; justify-content: space-between; }
+    .btn-primary { background: #1E1B18; color: white; border: none; padding: 12px 24px; border-radius: 40px; cursor: pointer; width: 100%; margin-top: 16px; font-family: 'Inter', sans-serif; font-weight: 500; transition: 0.2s; }
     .btn-primary:hover { background: #C49A6C; }
-    .remove-item { color: #C23D2E; cursor: pointer; margin-left: 12px; }
+    .btn-secondary { background: transparent; border: 1px solid #C49A6C; color: #1E1B18; padding: 10px 20px; border-radius: 40px; cursor: pointer; font-weight: 500; transition: 0.2s; }
+    .btn-secondary:hover { background: #C49A6C; color: white; }
     .search-box { margin-bottom: 20px; }
-    .search-box input { width: 100%; padding: 12px 16px; border: 1px solid #E9E2D8; border-radius: 40px; font-family: 'Inter', sans-serif; }
+    .search-box input { width: 100%; padding: 12px 16px; border: 1px solid #E9E2D8; border-radius: 40px; font-family: 'Inter', sans-serif; background: white; }
+    body.dark-mode .search-box input { background: #3a3a3a; color: #eee; border-color: #555; }
     .lightbox-modal {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; flex-direction: column;
@@ -91,6 +101,9 @@
     .lightbox-info { color: white; text-align: center; margin-top: 20px; font-size: 1.1rem; }
     .lightbox-name { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
 
+    .empty-cart-msg { text-align: center; color: #8F8278; padding: 24px 0; }
+    .badge { background: #C49A6C; color: white; border-radius: 40px; padding: 2px 10px; font-size: 0.75rem; font-weight: 600; }
+
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.mobile-open { transform: translateX(0); }
@@ -99,6 +112,7 @@
       .pos-grid { grid-template-columns: 1fr; }
       .products-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
       .product-img-container { height: 120px; }
+      .cart { position: relative; top: 0; max-height: 400px; }
     }
     @media (min-width: 769px) { .menu-toggle { display: none; } }
     .loading { text-align: center; padding: 60px; }
@@ -175,9 +189,11 @@
       const filtered = products.filter(p => p.name.toLowerCase().includes(searchTerm) || p.sku.toLowerCase().includes(searchTerm));
       const container = document.getElementById('productsContainer');
       if (container) {
-        container.innerHTML = filtered.map(p => `
+        container.innerHTML = filtered.map(p => {
+          const priceKsh = (p.selling_price || 0) * 150; // example conversion rate 1 USD = 150 KES
+          return `
           <div class="product-card" onclick="window.addToCart('${p.id}')">
-            <div class="product-img-container" onclick="event.stopPropagation(); ${p.image_url ? `window.openLightbox('${p.image_url}', '${p.name.replace(/'/g, "\\'")}', 'SKU: ${p.sku} | $${p.selling_price}')` : ''}">
+            <div class="product-img-container" onclick="event.stopPropagation(); ${p.image_url ? `window.openLightbox('${p.image_url}', '${p.name.replace(/'/g, "\\'")}', 'SKU: ${p.sku} | KES ${priceKsh.toFixed(0)}')` : ''}">
               ${p.image_url 
                 ? `<img src="${p.image_url}" class="product-img" alt="${p.name}" onerror="this.onerror=null;this.parentElement.innerHTML='<i class=\\'fas fa-image product-img-placeholder\\'></i>';">`
                 : '<i class="fas fa-image product-img-placeholder"></i>'
@@ -186,11 +202,11 @@
             <div class="product-info">
               <div class="product-name">${p.name}</div>
               <div class="product-sku">${p.sku}</div>
-              <div class="product-price">$${p.selling_price || 0}</div>
+              <div class="product-price">KES ${priceKsh.toFixed(0)}</div>
               <div class="stock-info">Stock: ${p.stock_quantity || 0}</div>
             </div>
           </div>
-        `).join('');
+        `}).join('');
       }
     }
 
@@ -213,20 +229,36 @@
 
     function renderCart() {
       const container = document.getElementById('cartItems');
+      const totalEl = document.getElementById('cartTotal');
+      const countEl = document.getElementById('cartCount');
       if (!container) return;
       if (cart.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#8F8278;">Cart is empty</p>';
-        document.getElementById('cartTotal').innerHTML = '$0.00';
+        container.innerHTML = '<div class="empty-cart-msg"><i class="fas fa-shopping-bag" style="font-size:2rem; opacity:0.3; display:block; margin-bottom:8px;"></i>Cart is empty</div>';
+        if (totalEl) totalEl.innerHTML = 'KES 0';
+        if (countEl) countEl.textContent = '0';
         return;
       }
-      container.innerHTML = cart.map((item, idx) => `
+      container.innerHTML = cart.map((item, idx) => {
+        const priceKsh = item.price * 150;
+        const totalKsh = priceKsh * item.quantity;
+        return `
         <div class="cart-item">
-          <div><strong>${item.name}</strong><br>$${item.price} x ${item.quantity}</div>
-          <div>$${(item.price * item.quantity).toFixed(2)} <span class="remove-item" onclick="window.removeFromCart(${idx})"><i class="fas fa-trash"></i></span></div>
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-meta">KES ${priceKsh.toFixed(0)} × ${item.quantity}</div>
+          </div>
+          <div class="cart-item-actions">
+            <span style="font-weight:600;">KES ${totalKsh.toFixed(0)}</span>
+            <button class="qty-btn" onclick="window.updateQuantity(${idx}, -1)">−</button>
+            <span style="min-width:20px; text-align:center;">${item.quantity}</span>
+            <button class="qty-btn" onclick="window.updateQuantity(${idx}, 1)">+</button>
+            <span class="remove-item" onclick="window.removeFromCart(${idx})"><i class="fas fa-trash-alt"></i></span>
+          </div>
         </div>
-      `).join('');
-      const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      document.getElementById('cartTotal').innerHTML = `$${total.toFixed(2)}`;
+      `}).join('');
+      const total = cart.reduce((sum, item) => sum + (item.price * 150 * item.quantity), 0);
+      if (totalEl) totalEl.innerHTML = `KES ${total.toFixed(0)}`;
+      if (countEl) countEl.textContent = cart.reduce((acc, i) => acc + i.quantity, 0);
     }
 
     function addToCart(productId) {
@@ -245,15 +277,30 @@
 
     function removeFromCart(index) { cart.splice(index, 1); renderCart(); }
 
+    function updateQuantity(index, delta) {
+      if (cart[index]) {
+        const newQty = cart[index].quantity + delta;
+        if (newQty <= 0) { cart.splice(index, 1); }
+        else {
+          const product = products.find(p => p.id === cart[index].id);
+          if (product && product.stock_quantity < newQty) { alert('Not enough stock!'); return; }
+          cart[index].quantity = newQty;
+        }
+        renderCart();
+      }
+    }
+
     async function checkout() {
       if (cart.length === 0) { alert('Cart is empty'); return; }
       const paymentMethod = prompt('Payment Method (cash/card/mobile):', 'cash');
       if (!paymentMethod) return;
-      const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const totalUSD = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const totalKES = totalUSD * 150;
       const { error: saleError } = await supabaseClient.from('sales').insert([{
         user_id: currentUser.id,
-        total_amount: total,
-        payment_method: paymentMethod
+        total_amount: totalKES,
+        payment_method: paymentMethod,
+        currency: 'KES'
       }]);
       if (saleError) { alert('Error: ' + saleError.message); return; }
       for (const item of cart) {
@@ -262,7 +309,7 @@
           await supabaseClient.from('products').update({ stock_quantity: product.stock_quantity - item.quantity }).eq('id', item.id);
         }
       }
-      alert(`Sale completed! Total: $${total.toFixed(2)}`);
+      alert(`✅ Sale completed! Total: KES ${totalKES.toFixed(0)}`);
       cart = [];
       renderCart();
       await loadProducts();
@@ -273,14 +320,21 @@
       document.getElementById('contentArea').innerHTML = `
         <div class="pos-grid">
           <div>
-            <div class="search-box"><input type="text" id="searchProducts" placeholder="Search products..." onkeyup="window.renderProducts()"></div>
+            <div class="search-box"><input type="text" id="searchProducts" placeholder="🔍 Search products..." onkeyup="window.renderProducts()"></div>
             <div class="products-grid" id="productsContainer"></div>
           </div>
           <div class="cart">
-            <h3>Shopping Cart</h3>
-            <div id="cartItems"></div>
-            <div class="cart-total">Total: <span id="cartTotal">$0.00</span></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <h3>🛒 Cart</h3>
+              <span class="badge" id="cartCount">0</span>
+            </div>
+            <div class="cart-items-wrapper" id="cartItems"></div>
+            <div class="cart-total">
+              <span>Total</span>
+              <span id="cartTotal">KES 0</span>
+            </div>
             <button class="btn-primary" onclick="window.checkout()"><i class="fas fa-credit-card"></i> Checkout</button>
+            <button class="btn-secondary" style="margin-top:8px; width:100%;" onclick="if(confirm('Clear cart?')){cart=[];renderCart();}"><i class="fas fa-trash-alt"></i> Clear</button>
           </div>
         </div>
       `;
@@ -288,6 +342,14 @@
       renderCart();
     }
 
+    // Expose to window
+    window.addToCart = addToCart;
+    window.removeFromCart = removeFromCart;
+    window.updateQuantity = updateQuantity;
+    window.checkout = checkout;
+    window.renderProducts = renderProducts;
+
+    // Theme toggle
     document.getElementById('themeToggle')?.addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
       const icon = document.querySelector('#themeToggle i');
@@ -295,18 +357,15 @@
       icon.classList.toggle('fa-sun');
     });
 
+    // Mobile menu
     document.getElementById('menuToggle')?.addEventListener('click', () => {
       document.getElementById('sidebar').classList.toggle('mobile-open');
     });
 
+    // Logout
     document.getElementById('userMenu')?.addEventListener('click', async () => {
       if (confirm('Logout?')) { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
     });
-
-    window.addToCart = addToCart;
-    window.removeFromCart = removeFromCart;
-    window.checkout = checkout;
-    window.renderProducts = renderProducts;
 
     initSupabase();
   })();
