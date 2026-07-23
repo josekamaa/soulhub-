@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>SoulHub Management - Dashboard</title>
+  <title>SoulHub Management · KSH Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -156,7 +156,6 @@
     .card-value { font-size: 2.5rem; font-weight: 700; margin-bottom: 8px; }
     .card-change { font-size: 0.85rem; color: #4CAF50; }
 
-    /* Top Product Card with Image */
     .top-product-card {
       display: flex; gap: 16px; align-items: center;
     }
@@ -211,7 +210,6 @@
     }
     .action-btn:hover { background: #C49A6C; transform: translateY(-2px); }
 
-    /* Product Showcase Grid */
     .product-showcase {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -277,7 +275,6 @@
       font-size: 1rem;
     }
 
-    /* Image thumbnail in tables */
     .product-img-thumb {
       width: 44px;
       height: 44px;
@@ -301,7 +298,6 @@
       display: inline-block;
     }
 
-    /* Lightbox Modal */
     .lightbox-modal {
       display: none;
       position: fixed;
@@ -471,7 +467,7 @@
   </main>
 </div>
 
-<!-- Lightbox for full-size image viewing -->
+<!-- Lightbox -->
 <div id="lightboxModal" class="lightbox-modal">
   <span class="lightbox-close" onclick="window.closeLightbox()">&times;</span>
   <img id="lightboxImage" class="lightbox-image" src="" alt="Product Image">
@@ -508,7 +504,7 @@
       <div class="form-group"><label>Product Name *</label><input type="text" id="productName" required placeholder="e.g., Nike Air Max"></div>
       <div class="form-group"><label>SKU *</label><input type="text" id="productSkuNew" required placeholder="e.g., NK-002"></div>
       <div class="form-group"><label>Category</label><select id="productCategory"><option value="casual">Casual</option><option value="sneakers">Sneakers</option><option value="boots">Boots</option><option value="formal">Formal</option><option value="other">Other</option></select></div>
-      <div class="form-group"><label>Selling Price *</label><input type="number" id="productPrice" step="0.01" required placeholder="99.99"></div>
+      <div class="form-group"><label>Selling Price (KSH) *</label><input type="number" id="productPrice" step="0.01" required placeholder="99.99"></div>
       <div class="form-group"><label>Stock Quantity</label><input type="number" id="productStock" value="10" min="0"></div>
       <div class="form-group">
         <label>Product Image</label>
@@ -577,7 +573,7 @@
       }
     }
 
-    /* ============ LIGHTBOX FUNCTIONS ============ */
+    /* ============ LIGHTBOX ============ */
     window.openLightbox = function(imageUrl, productName, productDetails) {
       document.getElementById('lightboxImage').src = imageUrl;
       document.getElementById('lightboxName').textContent = productName || '';
@@ -624,7 +620,7 @@
       container.querySelectorAll('p').forEach(p => p.style.display = 'block');
     };
 
-    /* ============ DASHBOARD LOADING ============ */
+    /* ============ DASHBOARD ============ */
     async function loadDashboard() {
       showLoading();
       try {
@@ -632,7 +628,6 @@
           fetchProducts(), fetchSales(), fetchCustomers()
         ]);
 
-        // Sort products for top product (by stock quantity as proxy for popularity)
         const sortedByStock = [...productsData].sort((a, b) => (b.stock_quantity || 0) - (a.stock_quantity || 0));
         const topProduct = sortedByStock[0] || { name: 'N/A', selling_price: 0, image_url: null, category: '' };
 
@@ -640,8 +635,8 @@
           <!-- KPI Cards -->
           <div class="kpi-grid">
             <div class="card">
-              <div class="card-header"><span>Today's Revenue</span><i class="fas fa-dollar-sign"></i></div>
-              <div class="card-value">$${calculateTodayRevenue(salesData)}</div>
+              <div class="card-header"><span>Today's Revenue</span><i class="fas fa-coin"></i></div>
+              <div class="card-value">KSH ${calculateTodayRevenue(salesData)}</div>
               <div class="card-change">+12% vs yesterday</div>
             </div>
             <div class="card">
@@ -658,12 +653,12 @@
               <div class="card-header"><span>Top Product</span><i class="fas fa-trophy"></i></div>
               <div class="top-product-card">
                 ${topProduct.image_url 
-                  ? `<img src="${topProduct.image_url}" class="top-product-img" alt="${topProduct.name}" onclick="window.openLightbox('${topProduct.image_url}', '${topProduct.name.replace(/'/g, "\\'")}', '$${topProduct.selling_price} | ${topProduct.category}')" onerror="this.onerror=null;this.style.display='none';">`
+                  ? `<img src="${topProduct.image_url}" class="top-product-img" alt="${topProduct.name}" onclick="window.openLightbox('${topProduct.image_url}', '${topProduct.name.replace(/'/g, "\\'")}', 'KSH ${topProduct.selling_price} | ${topProduct.category}')" onerror="this.onerror=null;this.style.display='none';">`
                   : ''
                 }
                 <div class="top-product-info">
                   <div class="card-value" style="font-size:1.5rem;">${topProduct.name}</div>
-                  <div class="card-change">$${topProduct.selling_price} · ${topProduct.category || 'N/A'}</div>
+                  <div class="card-change">KSH ${topProduct.selling_price} · ${topProduct.category || 'N/A'}</div>
                 </div>
               </div>
             </div>
@@ -686,11 +681,11 @@
             <button class="action-btn" onclick="window.exportReport()"><i class="fas fa-download"></i> Export Report</button>
           </div>
 
-          <!-- Product Showcase Grid -->
+          <!-- Product Showcase -->
           <div class="section-title"><i class="fas fa-images"></i> Product Showcase</div>
           <div class="product-showcase">
             ${productsData.slice(0, 8).map(p => `
-              <div class="product-showcase-card" onclick="${p.image_url ? `window.openLightbox('${p.image_url}', '${p.name.replace(/'/g, "\\'")}', 'SKU: ${p.sku} | $${p.selling_price} | Stock: ${p.stock_quantity}')` : ''}" title="${p.name}">
+              <div class="product-showcase-card" onclick="${p.image_url ? `window.openLightbox('${p.image_url}', '${p.name.replace(/'/g, "\\'")}', 'SKU: ${p.sku} | KSH ${p.selling_price} | Stock: ${p.stock_quantity}')` : ''}" title="${p.name}">
                 <div class="product-showcase-img-wrapper">
                   ${p.image_url 
                     ? `<img src="${p.image_url}" class="product-showcase-img" alt="${p.name}" onerror="this.onerror=null;this.parentElement.innerHTML='<i class=\\'fas fa-image product-showcase-placeholder\\'></i>';">`
@@ -701,7 +696,7 @@
                   <div class="product-showcase-name">${p.name}</div>
                   <div class="product-showcase-details">
                     <span>${p.stock_quantity} in stock</span>
-                    <span class="product-showcase-price">$${p.selling_price}</span>
+                    <span class="product-showcase-price">KSH ${p.selling_price}</span>
                   </div>
                 </div>
               </div>
@@ -726,7 +721,7 @@
             <div class="data-table">
               <h3>Low Stock Alerts</h3>
               <table>
-                <thead><tr><th>Image</th><th>Product</th><th>SKU</th><th>Stock</th><th>Price</th><th>Status</th></tr></thead>
+                <thead><tr><th>Image</th><th>Product</th><th>SKU</th><th>Stock</th><th>Price (KSH)</th><th>Status</th></tr></thead>
                 <tbody>
                   ${getLowStockTableRows(productsData)}
                 </tbody>
@@ -735,7 +730,7 @@
             <div class="data-table">
               <h3>Recent Sales</h3>
               <table>
-                <thead><tr><th>Date</th><th>Amount</th><th>Payment</th></tr></thead>
+                <thead><tr><th>Date</th><th>Amount (KSH)</th><th>Payment</th></tr></thead>
                 <tbody>
                   ${getRecentSalesRows(salesData)}
                 </tbody>
@@ -784,14 +779,14 @@
         <tr>
           <td>
             ${p.image_url 
-              ? `<img src="${p.image_url}" class="product-img-thumb" alt="${p.name}" onclick="event.stopPropagation();window.openLightbox('${p.image_url}', '${p.name.replace(/'/g, "\\'")}', 'SKU: ${p.sku} | $${p.selling_price} | Stock: ${p.stock_quantity}')" onerror="this.onerror=null;this.outerHTML='<i class=\\'fas fa-image img-placeholder-icon\\'></i>';">`
+              ? `<img src="${p.image_url}" class="product-img-thumb" alt="${p.name}" onclick="event.stopPropagation();window.openLightbox('${p.image_url}', '${p.name.replace(/'/g, "\\'")}', 'SKU: ${p.sku} | KSH ${p.selling_price} | Stock: ${p.stock_quantity}')" onerror="this.onerror=null;this.outerHTML='<i class=\\'fas fa-image img-placeholder-icon\\'></i>';">`
               : '<i class="fas fa-image img-placeholder-icon"></i>'
             }
           </td>
           <td><strong>${p.name}</strong></td>
           <td>${p.sku}</td>
           <td>${p.stock_quantity} left</td>
-          <td>$${p.selling_price}</td>
+          <td>KSH ${p.selling_price}</td>
           <td><span class="badge badge-warning">Low Stock</span></td>
         </tr>
       `).join('');
@@ -802,7 +797,7 @@
       return salesData.slice(0, 5).map(sale => `
         <tr>
           <td>${new Date(sale.sale_date).toLocaleDateString()}</td>
-          <td>$${sale.total_amount}</td>
+          <td>KSH ${sale.total_amount}</td>
           <td><span class="badge badge-success">${sale.payment_method}</span></td>
         </tr>
       `).join('');
@@ -824,7 +819,7 @@
         data: {
           labels: last7Days.map(d => d.toLocaleDateString('en-US', { weekday: 'short' })),
           datasets: [{
-            label: 'Revenue ($)', data: revenueByDay,
+            label: 'Revenue (KSH)', data: revenueByDay,
             borderColor: '#C49A6C', backgroundColor: 'rgba(196,154,108,0.1)',
             tension: 0.4, fill: true
           }]
@@ -879,7 +874,7 @@
     window.openAddProductModal = function() { document.getElementById('addProductModal').classList.add('active'); };
     window.exportReport = function() { alert('📊 Export feature: This would generate a CSV/PDF report.'); };
 
-    // Add Product Form
+    // Add Product
     document.getElementById('addProductForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('productName').value.trim();
@@ -913,7 +908,7 @@
       }
     });
 
-    // Sale Form
+    // Sale
     document.getElementById('saleForm')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const sku = document.getElementById('productSku').value;
@@ -926,7 +921,7 @@
       const { error: saleError } = await supabaseClient.from('sales').insert([{ user_id: currentUser.id, total_amount: totalAmount, payment_method: paymentMethod }]);
       if (saleError) { alert('Error: ' + saleError.message); return; }
       await supabaseClient.from('products').update({ stock_quantity: product.stock_quantity - quantity }).eq('sku', sku);
-      alert('Sale completed! Total: $' + totalAmount);
+      alert('Sale completed! Total: KSH ' + totalAmount);
       document.getElementById('saleModal').classList.remove('active');
       loadDashboard();
     });
@@ -944,7 +939,7 @@
       window.addEventListener('resize', () => { if (window.innerWidth > 768) { sidebar.classList.remove('mobile-open'); mobileOverlay.classList.remove('active'); } });
     }
 
-    // Theme toggle
+    // Theme
     document.getElementById('themeToggle')?.addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
       const icon = document.querySelector('#themeToggle i');
