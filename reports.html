@@ -86,6 +86,11 @@
     .loading { text-align: center; padding: 60px; }
     .spinner { animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    .empty-state { text-align: center; padding: 60px 20px; }
+    .empty-state i { font-size: 3rem; color: #C49A6C; margin-bottom: 16px; }
+    .empty-state h3 { margin-bottom: 8px; }
+    .empty-state p { color: #8F8278; }
   </style>
 </head>
 <body>
@@ -154,7 +159,7 @@
     async function loadReport() {
       showLoading();
       try {
-        // Fetch sales and products separately (no join)
+        // Fetch sales and products separately
         const [salesRes, productsRes] = await Promise.all([
           supabaseClient.from('sales').select('*').order('sale_date', { ascending: false }),
           supabaseClient.from('products').select('*')
@@ -166,7 +171,7 @@
         const sales = salesRes.data || [];
         const products = productsRes.data || [];
 
-        // Create a map of products by SKU for quick lookup
+        // Create a map of products by SKU
         const productMap = {};
         products.forEach(p => {
           productMap[p.sku] = p;
@@ -218,9 +223,10 @@
           productSalesMap[sku].total_quantity += (s.quantity || 1);
           productSalesMap[sku].total_value += (s.total_amount || 0);
         });
+        
         const productSalesList = Object.values(productSalesMap).sort((a, b) => b.total_value - a.total_value);
 
-        // --- HTML ---
+        // --- Build HTML ---
         const html = `
           <!-- KPI Grid -->
           <div class="kpi-grid">
@@ -290,7 +296,7 @@
                 </tr>
               </thead>
               <tbody>
-                ${productSalesList.map(p => `
+                ${productSalesList.length > 0 ? productSalesList.map(p => `
                   <tr>
                     <td>
                       ${p.image_url 
@@ -305,15 +311,33 @@
                     <td>${p.total_quantity}</td>
                     <td><strong>KSH ${p.total_value.toFixed(2)}</strong></td>
                   </tr>
-                `).join('')}
-                ${productSalesList.length === 0 ? '<tr><td colspan="7" style="text-align:center;">No sales recorded yet.</td></tr>' : ''}
+                `).join('') : `
+                  <tr>
+                    <td colspan="7" style="text-align:center; padding: 40px;">
+                      <div class="empty-state">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h3>No Sales Yet</h3>
+                        <p>Start making sales to see your report here.</p>
+                      </div>
+                    </td>
+                  </tr>
+                `}
               </tbody>
             </table>
           </div>
         `;
 
         document.getElementById('contentArea').innerHTML = html;
-        initCharts(enrichedSales, productSalesList);
+        
+        // Initialize charts only if we have data
+        if (enrichedSales.length > 0) {
+          initCharts(enrichedSales, productSalesList);
+        } else {
+          // Show empty state for charts
+          document.querySelector('#salesTrendChart')?.remove();
+          document.querySelector('#topProductsChart')?.remove();
+        }
+        
       } catch (error) {
         console.error('Error loading report:', error);
         document.getElementById('contentArea').innerHTML =
@@ -321,71 +345,76 @@
             <i class="fas fa-exclamation-triangle" style="font-size:3rem;color:#C49A6C;"></i>
             <h3>Failed to load report</h3>
             <p style="color:#8F8278;margin-top:8px;">${error.message || 'Please check your database connection.'}</p>
+            <button class="btn-primary" style="margin-top:16px;" onclick="location.reload()">Retry</button>
           </div>`;
       }
     }
 
     function initCharts(enrichedSales, productSalesList) {
-      // Sales trend chart (last 30 days)
-      const ctx = document.getElementById('salesTrendChart')?.getContext('2d');
-      if (ctx) {
-        const last30Days = Array.from({ length: 30 }, (_, i) => {
-          const d = new Date();
-          d.setDate(d.getDate() - (29 - i));
-          return d;
-        });
-        const revenueByDay = last30Days.map(day =>
-          enrichedSales
-          .filter(s => new Date(s.sale_date).toDateString() === day.toDateString())
-          .reduce((sum, s) => sum + (s.total_amount || 0), 0)
-        );
-        if (salesChart) salesChart.destroy();
-        salesChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: last30Days.map(d => d.toLocaleDateString('en', { month: 'short', day: 'numeric' })),
-            datasets: [{
-              label: 'Revenue (KSH)',
-              data: revenueByDay,
-              borderColor: '#C49A6C',
-              backgroundColor: 'rgba(196,154,108,0.08)',
-              tension: 0.3,
-              fill: true,
-              pointRadius: 2
-            }]
-          },
-          options: { 
-            responsive: true, 
-            maintainAspectRatio: true,
-            plugins: {
-              legend: { display: false }
+      try {
+        // Sales trend chart (last 30 days)
+        const ctx = document.getElementById('salesTrendChart')?.getContext('2d');
+        if (ctx && enrichedSales.length > 0) {
+          const last30Days = Array.from({ length: 30 }, (_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - (29 - i));
+            return d;
+          });
+          const revenueByDay = last30Days.map(day =>
+            enrichedSales
+            .filter(s => new Date(s.sale_date).toDateString() === day.toDateString())
+            .reduce((sum, s) => sum + (s.total_amount || 0), 0)
+          );
+          if (salesChart) salesChart.destroy();
+          salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: last30Days.map(d => d.toLocaleDateString('en', { month: 'short', day: 'numeric' })),
+              datasets: [{
+                label: 'Revenue (KSH)',
+                data: revenueByDay,
+                borderColor: '#C49A6C',
+                backgroundColor: 'rgba(196,154,108,0.08)',
+                tension: 0.3,
+                fill: true,
+                pointRadius: 2
+              }]
+            },
+            options: { 
+              responsive: true, 
+              maintainAspectRatio: true,
+              plugins: {
+                legend: { display: false }
+              }
             }
-          }
-        });
-      }
+          });
+        }
 
-      // Top products chart
-      const ctx2 = document.getElementById('topProductsChart')?.getContext('2d');
-      if (ctx2 && productSalesList.length > 0) {
-        const top5 = productSalesList.slice(0, 5);
-        new Chart(ctx2, {
-          type: 'bar',
-          data: {
-            labels: top5.map(p => p.name.length > 14 ? p.name.slice(0, 12) + '…' : p.name),
-            datasets: [{
-              label: 'Total Value (KSH)',
-              data: top5.map(p => p.total_value),
-              backgroundColor: ['#C49A6C', '#D4A574', '#E2B386', '#A2794C', '#F0D5B0'],
-              borderRadius: 6
-            }]
-          },
-          options: { 
-            responsive: true,
-            plugins: {
-              legend: { display: false }
+        // Top products chart
+        const ctx2 = document.getElementById('topProductsChart')?.getContext('2d');
+        if (ctx2 && productSalesList && productSalesList.length > 0) {
+          const top5 = productSalesList.slice(0, 5);
+          new Chart(ctx2, {
+            type: 'bar',
+            data: {
+              labels: top5.map(p => p.name.length > 14 ? p.name.slice(0, 12) + '…' : p.name),
+              datasets: [{
+                label: 'Total Value (KSH)',
+                data: top5.map(p => p.total_value),
+                backgroundColor: ['#C49A6C', '#D4A574', '#E2B386', '#A2794C', '#F0D5B0'],
+                borderRadius: 6
+              }]
+            },
+            options: { 
+              responsive: true,
+              plugins: {
+                legend: { display: false }
+              }
             }
-          }
-        });
+          });
+        }
+      } catch (chartError) {
+        console.warn('Chart initialization error:', chartError);
       }
     }
 
