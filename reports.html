@@ -33,7 +33,6 @@
     .user-avatar { width: 32px; height: 32px; background: #C49A6C; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; }
     .content-area { padding: 32px; }
     
-    /* KPI cards */
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 32px; }
     .card { background: white; border: 1px solid #F0EAE3; border-radius: 20px; padding: 24px; transition: 0.2s; }
     .card:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
@@ -68,7 +67,6 @@
     .product-img-thumb:hover { transform: scale(1.15); border-color: #C49A6C; }
     .img-placeholder-icon { font-size: 1.5rem; color: #ccc; width: 44px; text-align: center; display: inline-block; }
 
-    /* Lightbox */
     .lightbox-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; }
     .lightbox-modal.active { display: flex; }
     .lightbox-close { position: absolute; top: 20px; right: 30px; font-size: 2.5rem; color: white; cursor: pointer; z-index: 2001; }
@@ -156,48 +154,65 @@
     async function loadReport() {
       showLoading();
       try {
-        // Fetch all sales with product details (joined via SKU)
-        const { data: sales, error: salesError } = await supabaseClient
-          .from('sales')
-          .select(`
-            *,
-            products:sku (name, selling_price, image_url, category)
-          `);
-        if (salesError) throw salesError;
+        // Fetch sales and products separately (no join)
+        const [salesRes, productsRes] = await Promise.all([
+          supabaseClient.from('sales').select('*').order('sale_date', { ascending: false }),
+          supabaseClient.from('products').select('*')
+        ]);
 
-        const { data: products, error: prodError } = await supabaseClient.from('products').select('*');
-        if (prodError) throw prodError;
+        if (salesRes.error) throw salesRes.error;
+        if (productsRes.error) throw productsRes.error;
+
+        const sales = salesRes.data || [];
+        const products = productsRes.data || [];
+
+        // Create a map of products by SKU for quick lookup
+        const productMap = {};
+        products.forEach(p => {
+          productMap[p.sku] = p;
+        });
+
+        // Enrich sales with product details
+        const enrichedSales = sales.map(sale => {
+          const product = productMap[sale.sku];
+          return {
+            ...sale,
+            product_name: product?.name || sale.sku,
+            product_price: product?.selling_price || 0,
+            product_image: product?.image_url || null,
+            product_category: product?.category || '-'
+          };
+        });
 
         // --- KPI calculations ---
         const now = new Date();
         const todayStr = now.toDateString();
         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        const monthStr = monthStart.toDateString();
 
-        const todaySales = sales.filter(s => new Date(s.sale_date).toDateString() === todayStr);
+        const todaySales = enrichedSales.filter(s => new Date(s.sale_date).toDateString() === todayStr);
         const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
         const todayCount = todaySales.length;
 
-        const monthSales = sales.filter(s => new Date(s.sale_date) >= monthStart);
+        const monthSales = enrichedSales.filter(s => new Date(s.sale_date) >= monthStart);
         const monthRevenue = monthSales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
         const monthCount = monthSales.length;
 
-        const totalRevenue = sales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
-        const totalSales = sales.length;
+        const totalRevenue = enrichedSales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
+        const totalSales = enrichedSales.length;
 
-        // --- build product sales list (aggregate by SKU) ---
+        // --- Aggregate product sales (by SKU) ---
         const productSalesMap = {};
-        sales.forEach(s => {
+        enrichedSales.forEach(s => {
           const sku = s.sku;
           if (!productSalesMap[sku]) {
             productSalesMap[sku] = {
               sku: sku,
-              name: s.products?.name || sku,
+              name: s.product_name,
               total_quantity: 0,
               total_value: 0,
-              image_url: s.products?.image_url || null,
-              category: s.products?.category || '-',
-              selling_price: s.products?.selling_price || 0
+              image_url: s.product_image,
+              category: s.product_category,
+              selling_price: s.product_price
             };
           }
           productSalesMap[sku].total_quantity += (s.quantity || 1);
@@ -247,10 +262,10 @@
             <button class="btn-primary" onclick="window.exportCSV()"><i class="fas fa-download"></i> Export CSV</button>
           </div>
 
-          <!-- Chart: Daily sales trend -->
+          <!-- Charts -->
           <div class="charts-grid">
             <div class="chart-container">
-              <h3>📈 Daily Sales Trend</h3>
+              <h3>📈 Daily Sales Trend (Last 30 Days)</h3>
               <canvas id="salesTrendChart"></canvas>
             </div>
             <div class="chart-container">
@@ -298,15 +313,19 @@
         `;
 
         document.getElementById('contentArea').innerHTML = html;
-        initCharts(sales, productSalesList);
+        initCharts(enrichedSales, productSalesList);
       } catch (error) {
         console.error('Error loading report:', error);
         document.getElementById('contentArea').innerHTML =
-          `<div style="text-align:center;padding:60px;"><i class="fas fa-exclamation-triangle" style="font-size:3rem;color:#C49A6C;"></i><h3>Failed to load report</h3></div>`;
+          `<div style="text-align:center;padding:60px;">
+            <i class="fas fa-exclamation-triangle" style="font-size:3rem;color:#C49A6C;"></i>
+            <h3>Failed to load report</h3>
+            <p style="color:#8F8278;margin-top:8px;">${error.message || 'Please check your database connection.'}</p>
+          </div>`;
       }
     }
 
-    function initCharts(sales, productSalesList) {
+    function initCharts(enrichedSales, productSalesList) {
       // Sales trend chart (last 30 days)
       const ctx = document.getElementById('salesTrendChart')?.getContext('2d');
       if (ctx) {
@@ -316,7 +335,7 @@
           return d;
         });
         const revenueByDay = last30Days.map(day =>
-          sales
+          enrichedSales
           .filter(s => new Date(s.sale_date).toDateString() === day.toDateString())
           .reduce((sum, s) => sum + (s.total_amount || 0), 0)
         );
@@ -335,13 +354,19 @@
               pointRadius: 2
             }]
           },
-          options: { responsive: true, maintainAspectRatio: true }
+          options: { 
+            responsive: true, 
+            maintainAspectRatio: true,
+            plugins: {
+              legend: { display: false }
+            }
+          }
         });
       }
 
       // Top products chart
       const ctx2 = document.getElementById('topProductsChart')?.getContext('2d');
-      if (ctx2) {
+      if (ctx2 && productSalesList.length > 0) {
         const top5 = productSalesList.slice(0, 5);
         new Chart(ctx2, {
           type: 'bar',
@@ -350,16 +375,21 @@
             datasets: [{
               label: 'Total Value (KSH)',
               data: top5.map(p => p.total_value),
-              backgroundColor: '#C49A6C',
+              backgroundColor: ['#C49A6C', '#D4A574', '#E2B386', '#A2794C', '#F0D5B0'],
               borderRadius: 6
             }]
           },
-          options: { responsive: true }
+          options: { 
+            responsive: true,
+            plugins: {
+              legend: { display: false }
+            }
+          }
         });
       }
     }
 
-    // Lightbox
+    // Lightbox functions
     window.openLightbox = function(imageUrl, productName, meta) {
       document.getElementById('lightboxImage').src = imageUrl;
       document.getElementById('lightboxName').textContent = productName || '';
