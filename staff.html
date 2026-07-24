@@ -413,10 +413,11 @@
       border-radius: 40px;
       font-size: 0.7rem;
       font-weight: 600;
-      background: var(--primary-light);
-      color: var(--primary-dark);
     }
-    .dark-mode .role-badge { background: #2a2a2a; color: #C49A6C; }
+    .role-badge.admin { background: #8b5cf620; color: #8b5cf6; }
+    .role-badge.manager { background: #3b82f620; color: #3b82f6; }
+    .role-badge.staff { background: var(--primary-light); color: var(--primary-dark); }
+    .dark-mode .role-badge.staff { background: #2a2a2a; color: #C49A6C; }
 
     .action-icons {
       display: flex;
@@ -440,6 +441,19 @@
       font-size: 0.65rem;
       color: var(--text-muted);
       font-weight: 500;
+    }
+
+    .store-tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      background: var(--border);
+      color: var(--text-muted);
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     /* =============================================
@@ -612,6 +626,23 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* =============================================
+                  ACCESS DENIED
+    ============================================= */
+    .access-denied {
+      text-align: center;
+      padding: 80px 20px;
+    }
+    .access-denied i {
+      font-size: 4rem;
+      color: #ef4444;
+      opacity: 0.3;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .access-denied h2 { margin-bottom: 8px; }
+    .access-denied p { color: var(--text-muted); }
+
+    /* =============================================
                   RESPONSIVE
     ============================================= */
     @media (max-width: 1024px) {
@@ -733,39 +764,34 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Position</label>
-          <input type="text" id="position" placeholder="Sales Associate">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>Employee Code</label>
-          <input type="text" id="employeeCode" placeholder="e.g., EMP001">
-        </div>
-        <div class="form-group">
           <label>Phone</label>
-          <input type="tel" id="phone" placeholder="+1 555 123 4567">
+          <input type="tel" id="phone" placeholder="+254 7XX XXX XXX">
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label>Hire Date</label>
-          <input type="date" id="hireDate">
+          <label>Store Name</label>
+          <input type="text" id="storeName" placeholder="e.g., SoulHub Main">
         </div>
         <div class="form-group">
-          <label>Status</label>
-          <select id="status">
-            <option value="active">✅ Active</option>
-            <option value="inactive">❌ Inactive</option>
+          <label>Store Address</label>
+          <input type="text" id="storeAddress" placeholder="e.g., Nairobi, Kenya">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Established Year</label>
+          <input type="number" id="establishedYear" placeholder="2024" min="1900" max="2099">
+        </div>
+        <div class="form-group">
+          <label>Newsletter</label>
+          <select id="newsletterSubscribed">
+            <option value="true">✅ Subscribed</option>
+            <option value="false">❌ Not Subscribed</option>
           </select>
         </div>
-      </div>
-
-      <div class="form-group">
-        <label>Store Name</label>
-        <input type="text" id="storeName" placeholder="Main Store">
       </div>
 
       <div class="form-group" id="passwordGroup">
@@ -802,6 +828,8 @@
     let currentUser = null;
     let currentUserRole = null;
     let currentEditId = null;
+    let sortColumn = 'full_name';
+    let sortAscending = true;
 
     // =============================================
     //  TOAST
@@ -862,11 +890,13 @@
         // Check if user has permission to manage staff
         if (currentUserRole !== 'admin') {
           document.getElementById('contentArea').innerHTML = `
-            <div style="text-align:center;padding:80px 20px;">
-              <i class="fas fa-lock" style="font-size:4rem;color:#ef4444;opacity:0.3;margin-bottom:16px;display:block;"></i>
+            <div class="access-denied">
+              <i class="fas fa-lock"></i>
               <h2>Access Denied</h2>
-              <p style="color:var(--text-muted);">Only administrators can manage staff members.</p>
-              <a href="dashboard.html" class="btn btn-primary" style="margin-top:16px;">Go to Dashboard</a>
+              <p>Only administrators can manage staff members.</p>
+              <a href="dashboard.html" class="btn btn-primary" style="margin-top:16px;">
+                <i class="fas fa-arrow-left"></i> Go to Dashboard
+              </a>
             </div>
           `;
           return;
@@ -906,25 +936,38 @@
     //  RENDER STAFF
     // =============================================
     function renderStaff() {
-      const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+      const searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || '';
       const roleFilter = document.getElementById('roleFilter')?.value || 'all';
       const statusFilter = document.getElementById('statusFilter')?.value || 'all';
 
-      const filtered = allStaff.filter(s => {
+      // Filter
+      let filtered = allStaff.filter(s => {
         const matchesSearch = (s.full_name?.toLowerCase() || '').includes(searchTerm) ||
                               (s.email?.toLowerCase() || '').includes(searchTerm) ||
                               (s.role?.toLowerCase() || '').includes(searchTerm) ||
-                              (s.position?.toLowerCase() || '').includes(searchTerm);
+                              (s.store_name?.toLowerCase() || '').includes(searchTerm) ||
+                              (s.phone || '').includes(searchTerm);
         const matchesRole = roleFilter === 'all' || s.role === roleFilter;
-        const matchesStatus = statusFilter === 'all' || s.status === statusFilter;
+        // Since we don't have a status column, we consider all as active
+        const matchesStatus = statusFilter === 'all' || statusFilter === 'active';
         return matchesSearch && matchesRole && matchesStatus;
+      });
+
+      // Sort
+      filtered.sort((a, b) => {
+        let aVal = a[sortColumn] || '';
+        let bVal = b[sortColumn] || '';
+        if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+        if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+        if (sortAscending) return aVal > bVal ? 1 : -1;
+        return aVal < bVal ? 1 : -1;
       });
 
       // Stats
       const total = allStaff.length;
-      const active = allStaff.filter(s => s.status === 'active').length;
       const admins = allStaff.filter(s => s.role === 'admin').length;
       const managers = allStaff.filter(s => s.role === 'manager').length;
+      const staffCount = allStaff.filter(s => s.role === 'staff').length;
 
       // Build table rows
       let rows = '';
@@ -943,22 +986,29 @@
       } else {
         rows = filtered.map(staff => {
           const isSelf = staff.id === currentUser.id;
+          const roleClass = staff.role === 'admin' ? 'admin' : staff.role === 'manager' ? 'manager' : 'staff';
+          
           return `
             <tr>
               <td><strong>${escapeHtml(staff.full_name || '—')}</strong></td>
               <td>${escapeHtml(staff.email || '—')}</td>
-              <td><span class="role-badge">${escapeHtml(staff.role || 'staff')}</span></td>
-              <td>${escapeHtml(staff.position || '—')}</td>
-              <td>${escapeHtml(staff.employee_code || '—')}</td>
-              <td><span class="status-badge ${staff.status === 'active' ? 'active' : 'inactive'}">${staff.status || 'active'}</span></td>
+              <td><span class="role-badge ${roleClass}">${escapeHtml(staff.role || 'staff')}</span></td>
+              <td>${escapeHtml(staff.phone || '—')}</td>
+              <td>
+                ${staff.store_name 
+                  ? `<span class="store-tag" title="${escapeHtml(staff.store_name)}">${escapeHtml(staff.store_name)}</span>`
+                  : '—'
+                }
+              </td>
+              <td>${staff.established_year || '—'}</td>
               <td>
                 <div class="action-icons">
                   <button class="edit-btn" onclick="window.editStaff('${staff.id}')" title="Edit staff member">
                     <i class="fas fa-edit"></i>
                   </button>
                   ${!isSelf ? `
-                    <button class="delete-btn" onclick="window.deleteStaff('${staff.id}', '${escapeHtml(staff.full_name).replace(/'/g, "\\'")}')" title="Deactivate staff member">
-                      <i class="fas fa-user-slash"></i>
+                    <button class="delete-btn" onclick="window.deleteStaff('${staff.id}', '${escapeHtml(staff.full_name).replace(/'/g, "\\'")}')" title="Remove staff member">
+                      <i class="fas fa-trash"></i>
                     </button>
                   ` : `
                     <span class="self-label">(You)</span>
@@ -979,11 +1029,6 @@
             <div class="stats-label">Total Staff</div>
           </div>
           <div class="stats-card">
-            <span class="stats-icon"><i class="fas fa-user-check"></i></span>
-            <div class="stats-value">${active}</div>
-            <div class="stats-label">Active</div>
-          </div>
-          <div class="stats-card">
             <span class="stats-icon"><i class="fas fa-user-shield"></i></span>
             <div class="stats-value">${admins}</div>
             <div class="stats-label">Admins</div>
@@ -992,6 +1037,11 @@
             <span class="stats-icon"><i class="fas fa-user-tie"></i></span>
             <div class="stats-value">${managers}</div>
             <div class="stats-label">Managers</div>
+          </div>
+          <div class="stats-card">
+            <span class="stats-icon"><i class="fas fa-user"></i></span>
+            <div class="stats-value">${staffCount}</div>
+            <div class="stats-label">Staff</div>
           </div>
         </div>
 
@@ -1015,8 +1065,7 @@
             </select>
             <select id="statusFilter" class="btn-secondary">
               <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="active">✅ Active</option>
             </select>
           </div>
         </div>
@@ -1029,9 +1078,9 @@
                 <th onclick="window.sortStaff('full_name')">Name <i class="fas fa-sort"></i></th>
                 <th onclick="window.sortStaff('email')">Email <i class="fas fa-sort"></i></th>
                 <th onclick="window.sortStaff('role')">Role <i class="fas fa-sort"></i></th>
-                <th onclick="window.sortStaff('position')">Position <i class="fas fa-sort"></i></th>
-                <th onclick="window.sortStaff('employee_code')">Code <i class="fas fa-sort"></i></th>
-                <th onclick="window.sortStaff('status')">Status <i class="fas fa-sort"></i></th>
+                <th onclick="window.sortStaff('phone')">Phone <i class="fas fa-sort"></i></th>
+                <th onclick="window.sortStaff('store_name')">Store <i class="fas fa-sort"></i></th>
+                <th onclick="window.sortStaff('established_year')">Year <i class="fas fa-sort"></i></th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -1066,13 +1115,12 @@
     }
 
     window.sortStaff = function(column) {
-      allStaff.sort((a, b) => {
-        let aVal = a[column] || '';
-        let bVal = b[column] || '';
-        if (typeof aVal === 'string') aVal = aVal.toLowerCase();
-        if (typeof bVal === 'string') bVal = bVal.toLowerCase();
-        return aVal > bVal ? 1 : -1;
-      });
+      if (sortColumn === column) {
+        sortAscending = !sortAscending;
+      } else {
+        sortColumn = column;
+        sortAscending = true;
+      }
       renderStaff();
     };
 
@@ -1085,7 +1133,7 @@
       document.getElementById('staffForm').reset();
       document.getElementById('staffId').value = '';
       document.getElementById('role').value = 'staff';
-      document.getElementById('status').value = 'active';
+      document.getElementById('newsletterSubscribed').value = 'true';
       document.getElementById('passwordGroup').style.display = 'block';
       document.getElementById('passwordRequired').textContent = '*';
       document.getElementById('passwordHint').textContent = 'Required for new staff members.';
@@ -1102,12 +1150,11 @@
       document.getElementById('fullName').value = staff.full_name || '';
       document.getElementById('email').value = staff.email || '';
       document.getElementById('role').value = staff.role || 'staff';
-      document.getElementById('position').value = staff.position || '';
-      document.getElementById('employeeCode').value = staff.employee_code || '';
       document.getElementById('phone').value = staff.phone || '';
-      document.getElementById('hireDate').value = staff.hire_date || '';
-      document.getElementById('status').value = staff.status || 'active';
       document.getElementById('storeName').value = staff.store_name || '';
+      document.getElementById('storeAddress').value = staff.store_address || '';
+      document.getElementById('establishedYear').value = staff.established_year || '';
+      document.getElementById('newsletterSubscribed').value = staff.newsletter_subscribed ? 'true' : 'false';
       document.getElementById('password').value = '';
       document.getElementById('passwordGroup').style.display = 'block';
       document.getElementById('passwordRequired').textContent = '';
@@ -1116,19 +1163,19 @@
     };
 
     window.deleteStaff = async function(staffId, staffName) {
-      if (!confirm(`Are you sure you want to deactivate ${staffName}?`)) return;
+      if (!confirm(`Are you sure you want to remove ${staffName} from the system?`)) return;
 
       try {
         const { error } = await supabase
           .from('profiles')
-          .update({ status: 'inactive', updated_at: new Date().toISOString() })
+          .delete()
           .eq('id', staffId);
 
         if (error) throw error;
-        showToast(`${staffName} has been deactivated`, 'success');
+        showToast(`${staffName} has been removed`, 'success');
         await fetchStaff();
       } catch (err) {
-        showToast('Failed to deactivate: ' + err.message, 'error');
+        showToast('Failed to remove: ' + err.message, 'error');
       }
     };
 
@@ -1141,12 +1188,11 @@
       const fullName = document.getElementById('fullName').value.trim();
       const email = document.getElementById('email').value.trim();
       const role = document.getElementById('role').value;
-      const position = document.getElementById('position').value.trim();
-      const employeeCode = document.getElementById('employeeCode').value.trim();
       const phone = document.getElementById('phone').value.trim();
-      const hireDate = document.getElementById('hireDate').value;
-      const status = document.getElementById('status').value;
       const storeName = document.getElementById('storeName').value.trim();
+      const storeAddress = document.getElementById('storeAddress').value.trim();
+      const establishedYear = parseInt(document.getElementById('establishedYear').value);
+      const newsletterSubscribed = document.getElementById('newsletterSubscribed').value === 'true';
       const password = document.getElementById('password').value;
 
       if (!fullName || !email) {
@@ -1156,22 +1202,21 @@
 
       const saveBtn = document.getElementById('saveStaffBtn');
       saveBtn.disabled = true;
-      saveBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Saving...';
+      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
       try {
         if (currentEditId) {
-          // Update existing
+          // Update existing profile - match your table structure exactly
           const { error } = await supabase
             .from('profiles')
             .update({
               full_name: fullName,
               role: role,
-              position: position,
-              employee_code: employeeCode,
-              phone: phone,
-              hire_date: hireDate || null,
-              status: status,
-              store_name: storeName,
+              phone: phone || null,
+              store_name: storeName || null,
+              store_address: storeAddress || null,
+              established_year: establishedYear || null,
+              newsletter_subscribed: newsletterSubscribed,
               updated_at: new Date().toISOString()
             })
             .eq('id', currentEditId);
@@ -1180,7 +1225,7 @@
           showToast('Staff member updated successfully!', 'success');
 
         } else {
-          // Create new
+          // Create new user
           if (!password || password.length < 6) {
             showToast('Password must be at least 6 characters', 'error');
             saveBtn.disabled = false;
@@ -1199,6 +1244,7 @@
           if (signUpError) throw signUpError;
           if (!authData.user) throw new Error('Failed to create user');
 
+          // Insert profile - match your table structure exactly
           const { error: profileError } = await supabase
             .from('profiles')
             .insert({
@@ -1206,12 +1252,13 @@
               full_name: fullName,
               email: email,
               role: role,
-              position: position,
-              employee_code: employeeCode,
-              phone: phone,
-              hire_date: hireDate || null,
-              status: status,
-              store_name: storeName
+              phone: phone || null,
+              store_name: storeName || null,
+              store_address: storeAddress || null,
+              established_year: establishedYear || null,
+              newsletter_subscribed: newsletterSubscribed,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
             });
 
           if (profileError) throw profileError;
@@ -1286,14 +1333,14 @@
         }
       });
 
-      // Keyboard shortcut
+      // Keyboard shortcut: Ctrl+N to add staff
       document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
           document.getElementById('staffModal').classList.remove('active');
         }
         if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
           e.preventDefault();
-          openAddModal();
+          if (currentUserRole === 'admin') openAddModal();
         }
       });
     }
