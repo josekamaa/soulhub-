@@ -398,16 +398,6 @@
     tr:hover td { background: rgba(196,154,108,0.04); }
     tr:last-child td { border-bottom: none; }
 
-    .status-badge {
-      padding: 4px 12px;
-      border-radius: 40px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      display: inline-block;
-    }
-    .status-badge.active { background: #10b98120; color: #10b981; }
-    .status-badge.inactive { background: #ef444420; color: #ef4444; }
-
     .role-badge {
       padding: 4px 12px;
       border-radius: 40px;
@@ -454,6 +444,16 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    .email-display {
+      color: var(--text);
+      font-size: 0.85rem;
+    }
+    .email-display.missing {
+      color: var(--text-muted);
+      font-style: italic;
+      font-size: 0.75rem;
     }
 
     /* =============================================
@@ -924,6 +924,7 @@
         if (error) throw error;
 
         allStaff = data || [];
+        console.log('📊 Fetched staff:', allStaff.length, 'members');
         renderStaff();
 
       } catch (err) {
@@ -938,7 +939,6 @@
     function renderStaff() {
       const searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || '';
       const roleFilter = document.getElementById('roleFilter')?.value || 'all';
-      const statusFilter = document.getElementById('statusFilter')?.value || 'all';
 
       // Filter
       let filtered = allStaff.filter(s => {
@@ -948,9 +948,7 @@
                               (s.store_name?.toLowerCase() || '').includes(searchTerm) ||
                               (s.phone || '').includes(searchTerm);
         const matchesRole = roleFilter === 'all' || s.role === roleFilter;
-        // Since we don't have a status column, we consider all as active
-        const matchesStatus = statusFilter === 'all' || statusFilter === 'active';
-        return matchesSearch && matchesRole && matchesStatus;
+        return matchesSearch && matchesRole;
       });
 
       // Sort
@@ -963,7 +961,7 @@
         return aVal < bVal ? 1 : -1;
       });
 
-      // Stats
+      // Stats - Count ALL staff (not filtered)
       const total = allStaff.length;
       const admins = allStaff.filter(s => s.role === 'admin').length;
       const managers = allStaff.filter(s => s.role === 'manager').length;
@@ -988,10 +986,15 @@
           const isSelf = staff.id === currentUser.id;
           const roleClass = staff.role === 'admin' ? 'admin' : staff.role === 'manager' ? 'manager' : 'staff';
           
+          // Display email or "No email" if missing
+          const emailDisplay = staff.email 
+            ? `<span class="email-display">${escapeHtml(staff.email)}</span>`
+            : `<span class="email-display missing">No email set</span>`;
+          
           return `
             <tr>
               <td><strong>${escapeHtml(staff.full_name || '—')}</strong></td>
-              <td>${escapeHtml(staff.email || '—')}</td>
+              <td>${emailDisplay}</td>
               <td><span class="role-badge ${roleClass}">${escapeHtml(staff.role || 'staff')}</span></td>
               <td>${escapeHtml(staff.phone || '—')}</td>
               <td>
@@ -1063,10 +1066,6 @@
               <option value="manager">Manager</option>
               <option value="staff">Staff</option>
             </select>
-            <select id="statusFilter" class="btn-secondary">
-              <option value="all">All Status</option>
-              <option value="active">✅ Active</option>
-            </select>
           </div>
         </div>
 
@@ -1098,7 +1097,6 @@
       document.getElementById('refreshBtn')?.addEventListener('click', fetchStaff);
       document.getElementById('searchInput')?.addEventListener('input', renderStaff);
       document.getElementById('roleFilter')?.addEventListener('change', renderStaff);
-      document.getElementById('statusFilter')?.addEventListener('change', renderStaff);
     }
 
     // =============================================
@@ -1206,11 +1204,12 @@
 
       try {
         if (currentEditId) {
-          // Update existing profile - match your table structure exactly
+          // Update existing profile
           const { error } = await supabase
             .from('profiles')
             .update({
               full_name: fullName,
+              email: email,
               role: role,
               phone: phone || null,
               store_name: storeName || null,
@@ -1244,7 +1243,7 @@
           if (signUpError) throw signUpError;
           if (!authData.user) throw new Error('Failed to create user');
 
-          // Insert profile - match your table structure exactly
+          // Insert profile
           const { error: profileError } = await supabase
             .from('profiles')
             .insert({
