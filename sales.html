@@ -26,12 +26,12 @@
     .top-bar { background: white; border-bottom: 1px solid #F0EAE3; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 99; }
     .page-title h1 { font-size: 1.8rem; font-weight: 600; }
     .top-bar-actions { display: flex; align-items: center; gap: 20px; }
-    .theme-toggle, .notifications { cursor: pointer; font-size: 1.2rem; padding: 8px; border-radius: 50%; }
+    .theme-toggle, .notifications { cursor: pointer; font-size: 1.2rem; padding: 8px; border-radius: 50%; background: none; border: none; }
     .user-menu { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 8px 16px; border-radius: 40px; background: #F9F4ED; }
     .user-avatar { width: 32px; height: 32px; background: #C49A6C; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; }
     .content-area { padding: 32px; }
     .pos-grid { display: grid; grid-template-columns: 1fr 380px; gap: 24px; }
-    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; max-height: 70vh; overflow-y: auto; }
     .product-card {
       background: white;
       border: 1px solid #F0EAE3;
@@ -71,15 +71,68 @@
     .product-price { color: #C49A6C; font-weight: 700; font-size: 1.2rem; }
     .stock-info { font-size: 0.7rem; margin-top: 8px; color: #8F8278; }
 
-    .cart { background: white; border: 1px solid #F0EAE3; border-radius: 20px; padding: 20px; position: sticky; top: 100px; }
+    .cart {
+      background: white;
+      border: 1px solid #F0EAE3;
+      border-radius: 20px;
+      padding: 20px;
+      position: sticky;
+      top: 100px;
+      max-height: 75vh;
+      display: flex;
+      flex-direction: column;
+    }
     body.dark-mode .cart { background: #2d2d2d; }
-    .cart-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #F0EAE3; }
-    .cart-total { margin-top: 20px; padding-top: 20px; border-top: 2px solid #C49A6C; font-size: 1.2rem; font-weight: 700; }
-    .btn-primary { background: #1E1B18; color: white; border: none; padding: 12px 24px; border-radius: 40px; cursor: pointer; width: 100%; margin-top: 16px; font-family: 'Inter', sans-serif; font-weight: 500; }
-    .btn-primary:hover { background: #C49A6C; }
-    .remove-item { color: #C23D2E; cursor: pointer; margin-left: 12px; }
+    .cart-items-container {
+      flex: 1;
+      overflow-y: auto;
+      max-height: 45vh;
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #F0EAE3;
+      align-items: center;
+    }
+    .cart-item-info { flex: 1; }
+    .cart-item-name { font-weight: 600; font-size: 0.9rem; }
+    .cart-item-meta { font-size: 0.8rem; color: #8F8278; }
+    .cart-item-actions { display: flex; align-items: center; gap: 12px; }
+    .qty-btn {
+      background: #F0EAE3;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+    .qty-btn:hover { background: #C49A6C; color: white; }
+    .cart-item-price { font-weight: 700; min-width: 60px; text-align: right; }
+    .remove-item { color: #C23D2E; cursor: pointer; margin-left: 8px; }
+    .remove-item:hover { color: #dc2626; }
+    .cart-total { margin-top: 20px; padding-top: 20px; border-top: 2px solid #C49A6C; font-size: 1.2rem; font-weight: 700; display: flex; justify-content: space-between; }
+    .btn-primary {
+      background: #1E1B18;
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 40px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 16px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+    .btn-primary:hover:not(:disabled) { background: #C49A6C; transform: translateY(-2px); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
     .search-box { margin-bottom: 20px; }
-    .search-box input { width: 100%; padding: 12px 16px; border: 1px solid #E9E2D8; border-radius: 40px; font-family: 'Inter', sans-serif; }
+    .search-box input { width: 100%; padding: 12px 16px; border: 1px solid #E9E2D8; border-radius: 40px; font-family: 'Inter', sans-serif; background: white; }
+    body.dark-mode .search-box input { background: #2d2d2d; color: white; border-color: #404040; }
     .lightbox-modal {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; flex-direction: column;
@@ -91,14 +144,47 @@
     .lightbox-info { color: white; text-align: center; margin-top: 20px; font-size: 1.1rem; }
     .lightbox-name { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
 
+    /* Toast notifications */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast {
+      padding: 14px 24px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 500;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      animation: slideUp 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 280px;
+    }
+    .toast.success { background: #10b981; }
+    .toast.error { background: #ef4444; }
+    .toast.info { background: #3b82f6; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.mobile-open { transform: translateX(0); }
       .main-content { margin-left: 0; }
-      .menu-toggle { display: block; cursor: pointer; font-size: 1.5rem; }
+      .menu-toggle { display: block; cursor: pointer; font-size: 1.5rem; background: none; border: none; }
       .pos-grid { grid-template-columns: 1fr; }
       .products-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
       .product-img-container { height: 120px; }
+      .cart { position: relative; top: 0; max-height: 60vh; }
+      .content-area { padding: 16px; }
     }
     @media (min-width: 769px) { .menu-toggle { display: none; } }
     .loading { text-align: center; padding: 60px; }
@@ -121,11 +207,15 @@
 
   <main class="main-content">
     <div class="top-bar">
-      <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
+      <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
       <div class="page-title"><h1>Point of Sale</h1></div>
       <div class="top-bar-actions">
-        <div class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></div>
-        <div class="user-menu" id="userMenu"><div class="user-avatar"><i class="fas fa-user"></i></div><span id="userName">Loading...</span><i class="fas fa-chevron-down"></i></div>
+        <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+        <div class="user-menu" id="userMenu">
+          <div class="user-avatar"><i class="fas fa-user"></i></div>
+          <span id="userName">Loading...</span>
+          <i class="fas fa-chevron-down"></i>
+        </div>
       </div>
     </div>
 
@@ -142,42 +232,88 @@
   <div class="lightbox-info"><div class="lightbox-name" id="lightboxName"></div><div id="lightboxMeta" style="color:#B0A89F;"></div></div>
 </div>
 
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
 <script>
   (function() {
+    'use strict';
+
     const SUPABASE_URL = "https://ulccyfajpaiuvqovvqyz.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY2N5ZmFqcGFpdXZxb3Z2cXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNjIwMzAsImV4cCI6MjA5NTYzODAzMH0.mLGYFgTZ3ToIJD8KAiqbxr0h42H8PYN5xh1fyvTNvqo";
+    const CURRENCY = 'KSH';
     
     let supabaseClient = null;
     let currentUser = null;
     let products = [];
     let cart = [];
+    let isProcessing = false;
 
-    async function initSupabase() {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (!session) { window.location.href = "login.html"; return; }
-      currentUser = session.user;
-      const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
-      document.getElementById('userName').textContent = profile?.full_name || currentUser.email;
-      await loadProducts();
-      renderPOS();
+    // =============================================
+    //  TOAST NOTIFICATIONS
+    // =============================================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        info: 'fa-info-circle'
+      };
+      toast.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i> ${message}`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
     }
 
+    // =============================================
+    //  INIT
+    // =============================================
+    async function initSupabase() {
+      try {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) { window.location.href = "login.html"; return; }
+        currentUser = session.user;
+        const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
+        document.getElementById('userName').textContent = profile?.full_name || currentUser.email;
+        await loadProducts();
+        renderPOS();
+      } catch (err) {
+        console.error('Init error:', err);
+        showToast('Failed to initialize: ' + err.message, 'error');
+      }
+    }
+
+    // =============================================
+    //  PRODUCTS
+    // =============================================
     async function loadProducts() {
       const { data, error } = await supabaseClient.from('products').select('*').order('name');
-      if (error) { console.error(error); return; }
+      if (error) { 
+        console.error(error); 
+        showToast('Failed to load products', 'error');
+        return; 
+      }
       products = data || [];
       renderProducts();
     }
 
     function renderProducts() {
       const searchTerm = document.getElementById('searchProducts')?.value.toLowerCase() || '';
-      const filtered = products.filter(p => p.name.toLowerCase().includes(searchTerm) || p.sku.toLowerCase().includes(searchTerm));
+      const filtered = products.filter(p => 
+        p.name.toLowerCase().includes(searchTerm) || 
+        p.sku.toLowerCase().includes(searchTerm)
+      );
       const container = document.getElementById('productsContainer');
       if (container) {
         container.innerHTML = filtered.map(p => `
           <div class="product-card" onclick="window.addToCart('${p.id}')">
-            <div class="product-img-container" onclick="event.stopPropagation(); ${p.image_url ? `window.openLightbox('${p.image_url}', '${p.name.replace(/'/g, "\\'")}', 'SKU: ${p.sku} | $${p.selling_price}')` : ''}">
+            <div class="product-img-container" onclick="event.stopPropagation(); ${p.image_url ? `window.openLightbox('${p.image_url}', '${p.name.replace(/'/g, "\\'")}', 'SKU: ${p.sku} | ${CURRENCY} ${p.selling_price}')` : ''}">
               ${p.image_url 
                 ? `<img src="${p.image_url}" class="product-img" alt="${p.name}" onerror="this.onerror=null;this.parentElement.innerHTML='<i class=\\'fas fa-image product-img-placeholder\\'></i>';">`
                 : '<i class="fas fa-image product-img-placeholder"></i>'
@@ -186,7 +322,7 @@
             <div class="product-info">
               <div class="product-name">${p.name}</div>
               <div class="product-sku">${p.sku}</div>
-              <div class="product-price">$${p.selling_price || 0}</div>
+              <div class="product-price">${CURRENCY} ${p.selling_price || 0}</div>
               <div class="stock-info">Stock: ${p.stock_quantity || 0}</div>
             </div>
           </div>
@@ -194,7 +330,9 @@
       }
     }
 
-    // Lightbox functions
+    // =============================================
+    //  LIGHTBOX
+    // =============================================
     window.openLightbox = function(imageUrl, productName, meta) {
       document.getElementById('lightboxImage').src = imageUrl;
       document.getElementById('lightboxName').textContent = productName || '';
@@ -202,85 +340,235 @@
       document.getElementById('lightboxModal').classList.add('active');
       document.body.style.overflow = 'hidden';
     };
+
     window.closeLightbox = function() {
       document.getElementById('lightboxModal').classList.remove('active');
       document.body.style.overflow = '';
     };
+
     document.getElementById('lightboxModal')?.addEventListener('click', function(e) {
       if (e.target === this) window.closeLightbox();
     });
-    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') window.closeLightbox(); });
+    document.addEventListener('keydown', function(e) { 
+      if (e.key === 'Escape') window.closeLightbox(); 
+    });
 
+    // =============================================
+    //  CART
+    // =============================================
     function renderCart() {
       const container = document.getElementById('cartItems');
       if (!container) return;
+      
       if (cart.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#8F8278;">Cart is empty</p>';
-        document.getElementById('cartTotal').innerHTML = '$0.00';
+        container.innerHTML = `
+          <div style="text-align:center; color:#8F8278; padding: 40px 0;">
+            <i class="fas fa-shopping-bag" style="font-size: 2rem; opacity: 0.3; display: block; margin-bottom: 12px;"></i>
+            Cart is empty
+          </div>
+        `;
+        document.getElementById('cartTotal').innerHTML = `${CURRENCY} 0.00`;
+        document.getElementById('checkoutBtn').disabled = true;
         return;
       }
+
       container.innerHTML = cart.map((item, idx) => `
         <div class="cart-item">
-          <div><strong>${item.name}</strong><br>$${item.price} x ${item.quantity}</div>
-          <div>$${(item.price * item.quantity).toFixed(2)} <span class="remove-item" onclick="window.removeFromCart(${idx})"><i class="fas fa-trash"></i></span></div>
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-meta">${CURRENCY} ${item.price} × ${item.quantity}</div>
+          </div>
+          <div class="cart-item-actions">
+            <button class="qty-btn" onclick="window.updateQuantity(${idx}, -1)">−</button>
+            <span style="font-weight:600; min-width:20px; text-align:center;">${item.quantity}</span>
+            <button class="qty-btn" onclick="window.updateQuantity(${idx}, 1)">+</button>
+            <span class="cart-item-price">${CURRENCY} ${(item.price * item.quantity).toFixed(2)}</span>
+            <span class="remove-item" onclick="window.removeFromCart(${idx})"><i class="fas fa-trash"></i></span>
+          </div>
         </div>
       `).join('');
+
       const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      document.getElementById('cartTotal').innerHTML = `$${total.toFixed(2)}`;
+      document.getElementById('cartTotal').innerHTML = `${CURRENCY} ${total.toFixed(2)}`;
+      document.getElementById('checkoutBtn').disabled = false;
     }
 
     function addToCart(productId) {
       const product = products.find(p => p.id === productId);
       if (!product) return;
-      if (product.stock_quantity <= 0) { alert('Out of stock!'); return; }
+      if (product.stock_quantity <= 0) { 
+        showToast('Out of stock!', 'error');
+        return; 
+      }
       const existing = cart.find(item => item.id === productId);
       if (existing) {
-        if (product.stock_quantity <= existing.quantity) { alert('Not enough stock!'); return; }
+        if (product.stock_quantity <= existing.quantity) { 
+          showToast('Not enough stock available!', 'error');
+          return; 
+        }
         existing.quantity++;
       } else {
-        cart.push({ id: productId, name: product.name, price: product.selling_price, quantity: 1 });
+        cart.push({ 
+          id: productId, 
+          name: product.name, 
+          price: product.selling_price, 
+          quantity: 1,
+          sku: product.sku
+        });
       }
+      renderCart();
+      showToast(`${product.name} added to cart`, 'success');
+    }
+
+    function updateQuantity(index, delta) {
+      if (index < 0 || index >= cart.length) return;
+      const item = cart[index];
+      const newQty = item.quantity + delta;
+      if (newQty < 1) {
+        removeFromCart(index);
+        return;
+      }
+      const product = products.find(p => p.id === item.id);
+      if (product && newQty > product.stock_quantity) {
+        showToast('Not enough stock available!', 'error');
+        return;
+      }
+      item.quantity = newQty;
       renderCart();
     }
 
-    function removeFromCart(index) { cart.splice(index, 1); renderCart(); }
+    function removeFromCart(index) {
+      if (index < 0 || index >= cart.length) return;
+      const item = cart[index];
+      cart.splice(index, 1);
+      renderCart();
+      showToast(`${item.name} removed from cart`, 'info');
+    }
 
+    // =============================================
+    //  CHECKOUT - UPDATED with sales_items
+    // =============================================
     async function checkout() {
-      if (cart.length === 0) { alert('Cart is empty'); return; }
-      const paymentMethod = prompt('Payment Method (cash/card/mobile):', 'cash');
-      if (!paymentMethod) return;
-      const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      const { error: saleError } = await supabaseClient.from('sales').insert([{
-        user_id: currentUser.id,
-        total_amount: total,
-        payment_method: paymentMethod
-      }]);
-      if (saleError) { alert('Error: ' + saleError.message); return; }
-      for (const item of cart) {
-        const product = products.find(p => p.id === item.id);
-        if (product) {
-          await supabaseClient.from('products').update({ stock_quantity: product.stock_quantity - item.quantity }).eq('id', item.id);
-        }
+      if (isProcessing) return;
+      if (cart.length === 0) { 
+        showToast('Cart is empty', 'error');
+        return; 
       }
-      alert(`Sale completed! Total: $${total.toFixed(2)}`);
-      cart = [];
-      renderCart();
-      await loadProducts();
-      renderProducts();
+
+      // Show payment method modal
+      const paymentMethod = prompt('Select Payment Method:\n1. Cash\n2. Card\n3. Mobile Payment', 'cash');
+      if (!paymentMethod) return;
+
+      const methodMap = {
+        '1': 'cash',
+        '2': 'card',
+        '3': 'mobile'
+      };
+      const finalMethod = methodMap[paymentMethod] || paymentMethod.toLowerCase();
+
+      isProcessing = true;
+      const checkoutBtn = document.getElementById('checkoutBtn');
+      checkoutBtn.disabled = true;
+      checkoutBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Processing...';
+
+      try {
+        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+        // 1. Create the sale record
+        const { data: saleData, error: saleError } = await supabaseClient
+          .from('sales')
+          .insert([{
+            user_id: currentUser.id,
+            total_amount: total,
+            total_quantity: totalQty,
+            payment_method: finalMethod,
+            sale_date: new Date().toISOString()
+          }])
+          .select()
+          .single();
+
+        if (saleError) throw new Error('Sale creation failed: ' + saleError.message);
+        if (!saleData) throw new Error('No sale data returned');
+
+        // 2. Create sales_items for each cart item
+        const salesItems = cart.map(item => ({
+          sale_id: saleData.id,
+          product_id: item.id,
+          quantity: item.quantity,
+          unit_price: item.price
+        }));
+
+        const { error: itemsError } = await supabaseClient
+          .from('sales_items')
+          .insert(salesItems);
+
+        if (itemsError) {
+          // Rollback: Delete the sale if items fail
+          await supabaseClient.from('sales').delete().eq('id', saleData.id);
+          throw new Error('Failed to save sale items: ' + itemsError.message);
+        }
+
+        // 3. Update stock quantities
+        for (const item of cart) {
+          const product = products.find(p => p.id === item.id);
+          if (product) {
+            const newStock = product.stock_quantity - item.quantity;
+            const { error: stockError } = await supabaseClient
+              .from('products')
+              .update({ stock_quantity: newStock })
+              .eq('id', item.id);
+            
+            if (stockError) {
+              console.warn('Stock update failed for product:', item.id, stockError);
+            } else {
+              // Update local product data
+              product.stock_quantity = newStock;
+            }
+          }
+        }
+
+        // 4. Success!
+        showToast(`✅ Sale completed! Total: ${CURRENCY} ${total.toFixed(2)}`, 'success');
+        
+        // 5. Clear cart and refresh
+        cart = [];
+        renderCart();
+        await loadProducts(); // Refresh product list with updated stock
+        renderPOS(); // Re-render POS
+        
+      } catch (err) {
+        console.error('Checkout error:', err);
+        showToast('Checkout failed: ' + err.message, 'error');
+      } finally {
+        isProcessing = false;
+        checkoutBtn.disabled = false;
+        checkoutBtn.innerHTML = '<i class="fas fa-credit-card"></i> Checkout';
+      }
     }
 
+    // =============================================
+    //  RENDER POS
+    // =============================================
     function renderPOS() {
       document.getElementById('contentArea').innerHTML = `
         <div class="pos-grid">
           <div>
-            <div class="search-box"><input type="text" id="searchProducts" placeholder="Search products..." onkeyup="window.renderProducts()"></div>
+            <div class="search-box">
+              <input type="text" id="searchProducts" placeholder="🔍 Search products by name or SKU..." oninput="window.renderProducts()">
+            </div>
             <div class="products-grid" id="productsContainer"></div>
           </div>
           <div class="cart">
-            <h3>Shopping Cart</h3>
-            <div id="cartItems"></div>
-            <div class="cart-total">Total: <span id="cartTotal">$0.00</span></div>
-            <button class="btn-primary" onclick="window.checkout()"><i class="fas fa-credit-card"></i> Checkout</button>
+            <h3 style="margin-bottom: 16px;"><i class="fas fa-shopping-cart"></i> Shopping Cart</h3>
+            <div class="cart-items-container" id="cartItems"></div>
+            <div class="cart-total">
+              <span>Total:</span>
+              <span id="cartTotal">${CURRENCY} 0.00</span>
+            </div>
+            <button class="btn-primary" id="checkoutBtn" onclick="window.checkout()" disabled>
+              <i class="fas fa-credit-card"></i> Checkout
+            </button>
           </div>
         </div>
       `;
@@ -288,6 +576,9 @@
       renderCart();
     }
 
+    // =============================================
+    //  EVENT LISTENERS
+    // =============================================
     document.getElementById('themeToggle')?.addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
       const icon = document.querySelector('#themeToggle i');
@@ -299,15 +590,43 @@
       document.getElementById('sidebar').classList.toggle('mobile-open');
     });
 
-    document.getElementById('userMenu')?.addEventListener('click', async () => {
-      if (confirm('Logout?')) { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
+    // Close sidebar when clicking outside (mobile)
+    document.addEventListener('click', function(e) {
+      const sidebar = document.getElementById('sidebar');
+      const toggle = document.getElementById('menuToggle');
+      if (window.innerWidth <= 768) {
+        if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+          sidebar.classList.remove('mobile-open');
+        }
+      }
     });
 
+    document.getElementById('userMenu')?.addEventListener('click', async () => {
+      if (confirm('Logout?')) { 
+        await supabaseClient.auth.signOut(); 
+        window.location.href = 'login.html'; 
+      }
+    });
+
+    // Keyboard shortcut: ESC to close lightbox
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') window.closeLightbox();
+    });
+
+    // =============================================
+    //  EXPOSE TO WINDOW
+    // =============================================
     window.addToCart = addToCart;
     window.removeFromCart = removeFromCart;
+    window.updateQuantity = updateQuantity;
     window.checkout = checkout;
     window.renderProducts = renderProducts;
+    window.closeLightbox = closeLightbox;
+    window.openLightbox = openLightbox;
 
+    // =============================================
+    //  START
+    // =============================================
     initSupabase();
   })();
 </script>
