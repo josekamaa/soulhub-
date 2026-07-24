@@ -684,9 +684,9 @@
           </div>
         </div>
 
-        <!-- Today's Products Sold -->
+        <!-- Products Sold -->
         <div class="section-header">
-          <h2><i class="fas fa-box-open"></i> Products Sold Today</h2>
+          <h2><i class="fas fa-box-open"></i> Products Sold</h2>
           <span class="badge-count" id="productCountBadge">0 items</span>
         </div>
         <div class="table-container" id="productsTableContainer">
@@ -740,11 +740,10 @@
     let supabase = null;
     let currentUser = null;
     let allProducts = [];
+    let allSalesItems = [];
     let allSales = [];
-    let allCustomers = [];
     let trendChartInstance = null;
     let categoryChartInstance = null;
-    let currentFilter = 'today';
 
     // =============================================
     //  INIT
@@ -838,25 +837,54 @@
     }
 
     // =============================================
-    //  LOAD DATA
+    //  LOAD DATA - FETCHES sales_items WITH product details
     // =============================================
     async function loadData() {
       try {
         showLoading(true);
 
-        const [productsRes, salesRes, customersRes] = await Promise.all([
-          supabase.from('products').select('*'),
-          supabase.from('sales').select('*').order('sale_date', { ascending: false }),
-          supabase.from('customers').select('*')
-        ]);
+        // Fetch products
+        const { data: products, error: productsError } = await supabase
+          .from('products')
+          .select('*');
+        if (productsError) throw new Error('Products: ' + productsError.message);
+        allProducts = products || [];
 
-        if (productsRes.error) throw new Error('Products: ' + productsRes.error.message);
-        if (salesRes.error) throw new Error('Sales: ' + salesRes.error.message);
-        if (customersRes.error) throw new Error('Customers: ' + customersRes.error.message);
+        // Fetch sales with their items and product details
+        const { data: salesWithItems, error: salesError } = await supabase
+          .from('sales')
+          .select(`
+            *,
+            sales_items (
+              *,
+              products (*)
+            )
+          `)
+          .order('sale_date', { ascending: false });
 
-        allProducts = productsRes.data || [];
-        allSales = salesRes.data || [];
-        allCustomers = customersRes.data || [];
+        if (salesError) throw new Error('Sales: ' + salesError.message);
+
+        // Process the data - flatten sales_items
+        allSales = [];
+        allSalesItems = [];
+
+        (salesWithItems || []).forEach(sale => {
+          allSales.push(sale);
+          if (sale.sales_items && sale.sales_items.length > 0) {
+            sale.sales_items.forEach(item => {
+              allSalesItems.push({
+                ...item,
+                sale_date: sale.sale_date,
+                sale_id: sale.id,
+                user_id: sale.user_id,
+                total_amount: sale.total_amount,
+                payment_method: sale.payment_method
+              });
+            });
+          }
+        });
+
+        console.log(`✅ Loaded ${allSales.length} sales with ${allSalesItems.length} items`);
 
         // Update report
         await updateReport();
@@ -864,6 +892,15 @@
       } catch (err) {
         console.error('Load data error:', err);
         showToast('Failed to load data: ' + err.message, 'error');
+        document.getElementById('productsTableBody').innerHTML = `
+          <tr><td colspan="10" style="text-align:center; padding:40px; color: #ef4444;">
+            <i class="fas fa-exclamation-triangle" style="font-size:2rem; display:block; margin-bottom:12px;"></i>
+            <strong>Error loading data</strong><br>
+            ${err.message}
+            <br><br>
+            <button class="btn btn-primary" onclick="location.reload()">Retry</button>
+          </td></tr>
+        `;
       } finally {
         showLoading(false);
       }
@@ -874,64 +911,59 @@
     // =============================================
     async function updateReport() {
       const range = document.getElementById('dateRange').value;
-      currentFilter = range;
       const { start, end } = getDateRange(range);
 
-      // Filter sales by date range
+      // Filter sales items by date range
+      const filteredItems = allSalesItems.filter(item => {
+        const d = new Date(item.sale_date);
+        return d >= start && d <= end;
+      });
+
+      // Build product sales data from sales_items
+      const productSalesMap = {};
+      const productMap = {};
+      allProducts.forEach(p => productMap[p.id] = p);
+
+      filteredItems.forEach(item => {
+        const product = item.products || productMap[item.product_id];
+        if (!product) return;
+
+        const productId = product.id;
+        if (!productSalesMap[productId]) {
+          productSalesMap[productId] = {
+            id: productId,
+            product: product,
+            total_quantity: 0,
+            total_revenue: 0,
+            total_profit: 0,
+            total_cost: 0
+          };
+        }
+
+        const qty = item.quantity || 1;
+        const unitPrice = item.unit_price || product.selling_price || 0;
+        const purchasePrice = product.purchase_price || 0;
+        const revenue = unitPrice * qty;
+        const cost = purchasePrice * qty;
+        const profit = revenue - cost;
+
+        productSalesMap[productId].total_quantity += qty;
+        productSalesMap[productId].total_revenue += revenue;
+        productSalesMap[productId].total_profit += profit;
+        productSalesMap[productId].total_cost += cost;
+      });
+
+      // Convert to array and sort by revenue
+      const productSalesList = Object.values(productSalesMap)
+        .filter(item => item.total_quantity > 0)
+        .sort((a, b) => b.total_revenue - a.total_revenue);
+
+      // Calculate KPIs from sales (not items)
       const filteredSales = allSales.filter(s => {
         const d = new Date(s.sale_date);
         return d >= start && d <= end;
       });
 
-      // Build product sales data
-      const productSalesMap = {};
-      const productMap = {};
-      allProducts.forEach(p => productMap[p.id] = p);
-
-      // For today's products, we need to track sales
-      // Since we don't have sales_items, we estimate based on total_amount / selling_price
-      // But we'll also track quantity sold by counting sales per product
-      filteredSales.forEach(sale => {
-        // Estimate quantity: if we had sales_items, we'd use that
-        // For now, we'll count each sale as 1 unit and track total value
-        // This is a limitation without sales_items table
-        const productId = sale.product_id || sale.sku; // Using sku as fallback
-        if (!productSalesMap[productId]) {
-          productSalesMap[productId] = {
-            id: productId,
-            total_sales: 0,
-            total_quantity: 0,
-            total_revenue: 0,
-            total_profit: 0,
-            sale_count: 0
-          };
-        }
-        // Try to find product by sku if product_id is not available
-        let product = productMap[productId];
-        if (!product && sale.sku) {
-          product = allProducts.find(p => p.sku === sale.sku);
-        }
-        if (product) {
-          const sellingPrice = product.selling_price || 0;
-          const purchasePrice = product.purchase_price || 0;
-          // If we had quantity from sale, we'd use it. For now, estimate 1 per sale
-          const qty = sale.quantity || 1;
-          const revenue = sale.total_amount || (sellingPrice * qty);
-          const profit = (sellingPrice - purchasePrice) * qty;
-          productSalesMap[productId].total_quantity += qty;
-          productSalesMap[productId].total_revenue += revenue;
-          productSalesMap[productId].total_profit += profit;
-          productSalesMap[productId].sale_count += 1;
-          productSalesMap[productId].product = product;
-        }
-      });
-
-      // Convert to array and sort by revenue
-      const productSalesList = Object.values(productSalesMap)
-        .filter(item => item.product)
-        .sort((a, b) => b.total_revenue - a.total_revenue);
-
-      // Calculate KPIs
       const totalRevenue = filteredSales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
       const totalOrders = filteredSales.length;
       const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
@@ -984,7 +1016,7 @@
           <div class="kpi-icon"><i class="fas fa-chart-line"></i></div>
           <div class="kpi-label">Total Profit</div>
           <div class="kpi-value" style="color:#10b981;">${formatCurrency(data.totalProfit)}</div>
-          <div class="kpi-sub">${data.totalProductsSold > 0 ? 'margin: ' + ((data.totalProfit / data.totalRevenue) * 100).toFixed(1) + '%' : ''}</div>
+          <div class="kpi-sub">${data.totalRevenue > 0 ? 'margin: ' + ((data.totalProfit / data.totalRevenue) * 100).toFixed(1) + '%' : ''}</div>
         </div>
       `;
     }
@@ -997,7 +1029,6 @@
       const ctx1 = document.getElementById('trendChart').getContext('2d');
       if (trendChartInstance) trendChartInstance.destroy();
 
-      // Group sales by date
       const dateMap = {};
       salesData.forEach(s => {
         const d = new Date(s.sale_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -1026,9 +1057,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          },
+          plugins: { legend: { display: false } },
           scales: {
             y: {
               beginAtZero: true,
@@ -1046,7 +1075,6 @@
 
       const catLabels = Object.keys(categoryMap);
       const catValues = Object.values(categoryMap);
-
       const colors = ['#C49A6C', '#D4A574', '#E2B386', '#A2794C', '#F0D5B0', '#8B6E4E', '#B8956A'];
 
       categoryChartInstance = new Chart(ctx2, {
@@ -1100,8 +1128,10 @@
       tbody.innerHTML = productSalesList.map(item => {
         const p = item.product;
         const stockLeft = p.stock_quantity || 0;
-        const status = stockLeft <= (p.low_stock_threshold || 5) ? 'Low Stock' : 'Good Stock';
-        const statusClass = stockLeft <= (p.low_stock_threshold || 5) ? 'danger' : 'success';
+        const threshold = p.low_stock_threshold || 5;
+        const status = stockLeft <= threshold ? 'Low Stock' : 'Good Stock';
+        const statusClass = stockLeft <= threshold ? 'danger' : 'success';
+        const margin = item.total_revenue > 0 ? ((item.total_profit / item.total_revenue) * 100).toFixed(1) : 0;
 
         return `
           <tr>
@@ -1118,7 +1148,7 @@
             <td><strong>${item.total_quantity}</strong></td>
             <td class="font-mono">${formatCurrency(item.total_revenue)}</td>
             <td>${stockLeft}</td>
-            <td class="font-mono" style="color:#10b981;">${formatCurrency(item.total_profit)}</td>
+            <td class="font-mono" style="color:#10b981;">${formatCurrency(item.total_profit)} <span style="font-size:0.7rem; color:var(--text-muted);">(${margin}%)</span></td>
             <td><span class="status-badge ${statusClass}">${status}</span></td>
           </tr>
         `;
@@ -1173,13 +1203,14 @@
         return;
       }
 
-      let csv = 'Product,SKU,Category,Quantity Sold,Revenue,Profit,Stock Left\n';
+      let csv = 'Product,SKU,Category,Quantity Sold,Revenue,Profit,Stock Left,Profit Margin\n';
       data.productSalesList.forEach(item => {
         const p = item.product;
-        csv += `"${p.name || 'Unknown'}","${p.sku || '—'}","${p.category || '—'}",${item.total_quantity},${item.total_revenue},${item.total_profit},${p.stock_quantity || 0}\n`;
+        const margin = item.total_revenue > 0 ? ((item.total_profit / item.total_revenue) * 100).toFixed(1) : 0;
+        csv += `"${p.name || 'Unknown'}","${p.sku || '—'}","${p.category || '—'}",${item.total_quantity},${item.total_revenue},${item.total_profit},${p.stock_quantity || 0},${margin}%\n`;
       });
 
-      const blob = new Blob([csv], { type: 'text/csv' });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -1197,7 +1228,7 @@
         filename: `sales_report_${new Date().toISOString().split('T')[0]}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
       };
       html2pdf().set(opt).from(element).save().then(() => {
         showToast('PDF exported successfully!', 'success');
@@ -1236,18 +1267,16 @@
         localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
       });
 
-      // Load dark mode preference
       if (localStorage.getItem('darkMode') === 'true') {
         document.body.classList.add('dark-mode');
         document.querySelector('#themeToggle i').classList.replace('fa-moon', 'fa-sun');
       }
 
-      // Mobile menu toggle
+      // Mobile menu
       document.getElementById('menuToggle').addEventListener('click', function() {
         document.getElementById('sidebar').classList.toggle('mobile-open');
       });
 
-      // Close sidebar on outside click (mobile)
       document.addEventListener('click', function(e) {
         const sidebar = document.getElementById('sidebar');
         const toggle = document.getElementById('menuToggle');
@@ -1258,7 +1287,7 @@
         }
       });
 
-      // User menu logout
+      // Logout
       document.getElementById('userMenu').addEventListener('click', async function() {
         if (confirm('Are you sure you want to logout?')) {
           await supabase.auth.signOut();
